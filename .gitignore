@@ -1,0 +1,10 @@
+*
+!archive_dir/
+!decompression_dir/
+!envs/
+!logs/
+!mountpoint_dir/
+!results_dir/
+!run_dir/
+!scripts/
+!staging_dir/
