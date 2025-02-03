@@ -1,0 +1,22 @@
+run_dir: 'run_dir'
+staging_dir: 'staging_dir'
+results_dir: 'results_dir'
+decompression_dir: 'decompression_dir'
+archive_dir: 'archive_dir'
+mountpoint_dir: 'mountpoint_dir'
+
+ready_tags:
+  - SequenceComplete.txt
+  - CopyComplete.txt
+  - RTAComplete.txt
+
+blocking_tags:
+  - ANALYZED.txt
+  - ANALYSIS_FAILED.txt
+  - FAILED.txt
+  - IGNORED.txt
+
+status_tags:
+  - Analyzing.txt
+  - ARCHIVING.txt
+  - DECOMPRESSING.txt
