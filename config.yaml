@@ -5,6 +5,10 @@ decompression_dir: 'decompression_dir'
 archive_dir: 'archive_dir'
 mountpoint_dir: 'mountpoint_dir'
 
+run_dirs:
+  - /07_Oncoservice/Runs
+  - /08_Projekte/CBmed/Runs
+
 ready_tags:
   - SequenceComplete.txt
   - CopyComplete.txt
@@ -20,3 +24,11 @@ status_tags:
   - Analyzing.txt
   - ARCHIVING.txt
   - DECOMPRESSING.txt
+
+samplesheet: 'SampleSheet.csv'
+mountpoint_binary: '/usr/bin/mountpoint'
+
+rules_sequence:
+  - check_mountpoint
+  - check_structure
+  - check_docker_image
