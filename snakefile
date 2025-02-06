@@ -34,7 +34,7 @@ rule all:
         "logs/check_structure.done",
         "logs/check_docker_image.done",
         # "logs/validate_samplesheet.done"
-        # "results/runs.txt"
+        'results/runs.txt',
         "logs/unified.log"
 
 
@@ -139,24 +139,26 @@ checkpoint check_docker_image:
 #             raise
 
 # Checkpoint to identify runs
-# checkpoint scan_runs:
-#     output:
-#         runs="results/runs.txt"
-#     run:
-#         valid_runs = []
-#         for runs_dir in config["sequencing_dirs"]:
-#             runs_dir = Path(runs_dir)
-#             for run_dir in run_dir.iterdir():
-#                 # Skip if any blocking files exist
-#                 if (not any(run_dir.glob(f) for f in blocking_tags) and
-#                         (all(run_dir.glob(f) for f in ready_tags))):
-#                     valid_runs.append(run_dir.name)
-#
-#         # Write valid runs to output file
-#         with open(output.runs,'w') as f:
-#             for run in valid_runs:
-#                 f.write(f"{run}\n")
-#
+checkpoint scan_runs:
+    output:
+        runs="results/runs.txt"
+    run:
+        valid_runs = []
+        for runs_dir in config["sequencing_dirs"]:
+            runs_dir = Path(runs_dir)
+            for run_dir in runs_dir.iterdir():
+                # Skip if any blocking files exist
+                txt_files = list(Path(run_dir).glob('*.txt'))
+                file_names = [path.name for path in txt_files]
+                if (not any(f in blocking_tags for f in file_names) and
+                        (all(f in ready_tags for f in file_names))):
+                    valid_runs.append(run_dir.name)
+
+        # Write valid runs to output file
+        with open(output.runs,'w') as f:
+            for run in valid_runs:
+                f.write(f"{run}\n")
+
 # # Helper function to get run names
 # def get_runs(wildcards):
 #     checkpoint_output = checkpoints.scan_runs.get(**wildcards).runs

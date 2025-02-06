@@ -5,6 +5,6 @@
 !logs/
 !mountpoint_dir/
 !results_dir/
-!run_dir/
+!run_dir2/
 !scripts/
 !staging_dir/

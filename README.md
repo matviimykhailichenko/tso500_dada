@@ -13,4 +13,5 @@ _Current features:_
 1. Unified logging. One can find logs in `logs` directory.
 
 _Future features:_
+- Oncoservise prioretisation. After each run analysis check if there is an Oncoservice run.
 - Validate the samplesheet

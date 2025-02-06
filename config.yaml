@@ -5,9 +5,11 @@ decompression_dir: 'decompression_dir'
 archive_dir: 'archive_dir'
 mountpoint_dir: 'mountpoint_dir'
 
-run_dirs:
-  - /07_Oncoservice/Runs
-  - /08_Projekte/CBmed/Runs
+sequencing_dirs:
+  - run_dir1
+  - run_dir2
+#  - /07_Oncoservice/Runs
+#  - /08_Projekte/CBmed/Runs
 
 ready_tags:
   - SequenceComplete.txt
@@ -32,3 +34,23 @@ rules_sequence:
   - check_mountpoint
   - check_structure
   - check_docker_image
+
+# Useful stuff
+#ready_tags = [
+#    "SequenceComplete.txt",
+#    "CopyComplete.txt",
+#    "RTAComplete.txt"
+#]
+#
+#blocking_tags = [
+#    "ANALYZED.txt",
+#    "ANALYSIS_FAILED.txt",
+#    "FAILED.txt",
+#    "IGNORED.txt"
+#]
+#
+#status_tags = [
+#    "Analyzing.txt",
+#    "ARCHIVING.txt",
+#    "DECOMPRESSING.txt"
+#]
