@@ -43,7 +43,7 @@ class TagDog(FileSystemEventHandler):
             with open(runs_file, 'a') as file:
                 file.write(f'{run_dir}\n')
 
-
+# TODO fix 3-time processing
 def run_dog():
     if Path(runs_file).stat().st_size == 0:
         return
