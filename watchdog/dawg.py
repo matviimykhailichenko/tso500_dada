@@ -18,7 +18,7 @@ blocking_tags = [
    "IGNORED.txt"
 ]
 testing_dir = Path('/media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/watchdog')
-
+is_processing = False
 
 # TODO Searches for tags directly in run directory, the assumption might be wrong!
 class TagDog(FileSystemEventHandler):
@@ -37,39 +37,50 @@ class TagDog(FileSystemEventHandler):
         txt_files = list(Path(run_dir).glob('*.txt'))
         file_names = [path.name for path in txt_files]
 
-        if (not any(f in blocking_tags for f in file_names) and
-                (all(f in ready_tags for f in file_names))):
+        if any(f in blocking_tags for f in file_names):
+            return
+
+        if all(tag in file_names for tag in ready_tags):
             # valid_runs.append(run_dir.name)
             with open(runs_file, 'a') as file:
                 file.write(f'{run_dir}\n')
 
-# TODO fix 3-time processing
+
 def run_dog():
+    global is_processing
+
+    if is_processing:  # Skip if already processing
+        return
+
     if Path(runs_file).stat().st_size == 0:
         return
 
-    # Read first line and rest of file
-    with open(runs_file, 'r') as f:
-        runs_to_process = [line.strip() for line in f.readlines()]
-        # First check for OC run
-        for run_to_process in runs_to_process:
-            if onco_tag in run_to_process:
-                print(f'Processing onco run {run_to_process}')
+    try:
+        is_processing = True
+        # Read first line and rest of file
+        with open(runs_file, 'r') as f:
+            runs_to_process = [line.strip() for line in f.readlines()]
+            # First check for OC run
+            for run_to_process in runs_to_process:
+                if onco_tag in run_to_process:
+                    print(f'Processing onco run {run_to_process}')
+                    runs_to_process.remove(run_to_process)
+                    # Write back remaining runs
+                    with open(runs_file, 'w') as file:
+                        file.writelines(f'{line}\n' for line in runs_to_process)
+                        rmtree(run_to_process, ignore_errors=True)
+                    return  # Exit after processing one OC run
+
+            # If no OC run found, process first regular run
+            if runs_to_process:
+                run_to_process = runs_to_process[0]
+                print(f'Processing regular run {run_to_process}')
                 runs_to_process.remove(run_to_process)
-                # Write back remaining runs
                 with open(runs_file, 'w') as file:
                     file.writelines(f'{line}\n' for line in runs_to_process)
-                    rmtree(run_to_process, ignore_errors=True)
-                return  # Exit after processing one OC run
-
-        # If no OC run found, process first regular run
-        if runs_to_process:
-            run_to_process = runs_to_process[0]
-            print(f'Processing regular run {run_to_process}')
-            runs_to_process.remove(run_to_process)
-            with open(runs_file, 'w') as file:
-                file.writelines(f'{line}\n' for line in runs_to_process)
-            rmtree(run_to_process, ignore_errors=True)
+                rmtree(run_to_process, ignore_errors=True)
+    finally:
+        is_processing = False
 
 
 def watch_directory(path):
@@ -83,7 +94,7 @@ def watch_directory(path):
     try:
         while True:
             run_dog()
-            time.sleep(3)
+            time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
