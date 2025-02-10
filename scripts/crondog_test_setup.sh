@@ -1,0 +1,1 @@
+mkdir -p /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/seq_dirs/oncoservice/Runs/run && cd /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/seq_dirs/oncoservice/Runs/run && mkdir run_files && cd run_files && touch CopyComplete.txt RTAComplete.txt SequenceComplete.txt && cd ..
