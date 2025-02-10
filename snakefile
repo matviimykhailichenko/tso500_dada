@@ -5,13 +5,14 @@ from samshee.samplesheetv2 import read_samplesheetv2
 import samshee.validation
 
 
-
+# TODO add run path as parameter passed from the dog.
 # Definitions
 configfile: "config.yaml"
 ready_tags = config['ready_tags']
 blocking_tags = config['blocking_tags']
 
 # TODO put that into scripts into separate file
+# TODO add TSO_bot
 # Helper functions
 def setup_logger(rule_name):
     import logging
@@ -40,7 +41,7 @@ rule all:
 
 
 # Checkpoint to verify mountpoint
-checkpoint check_mountpoint:
+rule check_mountpoint:
     output:
         "logs/check_mountpoint.done"
     log:
@@ -73,7 +74,7 @@ checkpoint check_mountpoint:
         #     logger.error(f"Error checking mountpoint: {str(e)}")
         #     raise
 
-checkpoint check_structure:
+rule check_structure:
     output:
         "logs/check_structure.done"
     log:
@@ -94,7 +95,7 @@ checkpoint check_structure:
 
         Path(output[0]).touch()
 
-checkpoint check_docker_image:
+rule check_docker_image:
     output:
         "logs/check_docker_image.done"
     log:
@@ -138,32 +139,13 @@ checkpoint check_docker_image:
 #             logger.error(f"Validation failed: {str(e)}")
 #             raise
 
-# Checkpoint to identify runs
-checkpoint scan_runs:
-    output:
-        runs="results/runs.txt"
-    run:
-        valid_runs = []
-        for runs_dir in config["sequencing_dirs"]:
-            runs_dir = Path(runs_dir)
-            for run_dir in runs_dir.iterdir():
-                # Skip if any blocking files exist
-                txt_files = list(Path(run_dir).glob('*.txt'))
-                file_names = [path.name for path in txt_files]
-                if (not any(f in blocking_tags for f in file_names) and
-                        (all(f in ready_tags for f in file_names))):
-                    valid_runs.append(run_dir.name)
+rule stage_run:
 
-        # Write valid runs to output file
-        with open(output.runs,'w') as f:
-            for run in valid_runs:
-                f.write(f"{run}\n")
 
-# # Helper function to get run names
-# def get_runs(wildcards):
-#     checkpoint_output = checkpoints.scan_runs.get(**wildcards).runs
-#     with open(checkpoint_output) as f:
-#         return [line.strip() for line in f]
+# TODO rule rsync to staging
+# TODO rule process run sample by sample
+# TODO rsync to analyseergebnisse
+
 
 rule summarize_logs:
     output:

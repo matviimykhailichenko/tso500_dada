@@ -12,6 +12,18 @@ _Notes_:
 _Current features:_
 1. Unified logging. One can find logs in `logs` directory.
 
+
+TODO:
+- Before each crontab, check the status; exception: QC metics script. Switch to idle at the end of each crontab; 
+- Analysis crontab. If oncoservice run is there, analyse it first. Delete the pending tag. It reads file, and it's empty  -
+delete it. If done, puts analysed tag. If oncoservice, delete run directory. Regards blocking tags.   
+
 _Future features:_
 - Oncoservise prioretisation. After each run analysis check if there is an Oncoservice run.
 - Validate the samplesheet
+
+Safety risks:
+- Pathlib is deprecated! Change to pathlib2. 
+
+Notes:
+- Decided to go with server availability to not search through archive twice
