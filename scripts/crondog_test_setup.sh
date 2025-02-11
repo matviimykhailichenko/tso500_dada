@@ -1,1 +1,1 @@
-mkdir -p /mnt/Novaseq/07_Oncoservice/Runs/run && cd /mnt/Novaseq/07_Oncoservice/Runs/run && mkdir run_files && cd run_files && touch CopyComplete.txt RTAComplete.txt SequenceComplete.txt && cd .. && cd ..
+mkdir -p /mnt/Novaseq/07_Oncoservice/Runs_TEST/run && cd /mnt/Novaseq/07_Oncoservice/Runs_TEST/run && mkdir run_files && cd run_files && touch CopyComplete.txt RTAComplete.txt SequenceComplete.txt && cd .. && cd ..
