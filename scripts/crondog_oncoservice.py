@@ -1,28 +1,9 @@
 from pathlib import Path
 import yaml
 
+
+
 # TODO add to other crontab scripts
-
-def process_run(pending_tag: Path,
-                server_idle_tag: Path,
-                server_busy_tag: Path,
-                results_dir: Path):
-    try:
-        server_idle_tag.unlink()
-        run_dir = Path(pending_tag).read_text()
-        samplesheet_path = Path(run_dir) / 'SampleSheet.csv'
-        # TODO not sure if we need this if this is going to be reported to the bot
-        # analysing_tag = Path(run_dir) / analysing_tag
-        # analysing_tag.touch()
-        server_busy_tag.touch()
-        # TODO discord bot
-        print(f'Here I would process run {run_dir} with this this samplesheet {samplesheet_path} and this results dir {results_dir}')
-        server_busy_tag.unlink()
-        server_idle_tag.touch()
-        pending_tag.unlink()
-    except Exception as e:
-        raise RuntimeError(f"Error processing run {run_dir}: {e}")
-
 def has_new_runs(runs_dir: Path,
                  blocking_tags: set,
                  ready_tags: set,
@@ -31,18 +12,18 @@ def has_new_runs(runs_dir: Path,
         for run_dir in runs_dir.iterdir():
             for dir in run_dir.iterdir():
                 if dir.name != 'MyRun':
-                    run_files_dir = dir
+                    run_files_dir_path = dir
                 else:
                     return False
 
-            txt_files = list(Path(run_files_dir).glob('*.txt'))
+            txt_files = list(Path(run_files_dir_path).glob('*.txt'))
             file_names = [path.name for path in txt_files]
 
             if any(f in blocking_tags for f in file_names):
                 continue
 
             if all(tag in file_names for tag in ready_tags):
-                Path(pending_tag).write_text(str(run_dir))
+                Path(pending_tag).write_text(str(run_files_dir_path))
                 return True
         return False
 
@@ -50,19 +31,6 @@ def has_new_runs(runs_dir: Path,
         return False
     except Exception as e:
         raise RuntimeError(f"Error checking for new runs: {e}")
-
-
-def is_server_available(server_idle_tag: Path,
-                        server_busy_tag: Path) -> bool:
-    try:
-        if Path(server_busy_tag).exists() and not Path(server_idle_tag).exists():
-            return True
-        return False
-    except Exception as e:
-        # TODO discord bot?
-        print(f"Error checking server availability: {e}")
-        # Or raise a more specific exception
-        raise RuntimeError(f"Failed to check server status: {e}")
 
 
 
@@ -83,22 +51,12 @@ def main():
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
 
-    if is_server_available(server_idle_tag=server_idle_tag,
-                           server_busy_tag=server_busy_tag):
-        return
 
     if not has_new_runs(runs_dir=runs_dir,
                      blocking_tags=blocking_tags,
                      ready_tags=ready_tags,
                      pending_tag=pending_onco_tag):
         return
-
-    process_run(pending_tag=pending_onco_tag,
-                server_idle_tag=server_idle_tag,
-                server_busy_tag=server_busy_tag,
-                results_dir=results_dir)
-
-
 
 if __name__ == "__main__":
     main()

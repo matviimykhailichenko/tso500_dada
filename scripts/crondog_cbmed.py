@@ -1,6 +1,6 @@
 from pathlib import Path
 import yaml
-from crondog_oncoservice import is_server_available, process_run, has_new_runs
+from crondog_oncoservice import is_server_available, has_new_runs
 
 # TODO add to other crontab scripts
 
@@ -29,10 +29,6 @@ def main():
                      ready_tags,
                      pending_cbmed_tag):
         return
-
-    process_run(pending_cbmed_tag,
-                server_busy_tag,
-                results_dir)
 
 
 
