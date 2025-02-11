@@ -1,36 +1,36 @@
 from pathlib import Path
 import yaml
-from crondog_oncoservice import is_server_available, has_new_runs
+from crondog_oncoservice import has_new_runs
+import argparse
 
-# TODO add to other crontab scripts
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(description='This is a crontab script to monitor CBmed sequencing directory')
+    parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
+    return parser
+
+
 
 def main():
+    parser = create_parser()
+    args = parser.parse_args()
+
     # Definitions
     with open('../config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         ready_tags = set(config['ready_tags'])
         blocking_tags = set(config['blocking_tags'])
-        base_dir = config['base_dir']
-        onco_dir = Path(base_dir) / config['oncoservice_dir']
-        cbmed_dir = Path(base_dir) / config['cbmed_dir']
-        results_dir = Path(base_dir) / config['results_dir']
-        runs_dir = cbmed_dir / 'Runs'
-        pending_onco_tag = Path(onco_dir / config['pending_run_tag'])
+        cbmed_dir = Path(config['cbmed_dir'])
+
+        runs_cbmed_dir_path = cbmed_dir / f'Runs{'_TEST' if args.testing else ''}'
         pending_cbmed_tag = Path(cbmed_dir / config['pending_run_tag'])
-        server_availability_dir = Path(base_dir) / config['server_availability_dir']
-        server_idle_tag = server_availability_dir / config['server_idle_tag']
-        server_busy_tag = server_availability_dir / config['server_busy_tag']
 
-    if is_server_available(server_idle_tag, server_busy_tag):
-        return
-
-    if not has_new_runs(runs_dir,
+    if not has_new_runs(runs_cbmed_dir_path,
                      blocking_tags,
                      ready_tags,
                      pending_cbmed_tag):
         return
-
-
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 # TODO replace with real dirs
-base_dir: '/media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/'
+base_dir: '/mnt/Novaseq/TSO_pipeline/dev'
 run_dir: 'run_dir'
 staging_dir: 'staging_dir'
 results_dir: 'results_dir'
@@ -7,11 +7,8 @@ decompression_dir: 'decompression_dir'
 archive_dir: 'archive_dir'
 mountpoint_dir: 'mountpoint_dir'
 server_availability_dir: 'server_availability'
-oncoservice_dir: 'seq_dirs/oncoservice'
-cbmed_dir: 'seq_dirs/CBmed'
-#
-#/07_Oncoservice/Runs
-#/08_Projekte/CBmed/Runs
+oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
+cbmed_dir: '/mnt/Novaseq/08_Projekte/CBmed'
 
 ready_tags:
   - SequenceComplete.txt
