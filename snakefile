@@ -1,8 +1,6 @@
 # Imports
 import subprocess
 from pathlib import Path
-from samshee.samplesheetv2 import read_samplesheetv2
-import samshee.validation
 from shutil import which as sh_which,  rmtree as sh_rmtree
 from datetime import datetime
 import logging
