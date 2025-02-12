@@ -86,7 +86,7 @@ def main():
         pending_tag = config['pending_run_tag']
         pending_onco_tag = Path(onco_dir_path / config['pending_run_tag'])
         pending_cbmed_tag = Path(cbmed_dir_path / config['pending_run_tag'])
-        server_availability_dir = config['server_availability_dir']
+        server_availability_dir = Path(config['server_availability_dir'])
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
 
