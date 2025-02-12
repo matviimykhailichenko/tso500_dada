@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
 
     # Definitions
-    with open('../config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         ready_tags = set(config['ready_tags'])
         blocking_tags = set(config['blocking_tags'])
