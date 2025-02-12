@@ -272,8 +272,6 @@ rule summarize_logs:
         "logs/check_docker_image.log",
         "logs/check_rsync.log",
         "logs/stage_run.log",
-        # "logs/process_run.log",
-        # "logs/transfer_results.log"
     output:
         "logs/unified.log"
     run:
