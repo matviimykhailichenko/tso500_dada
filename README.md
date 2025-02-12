@@ -2,8 +2,8 @@
 
 _Instructions_:
 1. Clone repo;
-2. Have conda in your env and install tso500_dragen_pipeline env from `/envs/dev/tso500_dragen_pipeline.yml`;
-3. Run with `snakemake -j1`.
+2. Have conda in your env and install tso500_dragen_pipeline env from `/envs/tso500_dragen_pipeline.yml`;
+3. Instal
 
 _Notes_:
 1. Main code is in file called `snakefile`;
@@ -19,8 +19,8 @@ TODO:
 delete it. If done, puts analysed tag. If oncoservice, delete run directory. Regards blocking tags.   
 
 _Future features:_
-- Oncoservise prioretisation. After each run analysis check if there is an Oncoservice run.
-- Validate the samplesheet
+- Validate the samplesheet;
+- Conteinerization.
 
 Safety risks:
 - Pathlib is deprecated! Change to pathlib2. 

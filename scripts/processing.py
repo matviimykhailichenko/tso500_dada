@@ -47,7 +47,7 @@ def process_run(run_type: str,
 
         try:
             subprocess.run([ # TODO check if it runs on full cores
-                "conda", "run", "-n", "tso_500_dragen_pipeline",
+                "conda", "run", "-n", "tso500_dragen_pipeline",
                 "snakemake", "-s", snakefile_path,
                 "--configfile", config_file_path,
                 "--config", f"run_files_dir_path={run_files_dir_path}", f'results_dir_path={results_dir_path}', f'run_type={run_type}'
