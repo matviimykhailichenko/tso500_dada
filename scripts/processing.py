@@ -17,21 +17,21 @@ def is_server_available(server_idle_tag: Path,
 
 def process_run(run_type: str,
                 pipeline_dir: Path,
-                onco_dir: Path,
-                cbmed_dir: Path,
+                onco_dir_path: Path,
+                cbmed_dir_path: Path,
                 server_idle_tag: Path,
                 server_busy_tag: Path,
                 pending_tag: str):
     try:
         if run_type == 'oncoservice':
-            pending_tag_path = onco_dir / pending_tag
+            pending_tag_path = onco_dir_path / pending_tag
             run_files_dir_path = Path(pending_tag_path).read_text()
-            results_dir_path = onco_dir/ Path(run_files_dir_path).name
+            results_dir_path = onco_dir_path/ Path(run_files_dir_path).name
 
         elif run_type == 'cbmed':
-            pending_tag_path = cbmed_dir / pending_tag
+            pending_tag_path = cbmed_dir_path / pending_tag
             run_files_dir_path = Path(pending_tag_path).read_text()
-            results_dir_path = cbmed_dir / Path(run_files_dir_path).name
+            results_dir_path = cbmed_dir_path / Path(run_files_dir_path).name
 
         else:
             raise RuntimeError(f"Unrecognised run type") # TODO log
@@ -80,12 +80,12 @@ def main():
     # Definitions
     with open('../config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir = config['pipeline_dir']
-        onco_dir = config['oncoservice_dir']
-        cbmed_dir = config['cbmed_dir']
+        pipeline_dir = Path(config['pipeline_dir'])
+        onco_dir_path = Path(config['oncoservice_dir'])
+        cbmed_dir_path = Path(config['cbmed_dir'])
         pending_tag = config['pending_run_tag']
-        pending_onco_tag = Path(onco_dir / config['pending_run_tag'])
-        pending_cbmed_tag = Path(cbmed_dir / config['pending_run_tag'])
+        pending_onco_tag = Path(onco_dir_path / config['pending_run_tag'])
+        pending_cbmed_tag = Path(cbmed_dir_path / config['pending_run_tag'])
         server_availability_dir = config['server_availability_dir']
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
@@ -100,8 +100,8 @@ def main():
     # TODO check an assumption that there would not be 2 runs of one type
     process_run(run_type=run_type,
                 pipeline_dir=pipeline_dir,
-                onco_dir=onco_dir,
-                cbmed_dir=cbmed_dir,
+                onco_dir_path=onco_dir_path,
+                cbmed_dir_path=cbmed_dir_path,
                 server_idle_tag=server_idle_tag,
                 server_busy_tag=server_busy_tag,
                 pending_tag=pending_tag)
