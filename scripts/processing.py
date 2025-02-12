@@ -16,7 +16,7 @@ def is_server_available(server_idle_tag: Path,
 
 
 def process_run(run_type: str,
-                base_dir: Path,
+                pipeline_dir: Path,
                 onco_dir: Path,
                 cbmed_dir: Path,
                 server_idle_tag: Path,
@@ -37,8 +37,8 @@ def process_run(run_type: str,
             raise RuntimeError(f"Unrecognised run type") # TODO log
 
         server_idle_tag.unlink()
-        snakefile_path = str(base_dir / 'snakefile')
-        config_file_path = str(base_dir / 'config.yaml')
+        snakefile_path = str(pipeline_dir / 'snakefile')
+        config_file_path = str(pipeline_dir / 'config.yaml')
         # TODO not sure if we need this if this is going to be reported to the bot
         # analysing_tag = Path(run_dir) / analysing_tag
         # analysing_tag.touch()
@@ -76,16 +76,17 @@ def check_pending_runs(pending_onco_tag: Path,
 
 
 def main():
+    # TODO make a class that would pull every definition
     # Definitions
     with open('../config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        base_dir = config['base_dir']
-        onco_dir = Path(base_dir) / config['oncoservice_dir']
-        cbmed_dir = Path(base_dir) / config['cbmed_dir']
+        pipeline_dir = config['pipeline_dir']
+        onco_dir = config['oncoservice_dir']
+        cbmed_dir = config['cbmed_dir']
         pending_tag = config['pending_run_tag']
         pending_onco_tag = Path(onco_dir / config['pending_run_tag'])
         pending_cbmed_tag = Path(cbmed_dir / config['pending_run_tag'])
-        server_availability_dir = Path(base_dir) / config['server_availability_dir']
+        server_availability_dir = config['server_availability_dir']
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
 
@@ -98,7 +99,7 @@ def main():
 
     # TODO check an assumption that there would not be 2 runs of one type
     process_run(run_type=run_type,
-                base_dir=base_dir,
+                pipeline_dir=pipeline_dir,
                 onco_dir=onco_dir,
                 cbmed_dir=cbmed_dir,
                 server_idle_tag=server_idle_tag,
