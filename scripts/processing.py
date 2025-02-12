@@ -1,7 +1,14 @@
 from pathlib import Path
 import yaml
 import subprocess
+import argparse
 
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
+    parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
+    return parser
 
 
 def is_server_available(server_idle_tag: Path,
@@ -21,12 +28,13 @@ def process_run(run_type: str,
                 cbmed_dir_path: Path,
                 server_idle_tag: Path,
                 server_busy_tag: Path,
-                pending_tag: str):
+                pending_tag: str,
+                testing: bool):
     try:
         if run_type == 'oncoservice':
             pending_tag_path = onco_dir_path / pending_tag
             run_files_dir_path = Path(pending_tag_path).read_text()
-            results_dir_path = onco_dir_path/ Path(run_files_dir_path).name
+            results_dir_path = onco_dir_path/ f'Analyseergebnisse{'_TEST' if testing else ''}'
 
         elif run_type == 'cbmed':
             pending_tag_path = cbmed_dir_path / pending_tag
@@ -77,6 +85,8 @@ def check_pending_runs(pending_onco_tag: Path,
 
 
 def main():
+    parser = create_parser()
+    args = parser.parse_args()
     # TODO make a class that would pull every definition
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
@@ -105,7 +115,8 @@ def main():
                 cbmed_dir_path=cbmed_dir_path,
                 server_idle_tag=server_idle_tag,
                 server_busy_tag=server_busy_tag,
-                pending_tag=pending_tag)
+                pending_tag=pending_tag,
+                testing=args.testing)
 
 if __name__ == "__main__":
     main()
