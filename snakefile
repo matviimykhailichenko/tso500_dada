@@ -106,6 +106,8 @@ rule check_mountpoint:
 
 # noinspection PyUnresolvedReferences
 rule check_structure:
+    input:
+        "logs/check_mountpoint.done"
     output:
         "logs/check_structure.done"
     log:
@@ -115,15 +117,17 @@ rule check_structure:
         # TODO Change for 2 run dirs and 2 results dirs
         assert Path(run_files_dir_path).is_dir(), f"Directory {run_files_dir_path} does not exist"
         logger.info(f"Run directory found at '{run_files_dir_path}'")
-        assert Path(results_dir).is_dir(), f"Directory {results_dir} does not exist"
+        assert Path(results_dir_path).is_dir(), f"Directory {results_dir_path} does not exist"
         logger.info(f"Results directory found at '{results_dir}'")
-        assert Path(staging_dir).is_dir(), f"Directory {staging_dir} does not exist"
-        logger.info(f"Staging directory found at '{staging_dir}'")
+        assert Path(staging_dir_path).is_dir(), f"Directory {staging_dir_path} does not exist"
+        logger.info(f"Staging directory found at '{staging_dir_path}'")
 
         Path(output[0]).touch()
 
 
 rule check_docker_image:
+    input:
+        "logs/check_structure.done"
     output:
         "logs/check_docker_image.done"
     log:
@@ -146,6 +150,8 @@ rule check_docker_image:
 
 
 rule check_rsync:
+    input:
+        "logs/check_docker_image.done"
     output:
         "logs/check_rsync.done"
     log:
@@ -181,6 +187,8 @@ rule check_rsync:
 
 
 rule stage_run:
+    input:
+        "logs/check_rsync.done"
     output:
         "logs/stage_run.done"
     log:
@@ -201,6 +209,8 @@ rule stage_run:
 
 
 rule process_run:
+    input:
+        "logs/stage_run.done"
     output:
         "logs/process_run.done"
     log:
@@ -223,6 +233,8 @@ rule process_run:
 
 
 rule transfer_results:
+    input:
+        "logs/process_run.done"
     output:
         "logs/transfer_results.done"
     log:
@@ -254,7 +266,7 @@ rule transfer_results:
 
 rule summarize_logs:
     input:
-        # TODO fix logging to pull it out of inputs
+        "logs/transfer_results.done",
         "logs/check_mountpoint.log",
         "logs/check_structure.log",
         "logs/check_docker_image.log",
@@ -266,6 +278,6 @@ rule summarize_logs:
         "logs/unified.log"
     run:
         with open(output[0],'w') as dest:
-            for log_file in input:
+            for log_file in input[1:]:
                 with open(log_file,'r') as source:
                     dest.write(source.read())
