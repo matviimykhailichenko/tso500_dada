@@ -13,10 +13,8 @@ _Current features:_
 1. Unified logging. One can find logs in `logs` directory.
 
 
-TODO:
-- Before each crontab, check the status; exception: QC metics script. Switch to idle at the end of each crontab; 
-- Analysis crontab. If oncoservice run is there, analyse it first. Delete the pending tag. It reads file, and it's empty  -
-delete it. If done, puts analysed tag. If oncoservice, delete run directory. Regards blocking tags.   
+TODO: 
+- Logging. As these occurrences write to the TSO bot: error, exception  or run status
 
 _Future features:_
 - Validate the samplesheet;
