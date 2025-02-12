@@ -266,12 +266,12 @@ rule stage_run:
 
 rule summarize_logs:
     input:
-        "logs/transfer_results.done",
+        "logs/stage_run.done",
         "logs/check_mountpoint.log",
         "logs/check_structure.log",
         "logs/check_docker_image.log",
         "logs/check_rsync.log",
-        "logs/stage_run.log",
+        "logs/stage_run.log"
     output:
         "logs/unified.log"
     run:
