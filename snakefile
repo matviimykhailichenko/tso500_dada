@@ -244,12 +244,12 @@ rule transfer_results:
 rule summarize_logs:
     input:
         # TODO fix logging to pull it out of inputs
-        "logs/check_mountpoint.log"
-        "logs/check_structure.log"
-        "logs/check_docker_image.log"
-        "logs/check_rsync.log"
-        "logs/stage_run.log"
-        "logs/process_run.log"
+        "logs/check_mountpoint.log",
+        "logs/check_structure.log",
+        "logs/check_docker_image.log",
+        "logs/check_rsync.log",
+        "logs/stage_run.log",
+        "logs/process_run.log",
         "logs/transfer_results.log"
     output:
         "logs/unified.log"

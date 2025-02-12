@@ -53,6 +53,7 @@ def process_run(run_type: str,
                 "--config", f"run_files_dir_path={run_files_dir_path}", f'results_dir_path={results_dir_path}', f'run_type={run_type}'
             ])
         except Exception as e:
+            # TODO put failed tag
             raise RuntimeError(f"Error processing run {run_files_dir_path}: {e}")
 
         print(f'Processing run {run_files_dir_path}')
