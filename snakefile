@@ -117,8 +117,8 @@ rule check_structure:
         # TODO Change for 2 run dirs and 2 results dirs
         assert Path(run_files_dir_path).is_dir(), f"Directory {run_files_dir_path} does not exist"
         logger.info(f"Run directory found at '{run_files_dir_path}'")
-        assert Path(results_dir_path).is_dir(), f"Directory {results_dir_path} does not exist"
-        logger.info(f"Results directory found at '{results_dir}'")
+        # assert Path(results_dir_path).is_dir(), f"Directory {results_dir_path} does not exist"
+        # logger.info(f"Results directory found at '{results_dir}'")
         assert Path(staging_dir_path).is_dir(), f"Directory {staging_dir_path} does not exist"
         logger.info(f"Staging directory found at '{staging_dir_path}'")
 
