@@ -197,7 +197,7 @@ rule stage_run:
         logger = setup_logger(rule_name='stage_run')
 
         rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(run_files_dir_path), str(run_staging_dir)]
+                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
         try:
             subp_run(rsync_call).check_returncode()
         except CalledProcessError as e:
