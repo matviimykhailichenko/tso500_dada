@@ -1,1 +1,0 @@
-mkdir -p /mnt/Novaseq/08_Projekte/CBmed/Runs_TEST/run && cd /mnt/Novaseq/08_Projekte/CBmed/Runs_TEST/run && mkdir run_files && cd run_files && touch CopyComplete.txt RTAComplete.txt SequenceComplete.txt && cd .. && cd ..

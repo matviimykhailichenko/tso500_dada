@@ -2,25 +2,13 @@ from pathlib import Path
 import yaml
 import subprocess
 import argparse
-
-from humanfriendly.terminal import readline_strip
+from helpers import is_server_available
 
 
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     return parser
-
-
-def is_server_available(server_idle_tag: Path,
-                        server_busy_tag: Path) -> bool:
-    try:
-        if Path(server_busy_tag).exists() and not Path(server_idle_tag).exists():
-            return True
-        return False
-    except Exception as e:
-        # TODO discord bot?
-        raise RuntimeError(f"Failed to check server status: {e}")
 
 
 def process_run(run_type: str,

@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 from logging import Logger
 import os
+from scripts.helpers import delete_directory
 
 
 
@@ -40,20 +41,7 @@ def setup_logger(rule_name):
     return logger
 
 
-def delete_directory(dead_dir_path: Path, logger_runtime: Logger):
-    if dead_dir_path and dead_dir_path.is_dir():
-        try:
-            logger_runtime.info(f"deleting directory '{dead_dir_path}' ...")
-            sh_rmtree(dead_dir_path)  # should also delete the directory itself along with its contents
-            logger_runtime.info(f"successfully deleted directory '{dead_dir_path}'")
-        except KeyboardInterrupt:
-            logger_runtime.error("Keyboard Interrupt by user detected. Terminating pipeline execution ..")
-            return 255  # propagate KeyboardInterrupt outward
-        # TODO add whole stack
-        if Path(dead_dir_path).is_dir():
-            logger_runtime.warning(f"could not delete directory{dead_dir_path}")
-    else:
-        logger_runtime.warning(f"could not delete directory '{dead_dir_path}': path does not exist")
+
 
 
 def is_nas_mounted(mountpoint_dir: str,
@@ -196,14 +184,14 @@ rule stage_run:
     run:
         logger = setup_logger(rule_name='stage_run')
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
-        try:
-            subp_run(rsync_call).check_returncode()
-        except CalledProcessError as e:
-            logger.error(f"rsync failed with return code {e.returncode}")
-            logger.error(f"Error output: {e.stderr}")
-            delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        # rsync_call = [str(rsync_path), '-rl', '--checksum',
+        #               str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+        # try:
+        #     subp_run(rsync_call).check_returncode()
+        # except CalledProcessError as e:
+        #     logger.error(f"rsync failed with return code {e.returncode}")
+        #     logger.error(f"Error output: {e.stderr}")
+        #     delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
 
         Path(output[0]).touch()
 
@@ -217,17 +205,18 @@ rule process_run:
         "logs/process_run.log"
     run:
          logger = setup_logger(rule_name='process_run')
+         logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
 
-         dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
-                        '--analysisFolder', str(analysis_dir_path),
-                        '--sampleSheet', str(samplesheet_path)]
-         try:
-             subp_run(rsync_call).check_returncode()
-         except CalledProcessError as e:
-             logger.error(f"DRAGEN failed with return code {e.returncode}. Cleaning up...")
-             logger.error(f"Error output: {e.stderr}")
-             delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+         # dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
+         #                '--analysisFolder', str(analysis_dir_path),
+         #                '--sampleSheet', str(samplesheet_path)]
+         # try:
+         #     subp_run(dragen_call).check_returncode()
+         # except CalledProcessError as e:
+         #     logger.error(f"DRAGEN failed with return code {e.returncode}. Cleaning up...")
+         #     logger.error(f"Error output: {e.stderr}")
+         #     delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+         #     delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
 
          Path(output[0]).touch()
 
@@ -242,22 +231,22 @@ rule transfer_results:
     run:
         logger= setup_logger(rule_name='transfer_results')
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(analysis_dir_path), str(run_staging_dir)]
-        try:
-            subp_run(rsync_call).check_returncode()
-        except CalledProcessError as e:
-            logger.error(f"rsync failed with return code {e.returncode}. Cleaning up...")
-            logger.error(f"Error output: {e.stderr}")
-            delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-            delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-            delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-
-        # TODO add assertions for safety
-        delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-        delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-        # TODO add that if run is processed
-        # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
+        # rsync_call = [str(rsync_path), '-rl', '--checksum',
+        #               str(analysis_dir_path), str(run_staging_dir)]
+        # try:
+        #     subp_run(rsync_call).check_returncode()
+        # except CalledProcessError as e:
+        #     logger.error(f"rsync failed with return code {e.returncode}. Cleaning up...")
+        #     logger.error(f"Error output: {e.stderr}")
+        #     delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+        #     delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        #     delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
+        #
+        # # TODO add assertions for safety
+        # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+        # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        # # TODO add that if run is processed
+        # # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
 
         Path(output[0]).touch()
 

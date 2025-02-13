@@ -5,7 +5,7 @@ import argparse
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(description='This is a crontab script to monitor CBmed sequencing directory')
+    parser = argparse.ArgumentParser(description='This is a crontab script to monitor Oncoservice sequencing directory')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     return parser
 
