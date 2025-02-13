@@ -20,7 +20,7 @@ def has_new_runs(runs_dir: Path,
                 if dir.name != 'MyRun':
                     run_files_dir_path = dir
                 else:
-                    return False
+                    continue
 
             txt_files = list(Path(run_files_dir_path).glob('*.txt'))
             file_names = [path.name for path in txt_files]
