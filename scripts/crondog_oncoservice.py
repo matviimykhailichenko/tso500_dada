@@ -16,12 +16,11 @@ def has_new_runs(runs_dir: Path,
                  pending_tag: Path) -> bool:
     try:
         for run_dir in runs_dir.iterdir():
-            for dir in run_dir.iterdir():
-                print(dir)  # DEBUGGING
-                if dir.name != 'MyRun':
-                    run_files_dir_path = dir
-                else:
+            for o in run_dir.iterdir():
+                if not o .is_dir() or o.name == 'MyRun':
                     continue
+                else:
+                    run_files_dir_path = o
 
             txt_files = list(Path(run_files_dir_path).glob('*.txt'))
             file_names = [path.name for path in txt_files]
