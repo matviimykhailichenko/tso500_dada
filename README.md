@@ -20,7 +20,8 @@ TODO:
 
 _Future features:_
 - Validate the samplesheet;
-- Conteinerization.
+- Conteinerization;
+- Make configuration object.
 
 Safety risks:
 - Pathlib is deprecated! Change to pathlib2. 

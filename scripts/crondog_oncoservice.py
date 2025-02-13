@@ -16,6 +16,7 @@ def has_new_runs(runs_dir: Path,
                  pending_tag: Path) -> bool:
     try:
         for run_dir in runs_dir.iterdir():
+            print(run_dir) # DEBUGGING
             for dir in run_dir.iterdir():
                 if dir.name != 'MyRun':
                     run_files_dir_path = dir
