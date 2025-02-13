@@ -3,6 +3,7 @@ import yaml
 import subprocess
 import argparse
 
+from humanfriendly.terminal import readline_strip
 
 
 def create_parser():

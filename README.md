@@ -6,8 +6,10 @@ _Instructions_:
 3. Instal
 
 _Notes_:
-1. Main code is in file called `snakefile`;
-2. Stuff that is commented out will be run on the server, stuff that is written now is intended to run locally.
+- Main code is in file called `snakefile`;
+- Stuff that is commented out will be run on the server, stuff that is written now is intended to run locally.
+- Decided to go with server availability to not search through archive twice;
+- Takes 7 hours to analyse the test run.
 
 _Current features:_
 1. Unified logging. One can find logs in `logs` directory.
@@ -24,4 +26,3 @@ Safety risks:
 - Pathlib is deprecated! Change to pathlib2. 
 
 Notes:
-- Decided to go with server availability to not search through archive twice

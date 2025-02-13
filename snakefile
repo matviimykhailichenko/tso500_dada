@@ -25,7 +25,7 @@ analysis_dir_path = staging_dir_path / run_name
 results_dir_path = results_dir_path / run_name
 # TODO put that into scripts into separate file
 # TODO add TSO_bot
-
+# TODO add check for available storage
 
 
 # Helper functions
