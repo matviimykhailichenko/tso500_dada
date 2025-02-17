@@ -195,7 +195,7 @@ rule stage_run:
 
         Path(output[0]).touch()
 
-
+# TODO add error handling, assuming that dragen_call won't raise errors
 rule process_run:
     input:
         "logs/stage_run.done"
