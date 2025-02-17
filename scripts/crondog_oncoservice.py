@@ -17,7 +17,7 @@ def has_new_runs(runs_dir: Path,
     try:
         for run_dir in runs_dir.iterdir():
             for o in run_dir.iterdir():
-                if not o .is_dir() or o.name == 'MyRun':
+                if not o.is_dir() or o.name == 'MyRun':
                     continue
                 else:
                     run_files_dir_path = o
