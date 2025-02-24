@@ -7,6 +7,7 @@ import logging
 from logging import Logger
 import os
 from scripts.helpers import delete_directory
+from scripts.logging_ops import notify_bot
 
 
 
@@ -85,14 +86,16 @@ rule check_mountpoint:
     run:
         logger = setup_logger(rule_name='check_mountpoint') # TODO check if rule name could be replaced with wildcard
         mountpoint_dir = config["novaseq_mountpoint"]
-        assert Path(mountpoint_dir).is_dir(), f"Directory {mountpoint_dir} does not exist"
+
+        if not Path(mountpoint_dir).is_dir():
+            notify_bot(f"Directory of mountpoint {mountpoint_dir} does not exist")
         logger.info(f"Mountpoint found at '{mountpoint_dir}'")
 
-        assert is_nas_mounted(mountpoint_dir, logger), f"Mountpoint check FAILED"
+        if not is_nas_mounted(mountpoint_dir, logger):
+            notify_bot(f"Mountpoint check FAILED")
         Path(output[0]).touch()
 
 
-# noinspection PyUnresolvedReferences
 rule check_structure:
     input:
         "logs/check_mountpoint.done"
@@ -102,6 +105,7 @@ rule check_structure:
         "logs/check_structure.log"
     run:
         logger = setup_logger(rule_name='check_structure')
+
         # TODO Change for 2 run dirs and 2 results dirs
         assert Path(run_files_dir_path).is_dir(), f"Directory {run_files_dir_path} does not exist"
         logger.info(f"Run directory found at '{run_files_dir_path}'")

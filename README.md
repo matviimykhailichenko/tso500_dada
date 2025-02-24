@@ -15,9 +15,6 @@ _Current features:_
 1. Unified logging. One can find logs in `logs` directory.
 
 
-TODO: 
-- Logging. As these occurrences write to the TSO bot: error, exception  or run status
-
 _Future features:_
 - Validate the samplesheet;
 - Conteinerization;
@@ -26,4 +23,5 @@ _Future features:_
 Safety risks:
 - Pathlib is deprecated! Change to pathlib2. 
 
-Notes:
+Directives:
+- Logging in files is needed to see detailed sequence of operations and notifications are needed to receive quick insight into status and if something breaks
