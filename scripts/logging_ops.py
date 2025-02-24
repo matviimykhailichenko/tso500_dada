@@ -13,10 +13,11 @@ def notify_bot(msg: str,
     webhook.send(content=msg)
 
 
-def setup_logger(rule_name):
+def setup_logger(logger_name: str,
+                 log_file_str: str):
     os.makedirs("logs",exist_ok=True)
-    logger = logging.getLogger(rule_name)
-    handler = logging.FileHandler(f"logs/{rule_name}.log")
+    logger = logging.getLogger(logger_name)
+    handler = logging.FileHandler(log_file_str)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)

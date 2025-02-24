@@ -42,10 +42,8 @@ rule all:
 rule check_mountpoint:
     output:
         f"{tmp_logging_dir_str}/check_mountpoint.done"
-    log:
-        f"{tmp_logging_dir_str}/check_mountpoint.log"
     run:
-        logger = setup_logger(rule_name='check_mountpoint') # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_mountpoint', log_file_str=f"{tmp_logging_dir_str}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
         mountpoint_dir = config["novaseq_mountpoint"]
 
         if not Path(mountpoint_dir).is_dir():
@@ -63,10 +61,9 @@ rule check_structure:
         f"{tmp_logging_dir_str}/check_mountpoint.done"
     output:
         f"{tmp_logging_dir_str}/check_structure.done"
-    log:
-        f"{tmp_logging_dir_str}/check_structure.log"
+
     run:
-        logger = setup_logger(rule_name='check_structure')
+        logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir_str}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
         # TODO Change for 2 run dirs and 2 results dirs
         assert Path(run_files_dir_path).is_dir(), f"Directory {run_files_dir_path} does not exist"
@@ -84,10 +81,8 @@ rule check_docker_image:
         f"{tmp_logging_dir_str}/check_structure.done"
     output:
         f"{tmp_logging_dir_str}/check_docker_image.done"
-    log:
-        f"{tmp_logging_dir_str}/check_docker_image.log"
     run:
-        logger = setup_logger(rule_name='check_docker_image')
+        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir_str}/check_docker_image.log") # TODO check if rule name could be replaced with wildcard
 
         try:
             result = subp_run(['docker','images'],
@@ -108,10 +103,8 @@ rule check_rsync:
         f"{tmp_logging_dir_str}/check_docker_image.done"
     output:
         f"{tmp_logging_dir_str}/check_rsync.done"
-    log:
-        f"{tmp_logging_dir_str}/check_rsync.log"
     run:
-        logger = setup_logger(rule_name='check_rsync')
+        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")  # TODO check if rule name could be replaced with wildcard
 
         assert rsync_path, "Rsync path cannot be empty or None"
         logger.info(f"rsync has been found by this path: {rsync_path}")
@@ -145,10 +138,8 @@ rule check_rsync:
 #         f"{tmp_logging_dir_str}/check_rsync.done"
 #     output:
 #         f"{tmp_logging_dir_str}/stage_run.done"
-#     log:
-#         f"{tmp_logging_dir_str}/stage_run.log"
 #     run:
-#         logger = setup_logger(rule_name='stage_run')
+#         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
 #
 #         rsync_call = [str(rsync_path), '-rl', '--checksum',
 #                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
@@ -167,10 +158,8 @@ rule check_rsync:
 #         f"{tmp_logging_dir_str}/stage_run.done"
 #     output:
 #         f"{tmp_logging_dir_str}/process_run.done"
-#     log:
-#         f"{tmp_logging_dir_str}/process_run.log"
 #     run:
-#          logger = setup_logger(rule_name='process_run')
+#          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
 #          logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
 #
 #          dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
@@ -195,7 +184,7 @@ rule check_rsync:
 #     log:
 #         f"{tmp_logging_dir_str}/transfer_results.log"
 #     run:
-#         logger= setup_logger(rule_name='transfer_results')
+#         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
 #
 #         rsync_call = [str(rsync_path), '-rl', '--checksum',
 #                       str(analysis_dir_path), str(run_staging_dir)]
