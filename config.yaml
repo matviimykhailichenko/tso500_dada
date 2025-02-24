@@ -1,15 +1,12 @@
-# TODO replace with real dirs
+# TODO Change in prod
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
-run_dir: 'run_dir'
 staging_dir: '/staging'
-results_dir: 'results_dir'
-decompression_dir: 'decompression_dir'
-archive_dir: 'archive_dir'
-mountpoint_dir: 'mountpoint_dir'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
 oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
 cbmed_dir: '/mnt/Novaseq/08_Projekte/CBmed'
 novaseq_mountpoint: '/mnt/Novaseq'
+# TODO Change in prod
+logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
 
 ready_tags:
   - SequenceComplete.txt

@@ -1,6 +1,8 @@
 from pathlib import Path
 from logging import Logger
-from shutil import rmtree as sh_rmtree
+from shutil import which as sh_which,  rmtree as sh_rmtree
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
+from typing import Optional
 
 
 
@@ -29,3 +31,45 @@ def delete_directory(dead_dir_path: Path, logger_runtime: Logger):
             logger_runtime.warning(f"could not delete directory{dead_dir_path}")
     else:
         logger_runtime.warning(f"could not delete directory '{dead_dir_path}': path does not exist")
+
+
+def delete_file(dead_file_path: Path,
+                logger_runtime: Optional[Logger] = None):
+    if dead_file_path and dead_file_path.is_file():
+        try:
+            logger_runtime.info(f"deleting file '{dead_file_path}' ...")
+            dead_file_path.unlink()
+            logger_runtime.info(f"successfully deleted file '{dead_file_path}'")
+        except KeyboardInterrupt:
+            logger_runtime.error("Keyboard Interrupt by user detected. Terminating pipeline execution ..")
+            return 255  # propagate KeyboardInterrupt outward
+        # TODO add whole stack
+        if Path(dead_file_path).is_file():
+            logger_runtime.warning(f"could not delete file{dead_file_path}")
+    else:
+        logger_runtime.warning(f"could not delete file '{dead_file_path}': path does not exist")
+
+
+def is_nas_mounted(mountpoint_dir: str,
+                   logger_runtime: Logger) -> bool:  # tested
+    mountpoint_binary = sh_which('mountpoint')
+    if not mountpoint_binary:
+        mountpoint_binary = '/usr/bin/mountpoint'
+        logger_runtime.warning(f"looked for the mountpoint executable at '{mountpoint_binary}' but didn't "
+                               f"find the file (path was None) or could not access it (permission problem). "
+                               f"Using the default one anyways at '{mountpoint_binary}'. This might cause "
+                               f"subprocess failure!")
+    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=subp_PIPE, encoding='utf-8')
+    try:
+        ran_mount_check.check_returncode()
+    except CalledProcessError:
+        # TODO BOT!
+        logger_runtime.error(f"the expected NAS mountpoint was not found at {mountpoint_dir}. Terminating..")
+        return False
+    # check if the command returned as expected:
+    if ran_mount_check.stdout.strip() != f'{mountpoint_dir} is a mountpoint':
+        logger_runtime.error(f"the expected NAS mountpoint was not found at '{mountpoint_dir}'. "
+                             f"Terminating..")
+        return False
+    logger_runtime.info(f"the expected NAS mountpoint was found at '{mountpoint_dir}'.")
+    return True
