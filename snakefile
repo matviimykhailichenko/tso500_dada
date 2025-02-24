@@ -230,6 +230,6 @@ rule summarize_logs:
                 with open(log_file,'r') as source:
                     dest.write(source.read())
         
-        for log_file in Path(tmp_logging_dir_str).iterdir:
+        for log_file in Path(tmp_logging_dir_str).iterdir():
             if log_file.is_file:
                 delete_file(log_file)
