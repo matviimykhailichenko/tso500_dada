@@ -53,6 +53,7 @@ rule check_mountpoint:
 
         if not is_nas_mounted(mountpoint_dir, logger):
             notify_bot(f"Mountpoint check FAILED")
+        logger.info(f"Mountpoint is mounted")
         Path(output[0]).touch()
 
 
@@ -230,6 +231,6 @@ rule summarize_logs:
                 with open(log_file,'r') as source:
                     dest.write(source.read())
         
-        for log_file in Path(tmp_logging_dir_str).iterdir():
-            if log_file.is_file:
-                delete_file(log_file) # TODO throw a warning if couldn't delete file
+        # for log_file in Path(tmp_logging_dir_str).iterdir():
+        #     if log_file.is_file:
+        #         delete_file(log_file) # TODO throw a warning if couldn't delete file
