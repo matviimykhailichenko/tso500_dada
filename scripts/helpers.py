@@ -33,21 +33,12 @@ def delete_directory(dead_dir_path: Path, logger_runtime: Logger):
         logger_runtime.warning(f"could not delete directory '{dead_dir_path}': path does not exist")
 
 
-def delete_file(dead_file_path: Path,
-                logger_runtime: Optional[Logger] = None):
+def delete_file(dead_file_path: Path):
     if dead_file_path and dead_file_path.is_file():
         try:
-            logger_runtime.info(f"deleting file '{dead_file_path}' ...")
             dead_file_path.unlink()
-            logger_runtime.info(f"successfully deleted file '{dead_file_path}'")
         except KeyboardInterrupt:
-            logger_runtime.error("Keyboard Interrupt by user detected. Terminating pipeline execution ..")
             return 255  # propagate KeyboardInterrupt outward
-        # TODO add whole stack
-        if Path(dead_file_path).is_file():
-            logger_runtime.warning(f"could not delete file{dead_file_path}")
-    else:
-        logger_runtime.warning(f"could not delete file '{dead_file_path}': path does not exist")
 
 
 def is_nas_mounted(mountpoint_dir: str,
