@@ -41,7 +41,8 @@ rule all:
 # Checkpoint to verify mountpoint
 rule check_mountpoint:
     output:
-        f"{tmp_logging_dir_str}/check_mountpoint.done"
+        f"{tmp_logging_dir_str}/check_mountpoint.done",
+        f"{tmp_logging_dir_str}/check_mountpoint.log"
     run:
         logger = setup_logger(logger_name='check_mountpoint', log_file_str=f"{tmp_logging_dir_str}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
         mountpoint_dir = config["novaseq_mountpoint"]
@@ -60,8 +61,8 @@ rule check_structure:
     input:
         f"{tmp_logging_dir_str}/check_mountpoint.done"
     output:
-        f"{tmp_logging_dir_str}/check_structure.done"
-
+        f"{tmp_logging_dir_str}/check_structure.done",
+        f"{tmp_logging_dir_str}/check_structure.log"
     run:
         logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir_str}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
@@ -80,7 +81,8 @@ rule check_docker_image:
     input:
         f"{tmp_logging_dir_str}/check_structure.done"
     output:
-        f"{tmp_logging_dir_str}/check_docker_image.done"
+        f"{tmp_logging_dir_str}/check_docker_image.done",
+        f"{tmp_logging_dir_str}/check_docker_image.log"
     run:
         logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir_str}/check_docker_image.log") # TODO check if rule name could be replaced with wildcard
 
@@ -102,7 +104,8 @@ rule check_rsync:
     input:
         f"{tmp_logging_dir_str}/check_docker_image.done"
     output:
-        f"{tmp_logging_dir_str}/check_rsync.done"
+        f"{tmp_logging_dir_str}/check_rsync.done",
+        f"{tmp_logging_dir_str}/check_rsync.log"
     run:
         logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")  # TODO check if rule name could be replaced with wildcard
 
@@ -137,7 +140,8 @@ rule check_rsync:
 #     input:
 #         f"{tmp_logging_dir_str}/check_rsync.done"
 #     output:
-#         f"{tmp_logging_dir_str}/stage_run.done"
+#         f"{tmp_logging_dir_str}/stage_run.done",
+#         f"{tmp_logging_dir_str}/stage_run.log"
 #     run:
 #         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
 #
@@ -157,7 +161,8 @@ rule check_rsync:
 #     input:
 #         f"{tmp_logging_dir_str}/stage_run.done"
 #     output:
-#         f"{tmp_logging_dir_str}/process_run.done"
+#         f"{tmp_logging_dir_str}/process_run.done",
+#         f"{tmp_logging_dir_str}/process_run.log"
 #     run:
 #          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
 #          logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
@@ -180,7 +185,8 @@ rule check_rsync:
 #     input:
 #         f"{tmp_logging_dir_str}/process_run.done"
 #     output:
-#         f"{tmp_logging_dir_str}/transfer_results.done"
+#         f"{tmp_logging_dir_str}/transfer_results.done",
+#         f"{tmp_logging_dir_str}/transfer_results.log"
 #     log:
 #         f"{tmp_logging_dir_str}/transfer_results.log"
 #     run:
