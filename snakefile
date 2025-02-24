@@ -23,7 +23,8 @@ run_name = datetime.now().strftime('%y%m%d') + '_TSO'
 analysis_dir_path = staging_dir_path / run_name
 results_dir_path = results_dir_path / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
-log_file_str = config['logging_dir'] +  f"/TSO_pipeline_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log"
+timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
 
 # TODO add TSO_bot
 # TODO add check for available storage
