@@ -1,4 +1,7 @@
 from discord import SyncWebhook
+import logging
+import os
+
 
 # TODO move the Webhook URL to config file
 def notify_bot(msg: str,
@@ -8,3 +11,15 @@ def notify_bot(msg: str,
 
     webhook = SyncWebhook.from_url(url)
     webhook.send(content=msg)
+
+
+def setup_logger(rule_name):
+    os.makedirs("logs",exist_ok=True)
+    logger = logging.getLogger(rule_name)
+    handler = logging.FileHandler(f"logs/{rule_name}.log")
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    return logger
+
