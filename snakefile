@@ -126,7 +126,7 @@ rule check_rsync:
     run:
         logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")  # TODO check if rule name could be replaced with wildcard
 
-        if not 'rsync_path' in result.stdout:
+        if not rsync_path:
             message = "Rsync path cannot be empty or None"
             notify_bot(message)
             logger.error(message)
