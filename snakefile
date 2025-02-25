@@ -175,7 +175,7 @@ rule stage_run:
             notify_bot(message)
             logger.error(message)
             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-         notify_bot(f'Done staging the run {run_name}')
+        notify_bot(f'Done staging the run {run_name}')
 
         Path(output[0]).touch()
 
