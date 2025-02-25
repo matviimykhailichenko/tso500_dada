@@ -37,4 +37,4 @@ BASH_ENV=~/.bashrc
 24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
 #
 # ->| TSO500 PROCESSING:
-* * * * * conda run -n tso500_dragen_pipeline PYTHONPATH=/mnt/Novaseq/TSO_pipeline/02_Development python3 /mnt/Novaseq/TSO_pipeline/02_Development/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/02_Development/logs/crontab_last_execution.log
+* * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/02_Development/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/02_Development/logs/crontab_last_execution.log
