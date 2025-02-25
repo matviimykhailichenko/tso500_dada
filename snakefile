@@ -208,8 +208,6 @@ rule transfer_results:
     output:
         f"{tmp_logging_dir_str}/transfer_results.done",
         f"{tmp_logging_dir_str}/transfer_results.log"
-    log:
-        f"{tmp_logging_dir_str}/transfer_results.log"
     run:
         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
 
@@ -236,11 +234,13 @@ rule transfer_results:
 
 rule summarize_logs:
     input:
-        f"{tmp_logging_dir_str}/check_rsync.done",
+        f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/check_mountpoint.log",
         f"{tmp_logging_dir_str}/check_structure.log",
         f"{tmp_logging_dir_str}/check_docker_image.log",
-        f"{tmp_logging_dir_str}/check_rsync.log"
+        f"{tmp_logging_dir_str}/check_rsync.log",
+        f"{tmp_logging_dir_str}/process_run.log",
+        f"{tmp_logging_dir_str}/transfer_results.log"
     output:
         log_file_str
     run:
@@ -248,4 +248,4 @@ rule summarize_logs:
             for log_file in input[1:]:
                 with open(log_file,'r') as source:
                     dest.write(source.read())
-                    delete_file(log_file)
+                    Path(log_file).unlink()

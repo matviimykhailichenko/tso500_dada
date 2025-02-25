@@ -2,7 +2,7 @@ from pathlib import Path
 import yaml
 import subprocess
 import argparse
-from helpers import is_server_available
+from scripts.helpers import is_server_available
 
 
 def create_parser():
