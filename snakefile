@@ -48,11 +48,15 @@ rule check_mountpoint:
         mountpoint_dir = config["novaseq_mountpoint"]
 
         if not Path(mountpoint_dir).is_dir():
-            notify_bot(f"Directory of mountpoint {mountpoint_dir} does not exist")
+            message = f"Directory of mountpoint {mountpoint_dir} does not exist"
+            notify_bot(message)
+            logger.error(message)
         logger.info(f"Mountpoint found at '{mountpoint_dir}'")
 
         if not is_nas_mounted(mountpoint_dir, logger):
-            notify_bot(f"Mountpoint check FAILED")
+            message = f"Mountpoint check FAILED"
+            notify_bot(message)
+            logger.error(message)
         logger.info(f"Mountpoint is mounted")
         Path(output[0]).touch()
 
@@ -66,13 +70,18 @@ rule check_structure:
     run:
         logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir_str}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
-        # TODO Change for 2 run dirs and 2 results dirs
-        assert Path(run_files_dir_path).is_dir(), f"Directory {run_files_dir_path} does not exist"
-        logger.info(f"Run directory found at '{run_files_dir_path}'")
-        # assert Path(results_dir_path).is_dir(), f"Directory {results_dir_path} does not exist"
-        # logger.info(f"Results directory found at '{results_dir}'")
-        assert Path(staging_dir_path).is_dir(), f"Directory {staging_dir_path} does not exist"
-        logger.info(f"Staging directory found at '{staging_dir_path}'")
+        # TODO Change for oncoservice, CBmed and Patho dirs. Check for server availability dir and respective analysis results dirs
+        if not Path(run_files_dir_path).is_dir():
+            message = f"Directory {run_files_dir_path} does not exist"
+            notify_bot(message)
+            logger.error(message)
+        logger.info(f"Run directory found at {run_files_dir_path}")
+
+        if not staging_dir_path.is_dir():
+            message = f"Directory {staging_dir_path} does not exist"
+            notify_bot(message)
+            logger.error(message)
+        logger.info(f"Staging directory found at {staging_dir_path}")
 
         Path(output[0]).touch()
 
@@ -92,9 +101,17 @@ rule check_docker_image:
                 stderr=subp_PIPE,
                 text=True)
         except Exception as e:
-            logger.error(f"Error checking docker image: {str(e)}")
-            raise
-        assert 'dragen_tso500_ctdna' in result.stdout
+            message = f"Error checking docker image: {str(e)}"
+            notify_bot(message)
+            logger.error(message)
+            # TODO investigate what the hell does it do (in theory, each exception should stop the pipeline,
+            #  but do they have to be raised specifically?)
+            raise Exception
+
+        if not 'dragen_tso500_ctdna' in result.stdout:
+            message = "The dragen_tso500_ctdna Docker image wasn't found in the system"
+            notify_bot(message)
+            logger.error(message)
         logger.info(f"The dragen_tso500_ctdna was found successfully")
 
         Path(output[0]).touch()
@@ -109,8 +126,11 @@ rule check_rsync:
     run:
         logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")  # TODO check if rule name could be replaced with wildcard
 
-        assert rsync_path, "Rsync path cannot be empty or None"
-        logger.info(f"rsync has been found by this path: {rsync_path}")
+        if not 'rsync_path' in result.stdout:
+            message = "Rsync path cannot be empty or None"
+            notify_bot(message)
+            logger.error(message)
+        logger.info(f"Rsync has been found by this path: {rsync_path}")
 
         Path(output[0]).touch()
 
@@ -136,80 +156,82 @@ rule check_rsync:
 #             raise
 
 
-# rule stage_run:
-#     input:
-#         f"{tmp_logging_dir_str}/check_rsync.done"
-#     output:
-#         f"{tmp_logging_dir_str}/stage_run.done",
-#         f"{tmp_logging_dir_str}/stage_run.log"
-#     run:
-#         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
-#
-#         rsync_call = [str(rsync_path), '-rl', '--checksum',
-#                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
-#         try:
-#             subp_run(rsync_call).check_returncode()
-#         except CalledProcessError as e:
-#             logger.error(f"rsync failed with return code {e.returncode}")
-#             logger.error(f"Error output: {e.stderr}")
-#             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#
-#         Path(output[0]).touch()
+rule stage_run:
+    input:
+        f"{tmp_logging_dir_str}/check_rsync.done"
+    output:
+        f"{tmp_logging_dir_str}/stage_run.done",
+        f"{tmp_logging_dir_str}/stage_run.log"
+    run:
+        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
 
-# TODO add error handling, assuming that dragen_call won't raise errors
-# rule process_run:
-#     input:
-#         f"{tmp_logging_dir_str}/stage_run.done"
-#     output:
-#         f"{tmp_logging_dir_str}/process_run.done",
-#         f"{tmp_logging_dir_str}/process_run.log"
-#     run:
-#          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
-#          logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
-#
-#          dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
-#                         '--analysisFolder', str(analysis_dir_path),
-#                         '--sampleSheet', str(samplesheet_path)]
-#          try:
-#              subp_run(dragen_call).check_returncode()
-#          except CalledProcessError as e:
-#              logger.error(f"DRAGEN failed with return code {e.returncode}. Cleaning up...")
-#              logger.error(f"Error output: {e.stderr}")
-#              delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#              delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#
-#          Path(output[0]).touch()
-#
-#
-# rule transfer_results:
-#     input:
-#         f"{tmp_logging_dir_str}/process_run.done"
-#     output:
-#         f"{tmp_logging_dir_str}/transfer_results.done",
-#         f"{tmp_logging_dir_str}/transfer_results.log"
-#     log:
-#         f"{tmp_logging_dir_str}/transfer_results.log"
-#     run:
-#         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
-#
-#         rsync_call = [str(rsync_path), '-rl', '--checksum',
-#                       str(analysis_dir_path), str(run_staging_dir)]
-#         try:
-#             subp_run(rsync_call).check_returncode()
-#         except CalledProcessError as e:
-#             logger.error(f"rsync failed with return code {e.returncode}. Cleaning up...")
-#             logger.error(f"Error output: {e.stderr}")
-#             delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#             delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-#
-#         # TODO add assertions for safety
-#         delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#         delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#         # TODO add that if run is processed
-#         # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
-#
-#         Path(output[0]).touch()
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+        try:
+            subp_run(rsync_call).check_returncode()
+        except CalledProcessError as e:
+            message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+
+        Path(output[0]).touch()
+
+# TODO add error handling, assuming that dragen_call won't raise errors, because it doesn't
+rule process_run:
+    input:
+        f"{tmp_logging_dir_str}/stage_run.done"
+    output:
+        f"{tmp_logging_dir_str}/process_run.done",
+        f"{tmp_logging_dir_str}/process_run.log"
+    run:
+         logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
+         logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
+
+         dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
+                        '--analysisFolder', str(analysis_dir_path),
+                        '--sampleSheet', str(samplesheet_path)]
+         try:
+             subp_run(dragen_call).check_returncode()
+         except CalledProcessError as e:
+             logger.error(f"DRAGEN failed with return code {e.returncode}. Cleaning up...")
+             logger.error(f"Error output: {e.stderr}")
+             # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+
+         Path(output[0]).touch()
+
+
+rule transfer_results:
+    input:
+        f"{tmp_logging_dir_str}/process_run.done"
+    output:
+        f"{tmp_logging_dir_str}/transfer_results.done",
+        f"{tmp_logging_dir_str}/transfer_results.log"
+    log:
+        f"{tmp_logging_dir_str}/transfer_results.log"
+    run:
+        logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
+
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(analysis_dir_path), str(run_staging_dir)]
+        try:
+            subp_run(rsync_call).check_returncode()
+        except CalledProcessError as e:
+            message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+            # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
+
+        # TODO add assertions for safety
+        # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+        # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        # TODO add that if run is processed
+        # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
+
+        Path(output[0]).touch()
 
 
 rule summarize_logs:
