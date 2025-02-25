@@ -165,6 +165,7 @@ rule stage_run:
     run:
         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
 
+        notify_bot(f'Started processing run {run_name}')
         rsync_call = [str(rsync_path), '-rl', '--checksum',
                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
         try:
@@ -174,6 +175,7 @@ rule stage_run:
             notify_bot(message)
             logger.error(message)
             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+         notify_bot(f'Done staging the run {run_name}')
 
         Path(output[0]).touch()
 
@@ -188,6 +190,7 @@ rule process_run:
          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
          logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
 
+         notify_bot(f'Started running the DRAGEN TSO500 script for run {run_name}')
          dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
                         '--analysisFolder', str(analysis_dir_path),
                         '--sampleSheet', str(samplesheet_path)]
@@ -198,6 +201,8 @@ rule process_run:
              logger.error(f"Error output: {e.stderr}")
              # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
              # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+         notify_bot(f'Done running the DRAGEN TSO500 script for run {run_name}')
+
 
          Path(output[0]).touch()
 
@@ -211,6 +216,7 @@ rule transfer_results:
     run:
         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
 
+        notify_bot(f'Started transferring results for run {run_name}')
         rsync_call = [str(rsync_path), '-rl', '--checksum',
                       str(analysis_dir_path), str(run_staging_dir)]
         try:
@@ -228,6 +234,7 @@ rule transfer_results:
         # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
         # TODO add that if run is processed
         # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
+        notify_bot(f'Done transferring results for run {run_name}')
 
         Path(output[0]).touch()
 
