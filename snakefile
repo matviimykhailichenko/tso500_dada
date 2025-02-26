@@ -8,6 +8,7 @@ from scripts.logging_ops import notify_bot
 from scripts.logging_ops import setup_logger
 
 
+
 # Definitions
 configfile: "config.yaml"
 ready_tags = config['ready_tags']
@@ -25,9 +26,7 @@ results_dir_path = results_dir_path / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
 log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
-
-# TODO add TSO_bot
-# TODO add check for available storage
+cbmed_dir_path = Path(config['cbmed_results_dir'])
 
 
 
@@ -35,7 +34,6 @@ log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
 rule all:
     input:
         log_file_str
-
 
 
 # Checkpoint to verify mountpoint
@@ -156,28 +154,28 @@ rule check_rsync:
 #             raise
 
 
-rule stage_run:
-    input:
-        f"{tmp_logging_dir_str}/check_rsync.done"
-    output:
-        f"{tmp_logging_dir_str}/stage_run.done",
-        f"{tmp_logging_dir_str}/stage_run.log"
-    run:
-        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
-
-        notify_bot(f'Started processing run {run_name}')
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
-        try:
-            subp_run(rsync_call).check_returncode()
-        except CalledProcessError as e:
-            message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
-            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-        notify_bot(f'Done staging the run {run_name}')
-
-        Path(output[0]).touch()
+# rule stage_run:
+#     input:
+#         f"{tmp_logging_dir_str}/check_rsync.done"
+#     output:
+#         f"{tmp_logging_dir_str}/stage_run.done",
+#         f"{tmp_logging_dir_str}/stage_run.log"
+#     run:
+#         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
+#
+#         notify_bot(f'Started processing run {run_name}')
+#         rsync_call = [str(rsync_path), '-rl', '--checksum',
+#                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+#         try:
+#             subp_run(rsync_call).check_returncode()
+#         except CalledProcessError as e:
+#             message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr}"
+#             notify_bot(message)
+#             logger.error(message)
+#             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+#         notify_bot(f'Done staging the run {run_name}')
+#
+#         Path(output[0]).touch()
 
 # TODO add error handling, assuming that dragen_call won't raise errors, because it doesn't
 rule process_run:
@@ -206,7 +204,7 @@ rule process_run:
 
          Path(output[0]).touch()
 
-
+# TODO would differ for CBmed 1: rearrange stuff and then transfer it ig?
 rule transfer_results:
     input:
         f"{tmp_logging_dir_str}/process_run.done"
@@ -239,6 +237,8 @@ rule transfer_results:
         Path(output[0]).touch()
 
 
+
+
 rule summarize_logs:
     input:
         f"{tmp_logging_dir_str}/process_run.done",
@@ -246,6 +246,7 @@ rule summarize_logs:
         f"{tmp_logging_dir_str}/check_structure.log",
         f"{tmp_logging_dir_str}/check_docker_image.log",
         f"{tmp_logging_dir_str}/check_rsync.log",
+        f"{tmp_logging_dir_str}/stage_run.log",
         f"{tmp_logging_dir_str}/process_run.log",
         f"{tmp_logging_dir_str}/transfer_results.log"
     output:
