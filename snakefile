@@ -26,7 +26,7 @@ results_dir_path = results_dir_path / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
 log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
-cbmed_dir_path = Path(config['cbmed_results_dir'])
+# cbmed_dir_path = Path(config['cbmed_results_dir'])
 
 
 
