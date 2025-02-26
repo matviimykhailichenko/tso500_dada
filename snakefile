@@ -176,11 +176,11 @@ rule check_rsync:
 #         notify_bot(f'Done staging the run {run_name}')
 #
 #         Path(output[0]).touch()
-
+# TODO change when finished testing
 # TODO add error handling, assuming that dragen_call won't raise errors, because it doesn't
 rule process_run:
     input:
-        f"{tmp_logging_dir_str}/stage_run.done"
+        f"{tmp_logging_dir_str}/check_rsync.done"
     output:
         f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/process_run.log"
@@ -246,7 +246,6 @@ rule summarize_logs:
         f"{tmp_logging_dir_str}/check_structure.log",
         f"{tmp_logging_dir_str}/check_docker_image.log",
         f"{tmp_logging_dir_str}/check_rsync.log",
-        f"{tmp_logging_dir_str}/stage_run.log",
         f"{tmp_logging_dir_str}/process_run.log",
         f"{tmp_logging_dir_str}/transfer_results.log"
     output:
