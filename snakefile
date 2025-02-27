@@ -1,5 +1,5 @@
 # Imports
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_call
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from pathlib import Path
 from shutil import which as sh_which
 from datetime import datetime
