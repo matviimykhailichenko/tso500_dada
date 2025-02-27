@@ -188,7 +188,7 @@ rule stage_run:
 # TODO add error handling, assuming that dragen_call won't raise errors, because it doesn't
 rule process_run:
     input:
-        f"{tmp_logging_dir_str}/check_rsync.done"
+        f"{tmp_logging_dir_str}/stage_run.done"
     output:
         f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/process_run.log"
