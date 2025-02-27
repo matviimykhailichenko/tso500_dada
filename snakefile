@@ -1,5 +1,5 @@
 # Imports
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_call
 from pathlib import Path
 from shutil import which as sh_which
 from datetime import datetime
@@ -20,12 +20,13 @@ run_files_dir_name = str(Path(run_files_dir_path).name)
 run_staging_dir = staging_dir_path / run_files_dir_name
 results_dir_path = Path(config['results_dir_path'])
 samplesheet_path = run_staging_dir / 'SampleSheet.csv'
-run_name = datetime.now().strftime('%y%m%d') + '_TSO'
+run_name = run_files_dir_path.parent.name
 analysis_dir_path = staging_dir_path / run_name
 results_dir_path = results_dir_path / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
 log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
+error_messages = config["error_messages"]
 # cbmed_dir_path = Path(config['cbmed_results_dir'])
 
 
@@ -110,8 +111,8 @@ rule check_docker_image:
             message = "The dragen_tso500_ctdna Docker image wasn't found in the system"
             notify_bot(message)
             logger.error(message)
-        logger.info(f"The dragen_tso500_ctdna was found successfully")
 
+        logger.info(f"The dragen_tso500_ctdna was found successfully")
         Path(output[0]).touch()
 
 
@@ -128,8 +129,8 @@ rule check_rsync:
             message = "Rsync path cannot be empty or None"
             notify_bot(message)
             logger.error(message)
-        logger.info(f"Rsync has been found by this path: {rsync_path}")
 
+        logger.info(f"Rsync has been found by this path: {rsync_path}")
         Path(output[0]).touch()
 
 
@@ -154,28 +155,35 @@ rule check_rsync:
 #             raise
 
 
-# rule stage_run:
-#     input:
-#         f"{tmp_logging_dir_str}/check_rsync.done"
-#     output:
-#         f"{tmp_logging_dir_str}/stage_run.done",
-#         f"{tmp_logging_dir_str}/stage_run.log"
-#     run:
-#         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
-#
-#         notify_bot(f'Started processing run {run_name}')
-#         rsync_call = [str(rsync_path), '-rl', '--checksum',
-#                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
-#         try:
-#             subp_run(rsync_call).check_returncode()
-#         except CalledProcessError as e:
-#             message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr}"
-#             notify_bot(message)
-#             logger.error(message)
-#             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#         notify_bot(f'Done staging the run {run_name}')
-#
-#         Path(output[0]).touch()
+rule stage_run:
+    input:
+        f"{tmp_logging_dir_str}/check_rsync.done"
+    output:
+        f"{tmp_logging_dir_str}/stage_run.done",
+        f"{tmp_logging_dir_str}/stage_run.log"
+    run:
+        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
+        message = f'Staging run {run_name}'
+        notify_bot(message)
+        logger.info(message)
+
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+        try:
+            subp_run(rsync_call).check_returncode()
+        except CalledProcessError as e:
+            message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr.decode()}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
+            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+
+        message = f'Done staging the run {run_name}'
+        logger.info(message)
+        notify_bot(message)
+        Path(output[0]).touch()
+
+
 # TODO change when finished testing
 # TODO add error handling, assuming that dragen_call won't raise errors, because it doesn't
 rule process_run:
@@ -186,23 +194,26 @@ rule process_run:
         f"{tmp_logging_dir_str}/process_run.log"
     run:
          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
-         logger.info(f'Here I would process run {run_staging_dir} with {analysis_dir_path} and {samplesheet_path}')
+         message = f'Started running the DRAGEN TSO500 script for run {run_name}'
+         logger.info(message)
+         notify_bot(message)
 
-         notify_bot(f'Started running the DRAGEN TSO500 script for run {run_name}')
          dragen_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh', '--runFolder', str(run_staging_dir),
-                        '--analysisFolder', str(analysis_dir_path),
-                        '--sampleSheet', str(samplesheet_path)]
+                        '--analysisFolder', str(analysis_dir_path)]
          try:
              subp_run(dragen_call).check_returncode()
          except CalledProcessError as e:
-             logger.error(f"DRAGEN failed with return code {e.returncode}. Cleaning up...")
-             logger.error(f"Error output: {e.stderr}")
+             message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
+             logger.error(message)
+             notify_bot(message)
              # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
              # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+             raise RuntimeError(message)
+
+         logger.info(f'Done running the DRAGEN TSO500 script for run {run_name}')
          notify_bot(f'Done running the DRAGEN TSO500 script for run {run_name}')
-
-
          Path(output[0]).touch()
+
 
 # TODO would differ for CBmed 1: rearrange stuff and then transfer it ig?
 rule transfer_results:
@@ -213,8 +224,10 @@ rule transfer_results:
         f"{tmp_logging_dir_str}/transfer_results.log"
     run:
         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
+        message = f'Started transferring results for run {run_name}'
+        notify_bot(message)
+        logger.info(message)
 
-        notify_bot(f'Started transferring results for run {run_name}')
         rsync_call = [str(rsync_path), '-rl', '--checksum',
                       str(analysis_dir_path), str(run_staging_dir)]
         try:
@@ -226,21 +239,27 @@ rule transfer_results:
             # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
             # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
+            raise RuntimeError(message)
 
         # TODO add assertions for safety
         # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
         # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
         # TODO add that if run is processed
         # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
-        notify_bot(f'Done transferring results for run {run_name}')
+        message = f'Done transferring results for run {run_name}'
+        notify_bot(message)
+        logger.info(message)
 
         Path(output[0]).touch()
 
 
-
-
 rule summarize_logs:
     input:
+        f"{tmp_logging_dir_str}/transfer_results.done",
+        f"{tmp_logging_dir_str}/check_mountpoint.done",
+        f"{tmp_logging_dir_str}/check_structure.done",
+        f"{tmp_logging_dir_str}/check_docker_image.done",
+        f"{tmp_logging_dir_str}/check_rsync.done",
         f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/check_mountpoint.log",
         f"{tmp_logging_dir_str}/check_structure.log",
@@ -252,7 +271,9 @@ rule summarize_logs:
         log_file_str
     run:
         with open(output[0],'w') as dest:
-            for log_file in input[1:]:
+            for log_file in input[6:]:
                 with open(log_file,'r') as source:
                     dest.write(source.read())
-                    Path(log_file).unlink()
+
+        for tmp_file in input:
+            Path(tmp_file).unlink()

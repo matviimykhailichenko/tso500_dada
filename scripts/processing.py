@@ -76,7 +76,7 @@ def check_pending_runs(pending_onco_tag: Path,
 def main():
     parser = create_parser()
     args = parser.parse_args()
-    # TODO make a class that would pull every definition
+    # TODO put in prod
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
