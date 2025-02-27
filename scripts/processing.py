@@ -14,7 +14,7 @@ def create_parser():
 def process_run(run_type: str,
                 pipeline_dir: Path,
                 onco_dir_path: Path,
-                cbmed_dir_path: Path,
+                # cbmed_dir_path: Path,
                 server_idle_tag: Path,
                 server_busy_tag: Path,
                 pending_tag: str,
@@ -25,10 +25,10 @@ def process_run(run_type: str,
             run_files_dir_path = Path(pending_tag_path).read_text()
             results_dir_path = onco_dir_path/ f'Analyseergebnisse{'_TEST' if testing else ''}'
 
-        elif run_type == 'cbmed':
-            pending_tag_path = cbmed_dir_path / pending_tag
-            run_files_dir_path = Path(pending_tag_path).read_text()
-            results_dir_path = cbmed_dir_path / Path(run_files_dir_path).name
+        # elif run_type == 'cbmed':
+        #     pending_tag_path = cbmed_dir_path / pending_tag
+        #     run_files_dir_path = Path(pending_tag_path).read_text()
+        #     results_dir_path = cbmed_dir_path / Path(run_files_dir_path).name
 
         else:
             raise RuntimeError(f"Unrecognised run type") # TODO log
@@ -62,11 +62,12 @@ def process_run(run_type: str,
 
 
 def check_pending_runs(pending_onco_tag: Path,
-                    pending_cbmed_tag: Path):
+                    # pending_cbmed_tag: Path
+                       ):
     if pending_onco_tag.exists():
         return 'oncoservice'
-    elif pending_cbmed_tag.exists():
-        return 'cbmed'
+    # elif pending_cbmed_tag.exists():
+    #     return 'cbmed'
     else:
         # TODO change to logging
         print('No Oncoservice or CBmed runs are detected, quitting...')
@@ -82,10 +83,11 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         onco_dir_path = Path(config['oncoservice_dir'])
-        cbmed_dir_path = Path(config['cbmed_dir'])
+        # TODO chang eto real sequencing dir
+        # cbmed_dir_path = Path(config['cbmed_dir'])
         pending_tag = config['pending_run_tag']
         pending_onco_tag = Path(onco_dir_path / config['pending_run_tag'])
-        pending_cbmed_tag = Path(cbmed_dir_path / config['pending_run_tag'])
+        # pending_cbmed_tag = Path(cbmed_dir_path / config['pending_run_tag'])
         server_availability_dir = Path(config['server_availability_dir'])
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
@@ -95,13 +97,14 @@ def main():
         return
 
     run_type = check_pending_runs(pending_onco_tag=pending_onco_tag,
-                               pending_cbmed_tag=pending_cbmed_tag)
+                               # pending_cbmed_tag=pending_cbmed_tag
+                                  )
 
     # TODO check an assumption that there would not be 2 runs of one type
     process_run(run_type=run_type,
                 pipeline_dir=pipeline_dir,
                 onco_dir_path=onco_dir_path,
-                cbmed_dir_path=cbmed_dir_path,
+                # cbmed_dir_path=cbmed_dir_path,
                 server_idle_tag=server_idle_tag,
                 server_busy_tag=server_busy_tag,
                 pending_tag=pending_tag,
