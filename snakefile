@@ -18,11 +18,10 @@ staging_dir_path = Path(config["staging_dir"])
 run_files_dir_path = Path(config['run_files_dir_path'])
 run_files_dir_name = str(Path(run_files_dir_path).name)
 run_staging_dir = staging_dir_path / run_files_dir_name
-results_dir_path = Path(config['results_dir_path'])
 samplesheet_path = run_staging_dir / 'SampleSheet.csv'
 run_name = run_files_dir_path.parent.name
 analysis_dir_path = staging_dir_path / run_name
-results_dir_path = results_dir_path / run_name
+results_dir_path = Path(config['results_dir_path']) / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
 log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
@@ -229,7 +228,7 @@ rule transfer_results:
         logger.info(message)
 
         rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(analysis_dir_path), str(run_staging_dir)]
+                      str(analysis_dir_path), str(results_dir_path)]
         try:
             subp_run(rsync_call).check_returncode()
         except CalledProcessError as e:
