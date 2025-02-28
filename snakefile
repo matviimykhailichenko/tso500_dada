@@ -59,6 +59,7 @@ rule check_mountpoint:
         Path(output[0]).touch()
 
 
+# TODO Check for server availability dir and respective analysis results dirs
 rule check_structure:
     input:
         f"{tmp_logging_dir_str}/check_mountpoint.done"
@@ -68,7 +69,6 @@ rule check_structure:
     run:
         logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir_str}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
-        # TODO Change for oncoservice, CBmed and Patho dirs. Check for server availability dir and respective analysis results dirs
         if not Path(run_files_dir_path).is_dir():
             message = f"Directory {run_files_dir_path} does not exist"
             notify_bot(message)
@@ -91,7 +91,7 @@ rule check_docker_image:
         f"{tmp_logging_dir_str}/check_docker_image.done",
         f"{tmp_logging_dir_str}/check_docker_image.log"
     run:
-        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir_str}/check_docker_image.log") # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir_str}/check_docker_image.log")
 
         try:
             result = subp_run(['docker','images'],
@@ -122,7 +122,7 @@ rule check_rsync:
         f"{tmp_logging_dir_str}/check_rsync.done",
         f"{tmp_logging_dir_str}/check_rsync.log"
     run:
-        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")  # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")
 
         if not rsync_path:
             message = "Rsync path cannot be empty or None"
@@ -161,21 +161,21 @@ rule stage_run:
         f"{tmp_logging_dir_str}/stage_run.done",
         f"{tmp_logging_dir_str}/stage_run.log"
     run:
-        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")  # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")
         message = f'Staging run {run_name}'
         notify_bot(message)
         logger.info(message)
 
-        # rsync_call = [str(rsync_path), '-rl', '--checksum',
-        #               str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
-        # try:
-        #     subp_run(rsync_call).check_returncode()
-        # except CalledProcessError as e:
-        #     message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr.decode()}"
-        #     notify_bot(message)
-        #     logger.error(message)
-        #     raise RuntimeError(message)
-        #     # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+        try:
+            subp_run(rsync_call).check_returncode()
+        except CalledProcessError as e:
+            message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr.decode()}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
+            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
 
         message = f'Done staging the run {run_name}'
         logger.info(message)
@@ -196,9 +196,9 @@ rule process_run:
          logger.info(message)
          notify_bot(message)
 
-         dragen_call = ['/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh','--version']
-                        # '--runFolder', str(run_staging_dir),
-                        # '--analysisFolder', str(analysis_dir_path)]
+         dragen_call = ['/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh',
+                        '--runFolder', str(run_staging_dir),
+                        '--analysisFolder', str(analysis_dir_path)]
          try:
              subp_run(dragen_call).check_returncode()
          except CalledProcessError as e:
@@ -227,20 +227,19 @@ rule transfer_results:
         notify_bot(message)
         logger.info(message)
 
-        # rsync_call = [str(rsync_path), '-rl', '--checksum',
-        #               str(analysis_dir_path), str(results_dir_path)]
-        # try:
-        #     subp_run(rsync_call).check_returncode()
-        # except CalledProcessError as e:
-        #     message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        #     notify_bot(message)
-        #     logger.error(message)
-        #     # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-        #     # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-        #     # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-        #     raise RuntimeError(message)
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(analysis_dir_path), str(results_dir_path)]
+        try:
+            subp_run(rsync_call).check_returncode()
+        except CalledProcessError as e:
+            message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+            # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
+            raise RuntimeError(message)
 
-        # TODO add assertions for safety
         # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
         # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
         # TODO add that if run is processed
@@ -259,6 +258,7 @@ rule summarize_logs:
         f"{tmp_logging_dir_str}/check_structure.done",
         f"{tmp_logging_dir_str}/check_docker_image.done",
         f"{tmp_logging_dir_str}/check_rsync.done",
+        f"{tmp_logging_dir_str}/stage_run.done",
         f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/check_mountpoint.log",
         f"{tmp_logging_dir_str}/check_structure.log",

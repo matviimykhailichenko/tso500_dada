@@ -15,7 +15,8 @@ _Future features:_
 - validate the samplesheet;
 - conteinerization;
 - make configuration object;
-- check for available storage.
+- check for available storage;
+- testing with pytest.
 
 Safety risks:
 - pathlib is deprecated! Change to pathlib2. 

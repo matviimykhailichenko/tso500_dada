@@ -3,7 +3,7 @@ pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
 staging_dir: '/staging'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
 oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
-# TODO we do no sequence there btw
+# TODO Change for CBmed and Patho dirs. Check for server availability dir and respective analysis results dirs
 cbmed_results_dir: '/mnt/CBmed/TSO500_liquid'
 novaseq_mountpoint: '/mnt/Novaseq'
 # TODO Change in prod
