@@ -7,4 +7,4 @@ except subprocess.CalledProcessError as e:
     message = f"Process failed with a return code: {e.returncode}."
     raise RuntimeError(message)
 
-print('Ze command has run succesfulliah')
+print('Ze process has run succesfulliah')
