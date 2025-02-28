@@ -1,0 +1,10 @@
+import subprocess
+
+rule process_run:
+    run:
+         process_call = ['DRAGEN_TruSight_Oncology_500_ctDNA.sh0','--version']
+         try:
+             subprocess.run(process_call).check_returncode()
+         except subprocess.CalledProcessError as e:
+             message = f"Process failed with a return code: {e.returncode}."
+             raise RuntimeError(message)
