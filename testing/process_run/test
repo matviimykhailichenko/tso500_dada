@@ -9,4 +9,11 @@ rule process_run:
          #     message = f"Process failed with a return code: {e.returncode}."
          #     raise RuntimeError(message)
 
+         process_call = ['whoami']
+         try:
+             subprocess.run(process_call).check_returncode()
+         except subprocess.CalledProcessError as e:
+             message = f"Process failed with a return code: {e.returncode}."
+             raise RuntimeError(message)
+
          print('Ze command has run succesfulliah')
