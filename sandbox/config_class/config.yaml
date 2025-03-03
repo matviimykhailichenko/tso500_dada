@@ -1,0 +1,75 @@
+# TODO Change in prod
+pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
+staging_dir: '/staging'
+server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
+oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
+# TODO Change for CBmed and Patho dirs. Check for server availability dir and respective analysis results dirs
+cbmed_results_dir: '/mnt/CBmed/TSO500_liquid'
+patho_dir: '/mnt/Patho/TSO500_NovaSeq6000'
+novaseq_mountpoint: '/mnt/Novaseq'
+# TODO Change in prod
+logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
+
+
+ready_tags:
+  - SequenceComplete.txt
+  - CopyComplete.txt
+  - RTAComplete.txt
+
+blocking_tags:
+  - ANALYZED.txt
+  - FAILED.txt
+  - IGNORED.txt
+
+status_tags:
+  - Analyzing.txt
+  - ARCHIVING.txt
+
+pending_run_tag: PENDING_RUN.txt
+server_idle_tag: IDLE.txt
+server_busy_tag: BUSY.txt
+
+samplesheet: 'SampleSheet.csv'
+mountpoint_binary: '/usr/bin/mountpoint'
+
+rules_sequence:
+  - check_mountpoint
+  - check_structure
+  - check_docker_image
+
+error_messages:
+  1: "No or invalid options passed - general error"
+  5: "Needs either --runFolder or --fastqFolder"
+  6: "An input folder is not a directory, does not exist, or has wrong permissions"
+  7: "Specified config file does not exist"
+  8: "Mount permission errors on docker - try not using a network mount"
+  9: "DRAGEN is not installed or wrong DRAGEN version is installed"
+  10: "Attempt to run without a runFolder"
+  11: "Not enough available disk space for analysis output"
+  12: "Existing DRAGEN process or workflow docker container running"
+  13: "Missing CopyComplete.txt file in run folder"
+  14: "User can't run docker"
+  15: "Invalid/expired/missing DRAGEN license"
+  16: "Passed wrong combination of runFolder and fastqFolder"
+
+
+
+# Useful stuff
+#ready_tags = [
+#    "SequenceComplete.txt",
+#    "CopyComplete.txt",
+#    "RTAComplete.txt"
+#]
+#
+#blocking_tags = [
+#    "ANALYZED.txt",
+#    "ANALYSIS_FAILED.txt",
+#    "FAILED.txt",
+#    "IGNORED.txt"
+#]
+#
+#status_tags = [
+#    "Analyzing.txt",
+#    "ARCHIVING.txt",
+#    "DECOMPRESSING.txt"
+#]
