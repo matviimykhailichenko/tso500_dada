@@ -2,7 +2,7 @@
 from subprocess import run as subp_run, CalledProcessError
 
 
-rsync_call = [str('/usr/bin/rsync'), '-rl', '--checksum',
+rsync_call = [str('/usr/bin/rsync'), '-r', '--checksum',
                       str('/staging/test_run_Oncoservice/'), str('/mnt/Novaseq/07_Oncoservice/Analyseergebnisse/test_run_Oncoservice')]
 try:
     subp_run(rsync_call).check_returncode()
