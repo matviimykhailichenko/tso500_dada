@@ -248,8 +248,8 @@ rule transfer_results:
         notify_bot(message)
         logger.info(message)
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(analysis_dir_path), str(results_dir_path)]
+        rsync_call = [str(rsync_path), '-r', '--checksum',
+                      str(f"{analysis_dir_path}/"), str(results_dir_path)]
         try:
             subp_run(rsync_call).check_returncode()
         except CalledProcessError as e:
