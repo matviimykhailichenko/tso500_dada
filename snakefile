@@ -13,8 +13,9 @@ from scripts.logging_ops import setup_logger
 configfile: "config.yaml"
 ready_tags = config['ready_tags']
 blocking_tags = config['blocking_tags']
-rsync_path_str = sh_which('rsync')
-tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
+rsync_path_str = str(sh_which('rsync'))
+tso500_script_path_str = str('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
+# tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 staging_dir_path = Path(config["staging_dir"])
 run_files_dir_path = Path(config['run_files_dir_path'])
 run_files_dir_name = str(Path(run_files_dir_path).name)
@@ -146,13 +147,13 @@ rule check_tso500_script:
     run:
         logger = setup_logger(logger_name='check_tso500_script',log_file_str=f"{tmp_logging_dir_str}/check_tso500_script.log")
 
-        if not tso500_script_path:
-            message = f"TSO500 script path cannot be {tso500_script_path}"
+        if not Path(tso500_script_path_str):
+            message = f"TSO500 script path cannot be {tso500_script_path_str}"
             notify_bot(message)
             logger.error(message)
             raise FileNotFoundError
 
-        logger.info(f"TSO500 script was found by this path: {tso500_script_path}")
+        logger.info(f"TSO500 script was found by this path: {tso500_script_path_str}")
         Path(output[0]).touch()
 
 
@@ -220,7 +221,7 @@ rule process_run:
          logger.info(message)
          notify_bot(message)
 
-         dragen_call = [str(tso500_script_path),
+         dragen_call = [tso500_script_path_str,
                         '--runFolder', str(run_staging_dir_path),
                         '--analysisFolder', str(analysis_dir_path)]
          try:

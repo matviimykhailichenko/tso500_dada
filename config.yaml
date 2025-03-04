@@ -6,7 +6,7 @@ oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
 # TODO Change for CBmed and Patho dirs. Check for server availability dir and respective analysis results dirs
 cbmed_seqencing_dir: '/mnt/Novaseq/08_Projekte/CBmed'
 cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
-patho_dir: '/mnt/Patho'
+patho_dir: '/mnt/Patho/TSO500_DRAGEN'
 novaseq_mountpoint: '/mnt/Novaseq'
 # TODO Change in prod
 logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
