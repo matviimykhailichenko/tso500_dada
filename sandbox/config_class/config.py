@@ -3,8 +3,7 @@ from pathlib import Path
 
 
 
-def parse_config:
-    # TODO for loop and
+
 
 
 

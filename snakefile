@@ -3,7 +3,7 @@ from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from pathlib import Path
 from shutil import which as sh_which
 from datetime import datetime
-from scripts.helpers import delete_directory, delete_file, is_nas_mounted
+from scripts.helpers import delete_directory, delete_file, is_nas_mounted, transfer_results_cbmed, transfer_results_oncoservice
 from scripts.logging_ops import notify_bot
 from scripts.logging_ops import setup_logger
 
@@ -13,7 +13,7 @@ from scripts.logging_ops import setup_logger
 configfile: "config.yaml"
 ready_tags = config['ready_tags']
 blocking_tags = config['blocking_tags']
-rsync_path = sh_which('rsync')
+rsync_path_str = sh_which('rsync')
 tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 staging_dir_path = Path(config["staging_dir"])
 run_files_dir_path = Path(config['run_files_dir_path'])
@@ -21,13 +21,14 @@ run_files_dir_name = str(Path(run_files_dir_path).name)
 run_staging_dir = staging_dir_path / run_files_dir_name
 samplesheet_path = run_staging_dir / 'SampleSheet.csv'
 run_name = run_files_dir_path.parent.name
+flowcell = run_files_dir_path.name
 analysis_dir_path = staging_dir_path / run_name
-results_dir_path = Path(config['results_dir_path']) / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
 log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
 error_messages = config["error_messages"]
-# cbmed_dir_path = Path(config['cbmed_results_dir'])
+run_type=config['run_type']
+testing = config['testing']
 
 
 
@@ -125,13 +126,13 @@ rule check_rsync:
     run:
         logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")
 
-        if not rsync_path:
-            message = "Rsync path cannot be {rsync_path}"
+        if not rsync_path_str:
+            message = "Rsync path cannot be {rsync_path_str}"
             notify_bot(message)
             logger.error(message)
             raise FileNotFoundError
 
-        logger.info(f"Rsync was found by this path: {rsync_path}")
+        logger.info(f"Rsync was found by this path: {rsync_path_str}")
         Path(output[0]).touch()
 
 
@@ -187,7 +188,7 @@ rule stage_run:
         notify_bot(message)
         logger.info(message)
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
+        rsync_call = [str(rsync_path_str), '-rl', '--checksum',
                       str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
         try:
             subp_run(rsync_call).check_returncode()
@@ -230,8 +231,9 @@ rule process_run:
              # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
              raise RuntimeError(message)
 
-         logger.info(f'Done running the DRAGEN TSO500 script for run {run_name}')
-         notify_bot(f'Done running the DRAGEN TSO500 script for run {run_name}')
+         message = f'Done running the DRAGEN TSO500 script for run {run_name}'
+         logger.info(message)
+         notify_bot(message)
          Path(output[0]).touch()
 
 
@@ -248,27 +250,20 @@ rule transfer_results:
         notify_bot(message)
         logger.info(message)
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
-                      str(analysis_dir_path), str(results_dir_path)]
-        try:
-            subp_run(rsync_call).check_returncode()
-        except CalledProcessError as e:
-            message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
-            # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-            # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-            raise RuntimeError(message)
+        if run_type == 'oncoservice':
+            try:
+                transfer_results_oncoservice(run_name, rsync_path_str, logger, testing)
+            except RuntimeError as e:
+                raise
+        elif run_type == 'cbmed':
+            try:
+                transfer_results_cbmed(flowcell, run_name, rsync_path_str, logger, testing)
+            except RuntimeError as e:
+                raise
 
-        # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-        # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-        # TODO add that if run is processed
-        # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
         message = f'Done transferring results for run {run_name}'
         notify_bot(message)
         logger.info(message)
-
         Path(output[0]).touch()
 
 

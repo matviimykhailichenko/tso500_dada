@@ -7,16 +7,19 @@ _Instructions_:
 
 _Notes_:
 - main code is in file called `snakefile`;
-- test run: 3-4 hours to stage the run + 7 hours to analyse the run + 3-4 hours to transfer results = 15 hours.
+- test run: 3 hours to stage the run + 7 hours to analyse the run + 3-4 hours to transfer results = 15 hours.
 - unified logging. One can find logs in `logs` directory;
-- exceptions will stop the pipeline, but if raised specifically (not in try statements).
+- exceptions will stop the pipeline, but if raised specifically (not in try statements);
+- it won't log/notify bot if the script it tries to run does now exist 
 
 _Future features:_
+- deleting temporary log files if run had failed and putting failed tag;
 - validate the samplesheet;
 - conteinerization;
 - make configuration object;
 - check for available storage;
-- testing with pytest.
+- testing with pytest;
+- add checksums for cbmed.
 
 Safety risks:
 - pathlib is deprecated! Change to pathlib2. 
