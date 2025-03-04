@@ -18,9 +18,10 @@ tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 staging_dir_path = Path(config["staging_dir"])
 run_files_dir_path = Path(config['run_files_dir_path'])
 run_files_dir_name = str(Path(run_files_dir_path).name)
-run_staging_dir = staging_dir_path / run_files_dir_name
-samplesheet_path = run_staging_dir / 'SampleSheet.csv'
-run_name = run_files_dir_path.parent.name
+run_staging_dir_path = staging_dir_path / run_files_dir_name
+samplesheet_path = run_staging_dir_path / 'SampleSheet.csv'
+run_dir_path = run_files_dir_path.parent
+run_name = run_dir_path.name
 flowcell = run_files_dir_path.name
 analysis_dir_path = staging_dir_path / run_name
 tmp_logging_dir_str = config['logging_dir'] + '/tmp'
@@ -189,15 +190,16 @@ rule stage_run:
         logger.info(message)
 
         rsync_call = [str(rsync_path_str), '-rl', '--checksum',
-                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir)]
+                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir_path)]
         try:
             subp_run(rsync_call).check_returncode()
         except CalledProcessError as e:
-            message = f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr.decode()}"
+            message = (f"Staging had failed with return a code {e.returncode}. Error output: {e.stderr.decode()}. "
+                       f"Cleaning up...")
             notify_bot(message)
             logger.error(message)
+            delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
             raise RuntimeError(message)
-            # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
 
         message = f'Done staging the run {run_name}'
         logger.info(message)
@@ -218,8 +220,8 @@ rule process_run:
          logger.info(message)
          notify_bot(message)
 
-         dragen_call = [tso500_script_path,
-                        '--runFolder', str(run_staging_dir),
+         dragen_call = [str(tso500_script_path),
+                        '--runFolder', str(run_staging_dir_path),
                         '--analysisFolder', str(analysis_dir_path)]
          try:
              subp_run(dragen_call).check_returncode()
@@ -227,8 +229,8 @@ rule process_run:
              message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
              logger.error(message)
              notify_bot(message)
-             # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+             delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+             delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
              raise RuntimeError(message)
 
          message = f'Done running the DRAGEN TSO500 script for run {run_name}'
@@ -259,10 +261,18 @@ rule transfer_results:
                 transfer_results_cbmed(flowcell, run_name, rsync_path_str, logger, testing)
             except RuntimeError as e:
                 raise
+        elif run_type == 'patho':
+            try:
+                transfer_results_patho()
+            except RuntimeError as e:
+                raise
 
         message = f'Done transferring results for run {run_name}'
         notify_bot(message)
         logger.info(message)
+        # delete_directory(dead_dir_path=run_dir_path,logger_runtime=logger)
+        delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
+        delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
         Path(output[0]).touch()
 
 
