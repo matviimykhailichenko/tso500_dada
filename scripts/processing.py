@@ -72,8 +72,7 @@ def process_run(run_type: str,
         raise RuntimeError(f"Error processing run {run_files_dir_path}: {e}")
 
 
-def check_pending_runs(pending_onco_tag: Path,
-                       pending_cbmed_tag: Path):
+def check_pending_runs():
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_dir_path = Path(config['oncoservice_dir'])
