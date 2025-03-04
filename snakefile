@@ -280,7 +280,7 @@ rule summarize_logs:
         f"{tmp_logging_dir_str}/check_structure.log",
         f"{tmp_logging_dir_str}/check_docker_image.log",
         f"{tmp_logging_dir_str}/check_rsync.log",
-        f"{tmp_logging_dir_str}/check_tso500_script.log"
+        f"{tmp_logging_dir_str}/check_tso500_script.log",
         f"{tmp_logging_dir_str}/stage_run.log",
         f"{tmp_logging_dir_str}/process_run.log",
         f"{tmp_logging_dir_str}/transfer_results.log"
