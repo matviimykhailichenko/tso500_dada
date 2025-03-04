@@ -18,7 +18,7 @@ def process_run(run_type: str,
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir_path = Path(config['pipeline_dir'])
-        onco_dir_path = Path(config['onco_dir'])
+        onco_dir_path = Path(config['oncoservice_dir'])
         server_availability_dir = Path(config['server_availability_dir'])
         server_idle_tag = server_availability_dir / config['server_idle_tag']
         server_busy_tag = server_availability_dir / config['server_busy_tag']
@@ -40,7 +40,7 @@ def process_run(run_type: str,
 
         else:
             notify_bot(f"Unrecognised run type: {run_type}")
-            raise RuntimeError(f"Unrecognised run type: {run_type}") # TODO log
+            raise RuntimeError(f"Unrecognised run type: {run_type}")
 
         server_idle_tag.unlink()
         snakefile_path = pipeline_dir_path / 'snakefile'
