@@ -26,10 +26,7 @@ def main():
         runs_cbmed_dir_path = cbmed_dir / f'Runs{'_TEST' if args.testing else ''}'
         pending_cbmed_tag = Path(cbmed_dir / config['pending_run_tag'])
 
-    if not has_new_runs(runs_cbmed_dir_path,
-                     blocking_tags,
-                     ready_tags,
-                     pending_cbmed_tag):
+    if not has_new_runs(runs_dir=runs_cbmed_dir_path):
         return
 
 if __name__ == "__main__":

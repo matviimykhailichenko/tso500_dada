@@ -3,7 +3,7 @@ from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from pathlib import Path
 from shutil import which as sh_which
 from datetime import datetime
-from scripts.helpers import delete_directory, delete_file, is_nas_mounted, transfer_results_cbmed, transfer_results_oncoservice
+from scripts.helpers import delete_directory, is_nas_mounted, transfer_results_cbmed, transfer_results_oncoservice
 from scripts.logging_ops import notify_bot
 from scripts.logging_ops import setup_logger
 
@@ -186,7 +186,7 @@ rule stage_run:
         f"{tmp_logging_dir_str}/stage_run.log"
     run:
         logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")
-        message = f'Staging run {run_name}'
+        message = f'Staging a/an {run_type} run {run_name}'
         notify_bot(message)
         logger.info(message)
 

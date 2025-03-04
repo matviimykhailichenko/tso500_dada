@@ -22,12 +22,12 @@ def main():
         ready_tags = set(config['ready_tags'])
         blocking_tags = set(config['blocking_tags'])
         patho_dir = Path(config['patho_dir'])
-        pending_cbmed_tag = Path(patho_dir / config['pending_run_tag'])
+        pending_patho_tag_path = Path(patho_dir / config['pending_run_tag'])
 
     if not has_new_runs(patho_dir,
                      blocking_tags,
                      ready_tags,
-                     pending_cbmed_tag):
+                     pending_patho_tag_path):
         return
 
 if __name__ == "__main__":

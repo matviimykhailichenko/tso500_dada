@@ -2,7 +2,7 @@
 
 _Instructions_:
 1. clone repo;
-2. have conda in your env and install tso500_dragen_pipeline env from `/envs/tso500_dragen_pipeline.yml`
+2. have conda in your env and install tso500_dragen_pipeline env from `/envs/tso500_dragen_pipeline.yml`;
 3. set up crontab.
 
 _Notes_:
@@ -16,13 +16,18 @@ _Future features:_
 - deleting temporary log files if run had failed and putting failed tag;
 - validate the samplesheet;
 - conteinerization;
-- make configuration object;
+- make a configuration object;
 - check for available storage;
 - testing with pytest;
-- add checksums for cbmed.
+- not deal with temporary logs;
+- search for the tso500 script
 
 Safety risks:
 - pathlib is deprecated! Change to pathlib2. 
 
 Directives:
-- logging in files is needed to see detailed sequence of operations and notifications are needed to receive quick insight into status and if something breaks
+- logging in files is needed to see detailed sequence of operations and notifications are needed to receive quick insight into status and if something breaks;
+- variables are named like this {structure name}_{structure type}_{data type}
+
+
+If something breaks, reach matvii.mykhailichenko@medunigraz.at.

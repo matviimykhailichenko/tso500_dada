@@ -24,20 +24,20 @@ def is_server_available() -> bool:
         raise RuntimeError(f"Failed to check server status: {e}")
 
 
-def delete_directory(dead_dir_path: Path, logger_runtime: Logger):
+def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
     if dead_dir_path and dead_dir_path.is_dir():
         try:
-            logger_runtime.info(f"deleting directory '{dead_dir_path}' ...")
-            sh_rmtree(dead_dir_path)  # should also delete the directory itself along with its contents
-            logger_runtime.info(f"successfully deleted directory '{dead_dir_path}'")
-        except KeyboardInterrupt:
-            logger_runtime.error("Keyboard Interrupt by user detected. Terminating pipeline execution ..")
-            return 255  # propagate KeyboardInterrupt outward
-        # TODO add whole stack
-        if Path(dead_dir_path).is_dir():
-            logger_runtime.warning(f"could not delete directory{dead_dir_path}")
+            if logger_runtime:
+                logger_runtime.info(f"deleting directory '{dead_dir_path}' ...")
+            sh_rmtree(str(dead_dir_path))  # should also delete the directory itself along with its contents
+            if logger_runtime:
+                logger_runtime.info(f"successfully deleted directory '{dead_dir_path}'")
+        except Exception as e:
+            if logger_runtime:
+                logger_runtime.warning(f"could not delete directory '{dead_dir_path}'. Error: {e}")
     else:
-        logger_runtime.warning(f"could not delete directory '{dead_dir_path}': path does not exist")
+        if logger_runtime:
+            logger_runtime.warning(f"could not delete directory '{dead_dir_path}': path does not exist")
 
 
 def delete_file(dead_file_path: Path):
@@ -72,6 +72,28 @@ def is_nas_mounted(mountpoint_dir: str,
         return False
     logger_runtime.info(f"the expected NAS mountpoint was found at '{mountpoint_dir}'.")
     return True
+
+
+def transfer_results_oncoservice(run_name: str,
+                           rsync_path_str: str,
+                           logger: Logger,
+                           testing: bool = False):
+    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        staging_dir_path = Path(config['staging_dir'])
+        results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}'
+    analysis_dir_path = staging_dir_path / run_name
+    rsync_call = [rsync_path_str, '-r', '--checksum',
+                  str(f'{analysis_dir_path}/'), str(results_dir_path)]
+    try:
+        subp_run(rsync_call).check_returncode()
+    except CalledProcessError as e:
+        message = f"Transfering results had failed with a return code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
+
+    return 0
 
 
 def transfer_results_cbmed(flowcell: str,
@@ -125,31 +147,5 @@ def transfer_results_cbmed(flowcell: str,
     return 0
 
 
-def transfer_results_oncoservice(run_name: str,
-                           rsync_path_str: str,
-                           logger: Logger,
-                           testing: bool = False):
-    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        staging_dir_path = Path(config['staging_dir'])
-        results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}'
-    analysis_dir_path = staging_dir_path / run_name
-    rsync_call = [rsync_path_str, '-r', '--checksum',
-                  str(f'{analysis_dir_path}/'), str(results_dir_path)]
-    try:
-        subp_run(rsync_call).check_returncode()
-    except CalledProcessError as e:
-        message = f"Transfering results had failed with a return code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-        # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-        # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-        raise RuntimeError(message)
-
-    # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-    # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-    # TODO add that if run is processed
-    # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
-
-    return 0
+def transfer_results_patho():
+    pass

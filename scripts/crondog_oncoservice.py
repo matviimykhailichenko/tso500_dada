@@ -10,12 +10,15 @@ def create_parser():
     return parser
 
 
-def has_new_runs(runs_dir: Path,
-                 blocking_tags: set,
-                 ready_tags: set,
-                 pending_tag: Path) -> bool:
+def has_new_runs(runs_dir_path: Path) -> bool:
+    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        pending_tag = config['pending_tag']
+        ready_tags = config['ready_tags']
+        blocking_tags = config['blocking_tags']
+        
     try:
-        for run_dir in runs_dir.iterdir():
+        for run_dir in runs_dir_path.iterdir():
             for o in run_dir.iterdir():
                 if not o.is_dir() or o.name == 'MyRun':
                     continue
@@ -47,16 +50,10 @@ def main():
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        ready_tags = set(config['ready_tags'])
-        blocking_tags = set(config['blocking_tags'])
         onco_dir = Path(config['oncoservice_dir'])
         runs_onco_dir_path = onco_dir / f'Runs{'_TEST' if args.testing else ''}'
-        pending_onco_tag_path = Path(onco_dir / config['pending_run_tag'])
 
-    if not has_new_runs(runs_dir=runs_onco_dir_path,
-                     blocking_tags=blocking_tags,
-                     ready_tags=ready_tags,
-                     pending_tag=pending_onco_tag_path):
+    if not has_new_runs(runs_onco_dir_path):
         return
 
 if __name__ == "__main__":
