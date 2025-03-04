@@ -94,13 +94,12 @@ def check_pending_runs():
 def main():
     parser = create_parser()
     args = parser.parse_args()
-    # TODO put in prod
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         failed_tag = config['blocking_tags'][1]
 
-    if is_server_available:
+    if is_server_available():
         return
 
     run_type = check_pending_runs()

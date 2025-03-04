@@ -8,8 +8,7 @@ from scripts.logging_ops import notify_bot
 
 
 
-def is_server_available(server_idle_tag: Path,
-                        server_busy_tag: Path) -> bool:
+def is_server_available() -> bool:
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server_availability_dir = Path(config['server_availability_dir'])
