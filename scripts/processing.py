@@ -60,8 +60,8 @@ def process_run(run_type: str,
         try:
             subprocess.run(snakemake_cmd).check_returncode()
         except CalledProcessError as e:
-            failed_tag_path = run_files_dir_path / failed_tag
-            failed_tag_path.touch()
+            # failed_tag_path = run_files_dir_path / failed_tag
+            # failed_tag_path.touch()
             raise RuntimeError(f"Error processing run {run_files_dir_path}: {e}")
 
         print(f'Processing run {run_files_dir_path}')
