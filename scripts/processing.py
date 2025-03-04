@@ -103,7 +103,7 @@ def main():
     if is_server_available:
         return
 
-    run_type = check_pending_runs
+    run_type = check_pending_runs()
 
     if run_type is None:
         pass
