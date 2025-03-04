@@ -146,7 +146,7 @@ rule check_tso500_script:
         logger = setup_logger(logger_name='check_tso500_script',log_file_str=f"{tmp_logging_dir_str}/check_tso500_script.log")
 
         if not tso500_script_path:
-            message = "TSO500 script path cannot be {tso500_script_path}"
+            message = f"TSO500 script path cannot be {tso500_script_path}"
             notify_bot(message)
             logger.error(message)
             raise FileNotFoundError
@@ -237,7 +237,6 @@ rule process_run:
          Path(output[0]).touch()
 
 
-# TODO would differ for CBmed 1: rearrange stuff and then transfer it ig?
 rule transfer_results:
     input:
         f"{tmp_logging_dir_str}/process_run.done"
@@ -274,12 +273,14 @@ rule summarize_logs:
         f"{tmp_logging_dir_str}/check_structure.done",
         f"{tmp_logging_dir_str}/check_docker_image.done",
         f"{tmp_logging_dir_str}/check_rsync.done",
+        f"{tmp_logging_dir_str}/check_tso500_script.done",
         f"{tmp_logging_dir_str}/stage_run.done",
         f"{tmp_logging_dir_str}/process_run.done",
         f"{tmp_logging_dir_str}/check_mountpoint.log",
         f"{tmp_logging_dir_str}/check_structure.log",
         f"{tmp_logging_dir_str}/check_docker_image.log",
         f"{tmp_logging_dir_str}/check_rsync.log",
+        f"{tmp_logging_dir_str}/check_tso500_script.log"
         f"{tmp_logging_dir_str}/stage_run.log",
         f"{tmp_logging_dir_str}/process_run.log",
         f"{tmp_logging_dir_str}/transfer_results.log"
