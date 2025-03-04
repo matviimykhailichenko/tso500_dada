@@ -98,10 +98,6 @@ def main():
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        # TODO chang eto real sequencing dir
-        cbmed_seqencing_dir = Path(config['cbmed_seqencing_dir'])
-        pending_tag = config['pending_run_tag']
-
         failed_tag = config['blocking_tags'][1]
 
     if is_server_available:
@@ -109,13 +105,11 @@ def main():
 
     run_type = check_pending_runs
 
-    if run_type == None:
+    if run_type is None:
         pass
 
     # TODO check an assumption that there would not be 2 runs of one type
     process_run(run_type=run_type,
-                cbmed_seqencing_dir=cbmed_seqencing_dir,
-                pending_tag=pending_tag,
                 testing=args.testing)
 
 if __name__ == "__main__":
