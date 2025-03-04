@@ -81,13 +81,14 @@ def check_pending_runs():
         pending_cbmed_tag = Path(cbmed_seqencing_dir / config['pending_run_tag'])
 
     if pending_onco_tag.exists():
+        print('Oncoservice run was detected')
         return 'oncoservice'
     elif pending_cbmed_tag.exists():
+        print('CBmed run was detected')
         return 'cbmed'
     else:
         print('No Oncoservice or CBmed runs are detected, quitting...')
         return None
-
 
 
 def main():
