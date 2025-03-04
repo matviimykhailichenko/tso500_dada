@@ -261,11 +261,11 @@ rule transfer_results:
                 transfer_results_cbmed(flowcell, run_name, rsync_path_str, logger, testing)
             except RuntimeError as e:
                 raise
-        elif run_type == 'patho':
-            try:
-                transfer_results_patho()
-            except RuntimeError as e:
-                raise
+        # elif run_type == 'patho':
+        #     try:
+        #         transfer_results_patho()
+        #     except RuntimeError as e:
+        #         raise
 
         message = f'Done transferring results for run {run_name}'
         notify_bot(message)
