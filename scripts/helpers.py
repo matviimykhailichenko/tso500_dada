@@ -152,7 +152,7 @@ def transfer_results_cbmed(flowcell: str,
                   f"{str(samplesheet_path)} "
                   f"{str(flowcell_cbmed_dir_path)}")
     try:
-        subp_run(rsync_call).check_returncode()
+        subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
