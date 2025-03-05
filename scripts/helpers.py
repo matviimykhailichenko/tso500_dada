@@ -117,7 +117,7 @@ def transfer_results_cbmed(flowcell: str,
     rsync_call = (f"{rsync_path_str} -r "
                   f"--checksum --checksum-choice=md5 "
                   f"--out-format=\"%C %n\" "
-                  f"--log-file {str(log_file_path)}"
+                  f"--log-file {str(log_file_path)} "
                   f"{str(data_staging_dir_path)}/ "
                   f"{str(data_cbmed_dir_path)} "
                   f"> {str(checksums_file_path)}")
@@ -134,7 +134,7 @@ def transfer_results_cbmed(flowcell: str,
     rsync_call = (f"{rsync_path_str} -r "
                   f"--checksum --checksum-choice=md5 "
                   f"--out-format=\"%C %n\" "
-                  f"--log-file {str(log_file_path)}"
+                  f"--log-file {str(log_file_path)} "
                   f"{str(results_staging_dir_path)}/ "
                   f"{str(results_cbmed_dir_path)} "
                   f"> {str(checksums_file_path)}")
