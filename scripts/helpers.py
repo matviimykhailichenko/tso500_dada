@@ -113,6 +113,23 @@ def transfer_results_cbmed(flowcell: str,
     data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
 
+    checksums_file_path = results_cbmed_dir_path / 'checksums.md5'
+    log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
+    rsync_call = (f"{rsync_path_str} -r "
+                  f"--checksum --checksum-choice=md5 "
+                  f"--out-format=\"%C %n\" "
+                  f"--log-file {str(log_file_path)} "
+                  f"{str(results_staging_dir_path)}/ "
+                  f"{str(results_cbmed_dir_path)} "
+                  f"> {str(checksums_file_path)}")
+    try:
+        subp_run(rsync_call, shell=True).check_returncode()
+    except CalledProcessError as e:
+        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError()
+
     checksums_file_path = flowcell_cbmed_dir_path / 'checksums.md5'
     log_file_path = flowcell_cbmed_dir_path / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path_str} -r "
@@ -130,22 +147,7 @@ def transfer_results_cbmed(flowcell: str,
         logger.error(message)
         raise RuntimeError()
 
-    checksums_file_path = results_cbmed_dir_path / 'checksums.md5'
-    log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path_str} -r "
-                  f"--checksum --checksum-choice=md5 "
-                  f"--out-format=\"%C %n\" "
-                  f"--log-file {str(log_file_path)} "
-                  f"{str(results_staging_dir_path)}/ "
-                  f"{str(results_cbmed_dir_path)} "
-                  f"> {str(checksums_file_path)}")
-    try:
-        subp_run(rsync_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError()
+
 
     samplesheet_path = results_cbmed_dir_path / 'SampleSheet.csv'
     rsync_call = (f"{rsync_path_str} "
