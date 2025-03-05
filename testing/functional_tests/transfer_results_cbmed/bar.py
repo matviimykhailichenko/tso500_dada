@@ -13,5 +13,7 @@ data_staging_dir_path = staging_dir_path / flowcell
 data_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
 results_staging_dir_path = staging_dir_path / run_name
 results_cbmed_dir_path = cbmed_results_dir / 'dragen' / flowcell / 'Results'
+print(data_cbmed_dir_path, results_cbmed_dir_path)
+
 data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
 results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
