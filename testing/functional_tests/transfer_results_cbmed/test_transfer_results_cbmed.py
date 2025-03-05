@@ -6,4 +6,5 @@ logger_runtime = setup_logger('transfer_results_cbmed',
 transfer_results_cbmed(flowcell='test_run_files_dir',
                        rsync_path_str='/usr/bin/rsync',
                        run_name='test_results_dir',
-                       logger=logger_runtime)
+                       logger=logger_runtime,
+                       testing=True)
