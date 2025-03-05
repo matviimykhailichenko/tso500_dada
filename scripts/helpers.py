@@ -81,14 +81,14 @@ def transfer_results_oncoservice(run_name: str,
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         staging_dir_path = Path(config['staging_dir'])
-        results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}'
+        results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
     analysis_dir_path = staging_dir_path / run_name
     rsync_call = [rsync_path_str, '-r', '--checksum',
                   str(f'{analysis_dir_path}/'), str(results_dir_path)]
     try:
         subp_run(rsync_call).check_returncode()
     except CalledProcessError as e:
-        message = f"Transfering results had failed with a return code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had failed with a return code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
@@ -103,16 +103,18 @@ def transfer_results_cbmed(flowcell: str,
                            testing: bool = False):
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        cbmed_results_dir = Path(config['cbmed_results_dir'])
+        cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST'if testing else ''}")
         staging_dir_path = Path(config['staging_dir'])
     data_staging_dir_path = staging_dir_path / flowcell
     data_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
     results_staging_dir_path = staging_dir_path / run_name
     results_cbmed_dir_path = cbmed_results_dir / 'dragen' / flowcell / 'Results'
+    data_cbmed_dir_path.mkdir(parents=True,exist_ok=True)
+    results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
 
     checksums_file_path = data_cbmed_dir_path / 'checksums.md5'
     log_file_path = data_cbmed_dir_path / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path_str} -rl " # TODO delete if pipeline without -l flag succeeds 
+    rsync_call = (f"{rsync_path_str} -r "
                   f"--checksum --checksum-choice=md5 "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)}"
@@ -122,14 +124,14 @@ def transfer_results_cbmed(flowcell: str,
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError()
 
     checksums_file_path = results_cbmed_dir_path / 'checksums.md5'
     log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path_str} -rl "
+    rsync_call = (f"{rsync_path_str} -r "
                   f"--checksum --checksum-choice=md5 "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)}"
@@ -139,7 +141,7 @@ def transfer_results_cbmed(flowcell: str,
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError()

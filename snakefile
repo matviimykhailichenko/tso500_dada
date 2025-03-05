@@ -264,7 +264,7 @@ rule transfer_results:
                 raise
         # elif run_type == 'patho':
         #     try:
-        #         transfer_results_patho()
+        #         transfer_results_patho(run_name, rsync_path_str, logger, testing)
         #     except RuntimeError as e:
         #         raise
 
