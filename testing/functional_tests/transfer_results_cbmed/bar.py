@@ -10,7 +10,7 @@ with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
     cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST' if testing else ''}")
     staging_dir_path = Path(config['staging_dir'])
 data_staging_dir_path = staging_dir_path / flowcell
-data_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
+data_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell / flowcell
 results_staging_dir_path = staging_dir_path / run_name
 results_cbmed_dir_path = cbmed_results_dir / 'dragen' / flowcell / 'Results'
 print(data_cbmed_dir_path, results_cbmed_dir_path)

@@ -106,14 +106,15 @@ def transfer_results_cbmed(flowcell: str,
         cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST'if testing else ''}")
         staging_dir_path = Path(config['staging_dir'])
     data_staging_dir_path = staging_dir_path / flowcell
-    data_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
+    flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
+    data_cbmed_dir_path = flowcell_cbmed_dir_path / flowcell
     results_staging_dir_path = staging_dir_path / run_name
     results_cbmed_dir_path = cbmed_results_dir / 'dragen' / flowcell / 'Results'
     data_cbmed_dir_path.mkdir(parents=True,exist_ok=True)
     results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
 
-    checksums_file_path = data_cbmed_dir_path / 'checksums.md5'
-    log_file_path = data_cbmed_dir_path / 'CBmed_copylog.log'
+    checksums_file_path = flowcell_cbmed_dir_path / 'checksums.md5'
+    log_file_path = flowcell_cbmed_dir_path / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path_str} -r "
                   f"--checksum --checksum-choice=md5 "
                   f"--out-format=\"%C %n\" "
@@ -123,6 +124,18 @@ def transfer_results_cbmed(flowcell: str,
                   f"> {str(checksums_file_path)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
+    except CalledProcessError as e:
+        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError()
+
+    samplesheet_path = results_cbmed_dir_path / 'SampleSheet.csv'
+    rsync_call = (f"{rsync_path_str} "
+                  f"{str(samplesheet_path)} "
+                  f"{str(flowcell_cbmed_dir_path)}")
+    try:
+        subp_run(rsync_call).check_returncode()
     except CalledProcessError as e:
         message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
@@ -145,6 +158,8 @@ def transfer_results_cbmed(flowcell: str,
         notify_bot(message)
         logger.error(message)
         raise RuntimeError()
+
+
 
     return 0
 
