@@ -3,8 +3,25 @@
 # Define the target directory
 TARGET_DIR="/staging/test_results_dir"
 
-# Create the directory structure
+# Create the main work directory
 mkdir -p "$TARGET_DIR/work"
+
+# List of directories to create (from the screenshot)
+DIRS=("fe" "fb" "f4" "f2" "ec" "e2" "e0" "df" "dd" "d6" "d3" "d1" "bd" "b8" "b4" "ae" "ab" "aa" "a9" "a5" "a4" "9c" "9b" "99" "98" "97" "96" "93" "92" "8d")
+
+# Create each directory and populate with random files
+for dir in "${DIRS[@]}"; do
+  mkdir -p "$TARGET_DIR/work/$dir"
+
+  # Generate 1-3 random files in each directory
+  NUM_FILES=$((RANDOM % 3 + 1))
+
+  for ((i=1; i<=NUM_FILES; i++)); do
+    # Create a random file with random content
+    dd if=/dev/urandom of="$TARGET_DIR/work/$dir/file_$i.dat" bs=1K count=$((RANDOM % 10 + 1)) 2>/dev/null
+  done
+done
+
 mkdir -p "$TARGET_DIR/errors"
 mkdir -p "$TARGET_DIR/Results"
 mkdir -p "$TARGET_DIR/Logs_Intermediates"
