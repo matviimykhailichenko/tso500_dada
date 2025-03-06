@@ -1,7 +1,7 @@
 # Imports
 from subprocess import run as subp_run, CalledProcessError
 
-compute_checksums_call = f"rsync -rl --checksum --checksum-choice=md5 --out-format=\"%C %n\" /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/source/ /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/destination > /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/checksum_file_path.txt"
+compute_checksums_call = r'find /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/source/ -type f -exec sha256sum {} \; | tee  /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/source.sha256'
 try:
     subp_run(compute_checksums_call, shell=True).check_returncode()
 except CalledProcessError as e:

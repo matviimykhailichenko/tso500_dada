@@ -142,7 +142,7 @@ def transfer_results_cbmed(flowcell: str,
         logger.error(message)
         raise RuntimeError()
 
-    checksums_file_path = dragen_cbmed_dir_path / flowcell / 'Results.sha256'
+    checksums_file_path = dragen_cbmed_dir_path / flowcell / f'{flowcell}_Results.sha256'
     log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path_str} -r "
                   f"--out-format=\"%C %n\" "
