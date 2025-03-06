@@ -110,7 +110,8 @@ def transfer_results_cbmed(flowcell: str,
     flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir_path = flowcell_cbmed_dir_path / flowcell
     results_staging_dir_path = staging_dir_path / run_name
-    results_cbmed_dir_path = cbmed_results_dir / 'dragen' / flowcell / 'Results'
+    dragen_cbmed_dir_path = cbmed_results_dir / 'dragen'
+    results_cbmed_dir_path = dragen_cbmed_dir_path / flowcell / 'Results'
     data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -120,8 +121,7 @@ def transfer_results_cbmed(flowcell: str,
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(data_staging_dir_path)}/ "
-                  f"{str(data_cbmed_dir_path)} "
-                  f"> {str(checksums_file_path)}")
+                  f"{str(data_cbmed_dir_path)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -142,14 +142,13 @@ def transfer_results_cbmed(flowcell: str,
         logger.error(message)
         raise RuntimeError()
 
-    checksums_file_path = results_cbmed_dir_path / 'Results.sha256'
+    checksums_file_path = dragen_cbmed_dir_path / flowcell / 'Results.sha256'
     log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path_str} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(results_staging_dir_path)}/ "
-                  f"{str(results_cbmed_dir_path)} "
-                  f"> {str(checksums_file_path)}")
+                  f"{str(results_cbmed_dir_path)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
