@@ -1,37 +1,50 @@
 #!/bin/bash
 
-# Base directory
-BASE_DIR="/mnt/Novaseq/07_Oncoservice/Runs_TEST"
+# Default values
+RUN_FOLDER=""
+ANALYSIS_FOLDER=""
 
-# Create parent run directory
-RUN_DIR="${BASE_DIR}/250213_TSO500_Onco"
-mkdir -p "${RUN_DIR}"
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --runFolder)
+      RUN_FOLDER="$2"
+      shift 2
+      ;;
+    --analysisFolder)
+      ANALYSIS_FOLDER="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
 
-# Create sample directory
-SAMPLE_DIR="${RUN_DIR}/250213_A01664_0452_AH2J5VDMX2"
-mkdir -p "${SAMPLE_DIR}"
+# Check if required parameters are provided
+if [ -z "$RUN_FOLDER" ] || [ -z "$ANALYSIS_FOLDER" ]; then
+  echo "Usage: $0 --runFolder <run_folder_path> --analysisFolder <analysis_folder_path>"
+  exit 1
+fi
 
-# Create MyRun directory
-mkdir -p "${RUN_DIR}/MyRun"
+# Create the analysis folder and its subdirectories
+mkdir -p "$ANALYSIS_FOLDER"
+mkdir -p "$ANALYSIS_FOLDER/.nextflow"
+mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates"
+mkdir -p "$ANALYSIS_FOLDER/Results"
+mkdir -p "$ANALYSIS_FOLDER/errors"
+mkdir -p "$ANALYSIS_FOLDER/work"
 
-# Create empty SampleSheet.csv
-touch "${RUN_DIR}/SampleSheet.csv"
+# Create files with content
+echo "sample_id,sample_name,sample_type,panel,read1_fastq,read2_fastq" > "$ANALYSIS_FOLDER/SampleSheet.csv"
+echo "[$(date)] Pipeline started\n[$(date)] Processing run folder: $RUN_FOLDER\n[$(date)] Analysis output: $ANALYSIS_FOLDER" > "$ANALYSIS_FOLDER/analysis.log"
+echo "{\"runFolder\": \"$RUN_FOLDER\", \"analysisFolder\": \"$ANALYSIS_FOLDER\", \"pipeline_version\": \"1.0.0\"}" > "$ANALYSIS_FOLDER/inputs.json"
+echo "Analysis completed successfully on $(date)" > "$ANALYSIS_FOLDER/receipt"
 
-# Create subdirectories in sample directory
-mkdir -p "${SAMPLE_DIR}/Config"
-mkdir -p "${SAMPLE_DIR}/Data"
-mkdir -p "${SAMPLE_DIR}/InterOp"
-mkdir -p "${SAMPLE_DIR}/Logs"
-mkdir -p "${SAMPLE_DIR}/Recipe"
-mkdir -p "${SAMPLE_DIR}/Thumbnail_Images"
+# Set appropriate permissions (similar to those in the screenshot)
+chmod 755 "$ANALYSIS_FOLDER"
+chmod 755 "$ANALYSIS_FOLDER/.nextflow" "$ANALYSIS_FOLDER/Logs_Intermediates" "$ANALYSIS_FOLDER/Results" "$ANALYSIS_FOLDER/errors" "$ANALYSIS_FOLDER/work"
+chmod 644 "$ANALYSIS_FOLDER/SampleSheet.csv" "$ANALYSIS_FOLDER/analysis.log" "$ANALYSIS_FOLDER/inputs.json" "$ANALYSIS_FOLDER/receipt"
 
-# Create empty files in sample directory
-touch "${SAMPLE_DIR}/ANALYZED.txt"
-touch "${SAMPLE_DIR}/CopyComplete.txt"
-touch "${SAMPLE_DIR}/RTA3.cfg"
-touch "${SAMPLE_DIR}/RTAComplete.txt"
-touch "${SAMPLE_DIR}/RunInfo.xml"
-touch "${SAMPLE_DIR}/RunParameters.xml"
-touch "${SAMPLE_DIR}/SequenceComplete.txt"
-
-echo "Directory structure created in ${BASE_DIR}"
+echo "Analysis folder structure created at $ANALYSIS_FOLDER"
