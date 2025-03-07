@@ -13,8 +13,8 @@ def create_parser():
     return parser
 
 
-def process_run(run_type: str,
-                testing: bool):
+def process_run(run_type: str = 'None',
+                testing: bool = False):
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir_path = Path(config['pipeline_dir'])
@@ -24,52 +24,52 @@ def process_run(run_type: str,
         server_busy_tag = server_availability_dir / config['server_busy_tag']
         cbmed_seqencing_dir = Path(config['cbmed_seqencing_dir'])
         pending_tag = config['pending_run_tag']
-        
-    try:
+
+    if testing:
         if run_type == 'oncoservice':
-            pending_tag_path = onco_dir_path / pending_tag
-            run_files_dir_path = Path(pending_tag_path).read_text()
-
+            run_files_dir_path: Path = Path(config['oncoservice_dir']) / 'Runs_TEST' / f'test_run{run_type}'
         elif run_type == 'cbmed':
-            pending_tag_path = cbmed_seqencing_dir / pending_tag
-            run_files_dir_path = Path(pending_tag_path).read_text()
+            run_files_dir_path: Path = Path(config['cbmed_seqencing_dir']) / 'Runs_TEST' / f'test_run{run_type}'
 
-        elif run_type == 'patho':
-            pending_tag_path = cbmed_seqencing_dir / pending_tag
-            run_files_dir_path = Path(pending_tag_path).read_text()
+    elif run_type == 'oncoservice':
+        pending_tag_path = onco_dir_path / pending_tag
+        run_files_dir_path = pending_tag_path.read_text()
 
-        else:
-            notify_bot(f"Unrecognised run type: {run_type}")
-            raise RuntimeError(f"Unrecognised run type: {run_type}")
+    elif run_type == 'cbmed':
+        pending_tag_path = cbmed_seqencing_dir / pending_tag
+        run_files_dir_path = pending_tag_path.read_text()
 
-        server_idle_tag.unlink()
-        snakefile_path = pipeline_dir_path / 'snakefile'
-        config_file_path = pipeline_dir_path / 'config.yaml'
-        # TODO not sure if we need this if this is going to be reported to the bot
-        # analysing_tag = Path(run_dir) / analysing_tag
-        # analysing_tag.touch()
-        server_busy_tag.touch()
-        # TODO discord bot
+    elif run_type == 'patho':
+        pending_tag_path = cbmed_seqencing_dir / pending_tag
+        run_files_dir_path = pending_tag_path.read_text()
+    else:
+        notify_bot(f"Unrecognised run type: {run_type}")
+        raise RuntimeError(f"Unrecognised run type: {run_type}")
 
-        snakemake_cmd =[
-                "conda", "run", "-n", "tso500_dragen_pipeline",
-                "snakemake", "-s", str(snakefile_path),
-                "--configfile", str(config_file_path),
-                "--config", f"run_files_dir_path={str(run_files_dir_path)}", f'run_type={run_type}', f'testing={str(testing)}'
-        ]
-        try:
-            subprocess.run(snakemake_cmd).check_returncode()
-        except CalledProcessError as e:
-            # failed_tag_path = run_files_dir_path / failed_tag
-            # failed_tag_path.touch()
-            raise RuntimeError(f"Error processing run {run_files_dir_path}: {e}")
+    server_idle_tag.unlink()
+    snakefile_path = pipeline_dir_path / 'snakefile'
+    config_file_path = pipeline_dir_path / 'config.yaml'
+    server_busy_tag.touch()
 
-        print(f'Processing run {run_files_dir_path}')
-        server_busy_tag.unlink()
-        server_idle_tag.touch()
-        pending_tag_path.unlink()
-    except Exception as e:
-        raise RuntimeError(f"Error processing run {run_files_dir_path}: {e}")
+    snakemake_cmd =[
+            "conda", "run", "-n", "tso500_dragen_pipeline",
+            "snakemake", "-s", str(snakefile_path),
+            "--configfile", str(config_file_path),
+            "--config", f"run_files_dir_path={str(run_files_dir_path)}", f'run_type={run_type}', f'testing={str(testing)}'
+    ]
+    try:
+        subprocess.run(snakemake_cmd).check_returncode()
+    except CalledProcessError as e:
+        # failed_tag_path = run_files_dir_path / failed_tag
+        # failed_tag_path.touch()
+        message = f"Error processing run {run_files_dir_path}: {e.stderr}"
+        notify_bot(message)
+        raise RuntimeError(message)
+
+    print(f'Processing run {run_files_dir_path}')
+    server_busy_tag.unlink()
+    server_idle_tag.touch()
+    pending_tag_path.unlink()
 
 
 def check_pending_runs():
@@ -94,6 +94,7 @@ def check_pending_runs():
 def main():
     parser = create_parser()
     args = parser.parse_args()
+    testing: bool =args.testing
     # Definitions
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -102,14 +103,16 @@ def main():
     if is_server_available():
         return
 
-    run_type = check_pending_runs()
+    if testing:
+        process_run(testing=args.testing)
+    else:
+        run_type = check_pending_runs()
+        if run_type is None:
+            pass
+        else:
+            # TODO check an assumption that there would not be 2 runs of one type
+            process_run(run_type=run_type, testing=False)
 
-    if run_type is None:
-        pass
-
-    # TODO check an assumption that there would not be 2 runs of one type
-    process_run(run_type=run_type,
-                testing=args.testing)
 
 if __name__ == "__main__":
     main()

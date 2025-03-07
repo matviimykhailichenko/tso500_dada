@@ -128,7 +128,7 @@ def transfer_results_cbmed(flowcell: str,
         message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError()
+        raise RuntimeError(message)
 
     compute_checksums_call = (r'find '
                               f'{str(data_staging_dir_path)} '
@@ -140,7 +140,7 @@ def transfer_results_cbmed(flowcell: str,
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError()
+        raise RuntimeError(message)
 
     checksums_file_path = dragen_cbmed_dir_path / flowcell / f'{flowcell}_Results.sha256'
     log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
@@ -155,7 +155,7 @@ def transfer_results_cbmed(flowcell: str,
         message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError()
+        raise RuntimeError(message)
 
     samplesheet_path = results_cbmed_dir_path / 'SampleSheet.csv'
     rsync_call = (f"{rsync_path_str} "
@@ -167,7 +167,7 @@ def transfer_results_cbmed(flowcell: str,
         message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError()
+        raise RuntimeError(message)
 
     compute_checksums_call = (r'find '
                               f'{str(results_staging_dir_path)} '
@@ -179,7 +179,7 @@ def transfer_results_cbmed(flowcell: str,
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError()
+        raise RuntimeError(message)
 
     return 0
 

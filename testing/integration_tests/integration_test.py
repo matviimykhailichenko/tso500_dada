@@ -50,6 +50,7 @@ def test_environment(request):
         test_checksums_file.unlink()
 
 
+@pytest.mark.order(1)
 def test_process_run(test_environment):
     run_type, test_run, _, _ = test_environment
     try:
@@ -59,6 +60,7 @@ def test_process_run(test_environment):
         pytest.fail(f"Process run failed for {run_type} test run: {e}")
 
 
+@pytest.mark.order(2)
 def validate_checksums(test_environment):
     run_type, test_run, results_dir, test_checksums_file = test_environment
     test_run_results = results_dir / test_run.name
