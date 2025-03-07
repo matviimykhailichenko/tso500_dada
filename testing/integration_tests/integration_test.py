@@ -33,10 +33,11 @@ def test_environment(request):
             pass
         else:
             raise RuntimeError(f'Unknown run type :{run_type}')
-        test_run_results = results_dir / test_run.name
+        test_run_seq_dir: Path = sequencing_dir / run_name
+        test_run_results: Path = results_dir / test_run.name
         test_checksums_file: Path = results_dir / f'{test_run.name}.sha256'
 
-    copytree(str(test_run), str(sequencing_dir))
+    copytree(str(test_run), str(test_run_seq_dir))
 
     yield run_type, test_run, results_dir, test_checksums_file
 
