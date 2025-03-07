@@ -4,7 +4,7 @@
 BASE_DIR="/mnt/Novaseq/07_Oncoservice/Runs_TEST"
 
 # Create parent run directory
-RUN_DIR="${BASE_DIR}/250213_TSO500_Onco"
+RUN_DIR="${BASE_DIR}/test_run_oncoservice"
 mkdir -p "${RUN_DIR}"
 
 # Create sample directory

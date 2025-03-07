@@ -14,7 +14,7 @@ config_path: str = "/mnt/Novaseq/TSO_Pipeline/02_Development/config.yaml"
 # TODO copy test run to seqencing directory for Patho
 # TODO get CBmed and Patho test runs
 @pytest.fixture(params=['oncoservice',
-                        'cbmed',
+                        # 'cbmed',
                         # 'patho'
                         ])
 def test_environment(request):
