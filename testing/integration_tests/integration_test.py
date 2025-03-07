@@ -55,7 +55,7 @@ def test_environment(request):
 def test_process_run(test_environment):
     run_type, test_run, _, _ = test_environment
     try:
-        process_run(str(test_run),
+        process_run(str(run_type),
                     testing=True)
     except Exception as e:
         pytest.fail(f"Process run failed for {run_type} test run: {e}")
