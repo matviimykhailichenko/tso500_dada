@@ -42,7 +42,7 @@ def test_environment(request):
     yield run_type, test_run, results_dir, test_checksums_file
 
     if test_run_seq_dir.exists():
-        rmtree(test_run)
+        rmtree(test_run_seq_dir)
 
     if test_run_results.exists():
         rmtree(test_run_results)
