@@ -26,7 +26,6 @@ mkdir -p "${SAMPLE_DIR}/Recipe"
 mkdir -p "${SAMPLE_DIR}/Thumbnail_Images"
 
 # Create empty files in sample directory
-touch "${SAMPLE_DIR}/ANALYZED.txt"
 touch "${SAMPLE_DIR}/CopyComplete.txt"
 touch "${SAMPLE_DIR}/RTA3.cfg"
 touch "${SAMPLE_DIR}/RTAComplete.txt"
