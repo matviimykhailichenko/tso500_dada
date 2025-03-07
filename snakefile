@@ -14,7 +14,11 @@ configfile: "config.yaml"
 ready_tags: list = config['ready_tags']
 blocking_tags: list = config['blocking_tags']
 rsync_path: str = str(sh_which('rsync'))
-tso500_script_path: str = str('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
+testing_fast: bool = config['testing_fast']
+if testing_fast:
+    tso500_script_path: str = '/mnt/Novaseq/TSO_pipeline/02_Development/sandbox/tso500_script_sub/tso500_script_sub.sh'
+else:
+    tso500_script_path: str = str('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 # tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 staging_dir: Path = Path(config["staging_dir"])
 run_files_dir: Path = Path(config['run_files_dir'])

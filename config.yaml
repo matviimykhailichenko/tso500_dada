@@ -1,3 +1,5 @@
+# TODO Change then testing with real runs
+testing_fast: True
 # TODO Change in prod
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
@@ -33,7 +35,6 @@ analysed_tag: ANALYZED.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED:txt
 server_busy_tag: BUSY.txt
-
 samplesheet: 'SampleSheet.csv'
 mountpoint_binary: '/usr/bin/mountpoint'
 
