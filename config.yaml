@@ -37,11 +37,6 @@ server_busy_tag: BUSY.txt
 samplesheet: 'SampleSheet.csv'
 mountpoint_binary: '/usr/bin/mountpoint'
 
-rules_sequence:
-  - check_mountpoint
-  - check_structure
-  - check_docker_image
-
 error_messages:
   1: "No or invalid options passed - general error"
   5: "Needs either --runFolder or --fastqFolder"

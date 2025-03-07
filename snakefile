@@ -11,42 +11,41 @@ from scripts.logging_ops import setup_logger
 
 # Definitions
 configfile: "config.yaml"
-ready_tags = config['ready_tags']
-blocking_tags = config['blocking_tags']
-rsync_path_str = str(sh_which('rsync'))
-tso500_script_path_str = str('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
+ready_tags: list = config['ready_tags']
+blocking_tags: list = config['blocking_tags']
+rsync_path: str = str(sh_which('rsync'))
+tso500_script_path: str = str('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 # tso500_script_path = sh_which('DRAGEN_TruSight_Oncology_500_ctDNA.sh')
-staging_dir_path = Path(config["staging_dir"])
-run_files_dir_path = Path(config['run_files_dir_path'])
-run_files_dir_name = str(Path(run_files_dir_path).name)
-run_staging_dir_path = staging_dir_path / run_files_dir_name
-samplesheet_path = run_staging_dir_path / 'SampleSheet.csv'
-run_dir_path = run_files_dir_path.parent
-run_name = run_dir_path.name
-flowcell = run_files_dir_path.name
-analysis_dir_path = staging_dir_path / run_name
-tmp_logging_dir_str = config['logging_dir'] + '/tmp'
+staging_dir: Path = Path(config["staging_dir"])
+run_files_dir: Path = Path(config['run_files_dir'])
+flowcell_name: str = str(Path(run_files_dir).name)
+run_staging_dir: Path = staging_dir / flowcell_name
+run_dir: Path = run_files_dir.parent
+run_name: str = run_dir.name
+flowcell: str = run_files_dir.name
+analysis_dir: Path = staging_dir / run_name
+tmp_logging_dir: str = config['logging_dir'] + '/tmp'
 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-log_file_str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
-error_messages = config["error_messages"]
-run_type=config['run_type']
-testing = config['testing']
+unified_log_file:str = config['logging_dir'] + f"/TSO_pipeline_{timestamp}.log"
+error_messages: dict = config["error_messages"]
+run_type: str = config['run_type']
+testing: bool = config['testing']
 
 
 
 # Rules
 rule all:
     input:
-        log_file_str
+        unified_log_file
 
 
 # Checkpoint to verify mountpoint
 rule check_mountpoint:
     output:
-        f"{tmp_logging_dir_str}/check_mountpoint.done",
-        f"{tmp_logging_dir_str}/check_mountpoint.log"
+        f"{tmp_logging_dir}/check_mountpoint.done",
+        f"{tmp_logging_dir}/check_mountpoint.log"
     run:
-        logger = setup_logger(logger_name='check_mountpoint', log_file_str=f"{tmp_logging_dir_str}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_mountpoint', log_file_str=f"{tmp_logging_dir}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
         mountpoint_dir = config["novaseq_mountpoint"]
 
         if not Path(mountpoint_dir).is_dir():
@@ -66,36 +65,36 @@ rule check_mountpoint:
 # TODO Check for server availability dir and respective analysis results dirs
 rule check_structure:
     input:
-        f"{tmp_logging_dir_str}/check_mountpoint.done"
+        f"{tmp_logging_dir}/check_mountpoint.done"
     output:
-        f"{tmp_logging_dir_str}/check_structure.done",
-        f"{tmp_logging_dir_str}/check_structure.log"
+        f"{tmp_logging_dir}/check_structure.done",
+        f"{tmp_logging_dir}/check_structure.log"
     run:
-        logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir_str}/check_structure.log") # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
-        if not Path(run_files_dir_path).is_dir():
-            message = f"Directory {run_files_dir_path} does not exist"
+        if not Path(run_files_dir).is_dir():
+            message = f"Directory {run_files_dir} does not exist"
             notify_bot(message)
             logger.error(message)
-        logger.info(f"Run directory found at {run_files_dir_path}")
+        logger.info(f"Run directory found at {run_files_dir}")
 
-        if not staging_dir_path.is_dir():
-            message = f"Directory {staging_dir_path} does not exist"
+        if not staging_dir.is_dir():
+            message = f"Directory {staging_dir} does not exist"
             notify_bot(message)
             logger.error(message)
-        logger.info(f"Staging directory found at {staging_dir_path}")
+        logger.info(f"Staging directory found at {staging_dir}")
 
         Path(output[0]).touch()
 
 
 rule check_docker_image:
     input:
-        f"{tmp_logging_dir_str}/check_structure.done"
+        f"{tmp_logging_dir}/check_structure.done"
     output:
-        f"{tmp_logging_dir_str}/check_docker_image.done",
-        f"{tmp_logging_dir_str}/check_docker_image.log"
+        f"{tmp_logging_dir}/check_docker_image.done",
+        f"{tmp_logging_dir}/check_docker_image.log"
     run:
-        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir_str}/check_docker_image.log")
+        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir}/check_docker_image.log")
 
         try:
             result = subp_run(['docker','images'],
@@ -121,46 +120,46 @@ rule check_docker_image:
 
 rule check_rsync:
     input:
-        f"{tmp_logging_dir_str}/check_docker_image.done"
+        f"{tmp_logging_dir}/check_docker_image.done"
     output:
-        f"{tmp_logging_dir_str}/check_rsync.done",
-        f"{tmp_logging_dir_str}/check_rsync.log"
+        f"{tmp_logging_dir}/check_rsync.done",
+        f"{tmp_logging_dir}/check_rsync.log"
     run:
-        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir_str}/check_rsync.log")
+        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir}/check_rsync.log")
 
-        if not rsync_path_str:
-            message = "Rsync path cannot be {rsync_path_str}"
+        if not rsync_path:
+            message = "Rsync path cannot be {rsync_path}"
             notify_bot(message)
             logger.error(message)
             raise FileNotFoundError
 
-        logger.info(f"Rsync was found by this path: {rsync_path_str}")
+        logger.info(f"Rsync was found by this path: {rsync_path}")
         Path(output[0]).touch()
 
 
 rule check_tso500_script:
     input:
-        f"{tmp_logging_dir_str}/check_rsync.done"
+        f"{tmp_logging_dir}/check_rsync.done"
     output:
-        f"{tmp_logging_dir_str}/check_tso500_script.done",
-        f"{tmp_logging_dir_str}/check_tso500_script.log"
+        f"{tmp_logging_dir}/check_tso500_script.done",
+        f"{tmp_logging_dir}/check_tso500_script.log"
     run:
-        logger = setup_logger(logger_name='check_tso500_script',log_file_str=f"{tmp_logging_dir_str}/check_tso500_script.log")
+        logger = setup_logger(logger_name='check_tso500_script',log_file_str=f"{tmp_logging_dir}/check_tso500_script.log")
 
-        if not Path(tso500_script_path_str):
-            message = f"TSO500 script path cannot be {tso500_script_path_str}"
+        if not Path(tso500_script_path):
+            message = f"TSO500 script path cannot be {tso500_script_path}"
             notify_bot(message)
             logger.error(message)
             raise FileNotFoundError
 
-        logger.info(f"TSO500 script was found by this path: {tso500_script_path_str}")
+        logger.info(f"TSO500 script was found by this path: {tso500_script_path}")
         Path(output[0]).touch()
 
 
 # TODO check how it fixes samplesheets
 # checkpoint validate_samplesheet:
 #     output:
-#         f"{tmp_logging_dir_str}/validate_samplesheet.done"
+#         f"{tmp_logging_dir}/validate_samplesheet.done"
 #     run:
 #         samplesheet = config['samplesheet']
 #         try:
@@ -180,18 +179,18 @@ rule check_tso500_script:
 
 rule stage_run:
     input:
-        f"{tmp_logging_dir_str}/check_tso500_script.done"
+        f"{tmp_logging_dir}/check_tso500_script.done"
     output:
-        f"{tmp_logging_dir_str}/stage_run.done",
-        f"{tmp_logging_dir_str}/stage_run.log"
+        f"{tmp_logging_dir}/stage_run.done",
+        f"{tmp_logging_dir}/stage_run.log"
     run:
-        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir_str}/stage_run.log")
+        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir}/stage_run.log")
         message = f'Staging a/an {run_type} run {run_name}'
         notify_bot(message)
         logger.info(message)
 
-        rsync_call = [str(rsync_path_str), '-rl', '--checksum',
-                      str(f"{str(run_files_dir_path)}/"), str(run_staging_dir_path)]
+        rsync_call = [str(rsync_path), '-rl', '--checksum',
+                      str(f"{str(run_files_dir)}/"), str(run_staging_dir)]
         try:
             subp_run(rsync_call).check_returncode()
         except CalledProcessError as e:
@@ -199,7 +198,7 @@ rule stage_run:
                        f"Cleaning up...")
             notify_bot(message)
             logger.error(message)
-            delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
+            delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
             raise RuntimeError(message)
 
         message = f'Done staging the run {run_name}'
@@ -211,27 +210,27 @@ rule stage_run:
 # TODO change when finished testing
 rule process_run:
     input:
-        f"{tmp_logging_dir_str}/stage_run.done"
+        f"{tmp_logging_dir}/stage_run.done"
     output:
-        f"{tmp_logging_dir_str}/process_run.done",
-        f"{tmp_logging_dir_str}/process_run.log"
+        f"{tmp_logging_dir}/process_run.done",
+        f"{tmp_logging_dir}/process_run.log"
     run:
-         logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
+         logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir}/process_run.log")  # TODO check if rule name could be replaced with wildcard
          message = f'Started running the DRAGEN TSO500 script for run {run_name}'
          logger.info(message)
          notify_bot(message)
 
-         dragen_call = [tso500_script_path_str,
-                        '--runFolder', str(run_staging_dir_path),
-                        '--analysisFolder', str(analysis_dir_path)]
+         dragen_call = [tso500_script_path,
+                        '--runFolder', str(run_staging_dir),
+                        '--analysisFolder', str(analysis_dir)]
          try:
              subp_run(dragen_call).check_returncode()
          except CalledProcessError as e:
              message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
              logger.error(message)
              notify_bot(message)
-             delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-             delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
+             delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
+             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
              raise RuntimeError(message)
 
          message = f'Done running the DRAGEN TSO500 script for run {run_name}'
@@ -242,61 +241,61 @@ rule process_run:
 
 rule transfer_results:
     input:
-        f"{tmp_logging_dir_str}/process_run.done"
+        f"{tmp_logging_dir}/process_run.done"
     output:
-        f"{tmp_logging_dir_str}/transfer_results.done",
-        f"{tmp_logging_dir_str}/transfer_results.log"
+        f"{tmp_logging_dir}/transfer_results.done",
+        f"{tmp_logging_dir}/transfer_results.log"
     run:
-        logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
         message = f'Started transferring results for run {run_name}'
         notify_bot(message)
         logger.info(message)
 
         if run_type == 'oncoservice':
             try:
-                transfer_results_oncoservice(run_name, rsync_path_str, logger, testing)
+                transfer_results_oncoservice(run_name, rsync_path, logger, testing)
             except RuntimeError as e:
                 raise
         elif run_type == 'cbmed':
             try:
-                transfer_results_cbmed(flowcell, run_name, rsync_path_str, logger, testing)
+                transfer_results_cbmed(flowcell, run_name, rsync_path, logger, testing)
             except RuntimeError as e:
                 raise
         # elif run_type == 'patho':
         #     try:
-        #         transfer_results_patho(run_name, rsync_path_str, logger, testing)
+        #         transfer_results_patho(run_name, rsync_path, logger, testing)
         #     except RuntimeError as e:
         #         raise
 
         message = f'Done transferring results for run {run_name}'
         notify_bot(message)
         logger.info(message)
-        # delete_directory(dead_dir_path=run_dir_path,logger_runtime=logger)
-        delete_directory(dead_dir_path=run_staging_dir_path,logger_runtime=logger)
-        delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
+        # delete_directory(dead_dir_path=run_dir,logger_runtime=logger)
+        delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
         Path(output[0]).touch()
 
 
 rule summarize_logs:
     input:
-        f"{tmp_logging_dir_str}/transfer_results.done",
-        f"{tmp_logging_dir_str}/check_mountpoint.done",
-        f"{tmp_logging_dir_str}/check_structure.done",
-        f"{tmp_logging_dir_str}/check_docker_image.done",
-        f"{tmp_logging_dir_str}/check_rsync.done",
-        f"{tmp_logging_dir_str}/check_tso500_script.done",
-        f"{tmp_logging_dir_str}/stage_run.done",
-        f"{tmp_logging_dir_str}/process_run.done",
-        f"{tmp_logging_dir_str}/check_mountpoint.log",
-        f"{tmp_logging_dir_str}/check_structure.log",
-        f"{tmp_logging_dir_str}/check_docker_image.log",
-        f"{tmp_logging_dir_str}/check_rsync.log",
-        f"{tmp_logging_dir_str}/check_tso500_script.log",
-        f"{tmp_logging_dir_str}/stage_run.log",
-        f"{tmp_logging_dir_str}/process_run.log",
-        f"{tmp_logging_dir_str}/transfer_results.log"
+        f"{tmp_logging_dir}/transfer_results.done",
+        f"{tmp_logging_dir}/check_mountpoint.done",
+        f"{tmp_logging_dir}/check_structure.done",
+        f"{tmp_logging_dir}/check_docker_image.done",
+        f"{tmp_logging_dir}/check_rsync.done",
+        f"{tmp_logging_dir}/check_tso500_script.done",
+        f"{tmp_logging_dir}/stage_run.done",
+        f"{tmp_logging_dir}/process_run.done",
+        f"{tmp_logging_dir}/check_mountpoint.log",
+        f"{tmp_logging_dir}/check_structure.log",
+        f"{tmp_logging_dir}/check_docker_image.log",
+        f"{tmp_logging_dir}/check_rsync.log",
+        f"{tmp_logging_dir}/check_tso500_script.log",
+        f"{tmp_logging_dir}/stage_run.log",
+        f"{tmp_logging_dir}/process_run.log",
+        f"{tmp_logging_dir}/transfer_results.log"
     output:
-        log_file_str
+        unified_log_file
     run:
         with open(output[0],'w') as dest:
             for log_file in input[6:]:

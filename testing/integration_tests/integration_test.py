@@ -63,9 +63,18 @@ def test_process_run(test_environment):
 @pytest.mark.order(2)
 def validate_checksums(test_environment):
     run_type, test_run, results_dir, test_checksums_file = test_environment
-    test_run_results = results_dir / test_run.name
-    test_checksums_file: Path = results_dir / f'{test_run.name}.sha256'
-    golden_checksums_file: str = str(test_run) + '.sha256'
+    if run_type == 'oncoservice':
+        test_run_results = results_dir / test_run.name
+        test_checksums_file: Path = results_dir / f'{test_run.name}.sha256'
+        golden_checksums_file: str = str(test_run) + '.sha256'
+    elif run_type == 'cbmed':
+        test_run_results = results_dir
+        test_checksums_file: str = str(results_dir) + '.sha256'
+        golden_checksums_file: str = str(test_run) + '.sha256'
+    elif run_type == 'patho':
+        pass
+    else:
+        pytest.fail(f"Unrecognosed run type: {run_type}")
 
     compute_checksums_call = (r'find '
                               f'{str(test_run_results)} '
@@ -77,8 +86,8 @@ def validate_checksums(test_environment):
         pytest.fail(f"Computing checksums for {run_type} test run results had failed with return a code {e.returncode}."
                     f" Error output: {e.stderr}")
 
-    compare_checksums_call = (f'diff'
-                              f'str{test_checksums_file} '
+    compare_checksums_call = (f'diff '
+                              f'{str(test_checksums_file)} '
                               f'{golden_checksums_file}')
     try:
         subp_run(compare_checksums_call).check_returncode()
