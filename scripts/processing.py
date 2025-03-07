@@ -31,6 +31,8 @@ def process_run(run_type: str = 'None',
             run_files_dir: Path = Path(config['oncoservice_dir']) / 'Runs_TEST' / f'test_run{run_type}'
         elif run_type == 'cbmed':
             run_files_dir: Path = Path(config['cbmed_seqencing_dir']) / 'Runs_TEST' / f'test_run{run_type}'
+        else:
+            raise RuntimeError(f"Unrecognised run type: {run_type}")
 
     elif run_type == 'oncoservice':
         pending_tag: Path = onco_dir / pending_tag
