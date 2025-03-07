@@ -46,6 +46,8 @@ def process_run(run_type: str = 'None',
         notify_bot(f"Unrecognised run type: {run_type}")
         raise RuntimeError(f"Unrecognised run type: {run_type}")
 
+    failed_tag: Path = run_files_dir_path / config['failed_tag']
+    analysed_tag: Path = run_files_dir_path / config['analysed_tag']
     server_idle_tag.unlink()
     snakefile_path = pipeline_dir_path / 'snakefile'
     config_file_path = pipeline_dir_path / 'config.yaml'
@@ -64,9 +66,10 @@ def process_run(run_type: str = 'None',
         # failed_tag_path.touch()
         message = f"Error processing run {run_files_dir_path}: {e.stderr}"
         notify_bot(message)
+        failed_tag.touch()
         raise RuntimeError(message)
 
-    print(f'Processing run {run_files_dir_path}')
+    analysed_tag.touch()
     server_busy_tag.unlink()
     server_idle_tag.touch()
     pending_tag_path.unlink()
@@ -92,13 +95,8 @@ def check_pending_runs():
 
 
 def main():
-    parser = create_parser()
-    args = parser.parse_args()
-    testing: bool =args.testing
-    # Definitions
-    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        failed_tag = config['blocking_tags'][1]
+    args = create_parser().parse_args()
+    testing: bool = args.testing
 
     if is_server_available():
         return
