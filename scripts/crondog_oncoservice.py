@@ -13,7 +13,8 @@ def create_parser():
 def has_new_runs(runs_dir_path: Path) -> bool:
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pending_tag = config['pending_run_tag']
+        onco_dir = Path(config['oncoservice_dir'])
+        pending_tag: Path = onco_dir / config['pending_run_tag']
         ready_tags = config['ready_tags']
         blocking_tags = config['blocking_tags']
         
