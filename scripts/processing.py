@@ -36,15 +36,15 @@ def process_run(run_type: str = 'None',
 
     elif run_type == 'oncoservice':
         pending_tag: Path = onco_dir / pending_tag
-        run_files_dir: Path = pending_tag.read_text()
+        run_files_dir: Path = Path(pending_tag.read_text())
 
     elif run_type == 'cbmed':
         pending_tag: Path = cbmed_seqencing_dir / pending_tag
-        run_files_dir: Path = pending_tag.read_text()
+        run_files_dir: Path = Path(pending_tag.read_text())
 
     elif run_type == 'patho':
         pending_tag: Path = cbmed_seqencing_dir / pending_tag
-        run_files_dir: Path = pending_tag.read_text()
+        run_files_dir: Path = Path(pending_tag.read_text())
     else:
         notify_bot(f"Unrecognised run type: {run_type}")
         raise RuntimeError(f"Unrecognised run type: {run_type}")
@@ -76,6 +76,7 @@ def process_run(run_type: str = 'None',
     pending_tag.unlink()
 
 
+# TODO add checking for patho dir
 def check_pending_runs():
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
