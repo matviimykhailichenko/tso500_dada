@@ -60,7 +60,7 @@ def process_run(run_type: str = 'None',
             "conda", "run", "-n", "tso500_dragen_pipeline",
             "snakemake", "-s", str(snakefile_path),
             "--configfile", str(config_file_path),
-            "--config", f"run_files_dir_path={str(run_files_dir)}", f'run_type={run_type}', f'testing={str(testing)}'
+            "--config", f"run_files_dir={str(run_files_dir)}", f'run_type={run_type}', f'testing={str(testing)}'
     ]
     try:
         subprocess.run(snakemake_cmd).check_returncode()

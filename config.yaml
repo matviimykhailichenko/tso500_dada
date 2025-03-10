@@ -33,7 +33,7 @@ status_tags:
 pending_run_tag: PENDING_RUN.txt
 analysed_tag: ANALYZED.txt
 server_idle_tag: IDLE.txt
-failed_tag: FAILED:txt
+failed_tag: FAILED.txt
 server_busy_tag: BUSY.txt
 samplesheet: 'SampleSheet.csv'
 mountpoint_binary: '/usr/bin/mountpoint'
