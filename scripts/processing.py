@@ -32,6 +32,7 @@ def process_run(run_type: str = 'None',
         elif run_type == 'cbmed':
             run_files_dir: Path = Path(config['cbmed_seqencing_dir']) / 'Runs_TEST' / f'test_run{run_type}'
         else:
+            notify_bot(f"TESTING TSO500: Unrecognised run type: {run_type}")
             raise RuntimeError(f"Unrecognised run type: {run_type}")
 
     elif run_type == 'oncoservice':
@@ -46,7 +47,7 @@ def process_run(run_type: str = 'None',
         pending_tag: Path = cbmed_seqencing_dir / pending_tag
         run_files_dir: Path = Path(pending_tag.read_text())
     else:
-        notify_bot(f"Unrecognised run type: {run_type}")
+        notify_bot(f"TESTING TSO500: Unrecognised run type: {run_type}")
         raise RuntimeError(f"Unrecognised run type: {run_type}")
 
     failed_tag: Path = run_files_dir / config['failed_tag']
@@ -65,9 +66,11 @@ def process_run(run_type: str = 'None',
     try:
         subprocess.run(snakemake_cmd).check_returncode()
     except CalledProcessError as e:
-        message = f"Error processing run {run_files_dir}: {e.stderr}"
-        notify_bot(message)
+        message = f"Error processing run {run_files_dir}"
+        notify_bot(f"TESTING TSO500: Error processing run {run_files_dir}")
         failed_tag.touch()
+        server_busy_tag.unlink()
+        server_idle_tag.touch()
         raise RuntimeError(message)
 
     analysed_tag.touch()
