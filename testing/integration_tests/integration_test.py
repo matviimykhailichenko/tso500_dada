@@ -40,7 +40,7 @@ def test_environment(request):
 
     copytree(str(test_run), str(test_run_seq_dir))
 
-    yield run_type, test_run, results_dir, test_checksums_file
+    yield run_type, test_run, results_dir, test_checksums_file, sequencing_dir, test_run_seq_dir
 
     if test_run_seq_dir.exists():
         rmtree(test_run_seq_dir)
@@ -54,7 +54,13 @@ def test_environment(request):
 
 @pytest.mark.order(1)
 def test_process_run(test_environment):
-    run_type, test_run, _, _ = test_environment
+    run_type, test_run, _, _, sequencing_dir, test_run_seq_dir = test_environment
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+        pending_tag: Path = sequencing_dir / config['pending_run_tag']
+    with open(str(pending_tag), 'w'):
+        file.write(str(test_run_seq_dir))
+
     try:
         process_run(str(run_type),
                     testing=True)
@@ -64,7 +70,7 @@ def test_process_run(test_environment):
 
 @pytest.mark.order(2)
 def validate_checksums(test_environment):
-    run_type, test_run, results_dir, test_checksums_file = test_environment
+    run_type, test_run, results_dir, test_checksums_file, _, _ = test_environment
     if run_type == 'oncoservice':
         test_run_results = results_dir / test_run.name
         test_checksums_file: Path = results_dir / f'{test_run.name}.sha256'
