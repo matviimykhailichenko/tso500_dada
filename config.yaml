@@ -1,6 +1,7 @@
 # TODO Change then testing with real runs
 testing_fast: False
 # TODO Change in prod
+# TODO change to a command
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
 staging_dir: '/staging'

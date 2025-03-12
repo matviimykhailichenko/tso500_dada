@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 from subprocess import run as subp_run, CalledProcessError
 from scripts.processing import process_run
+# TODO add a log file and notify bot that it had failed
 
 
 

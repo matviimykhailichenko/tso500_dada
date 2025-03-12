@@ -75,7 +75,7 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(run_name: str,
-                           rsync_path_str: str,
+                           rsync_path: str,
                            logger: Logger,
                            testing: bool = False):
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
@@ -83,7 +83,7 @@ def transfer_results_oncoservice(run_name: str,
         staging_dir_path = Path(config['staging_dir'])
         results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
     analysis_dir_path = staging_dir_path / run_name
-    rsync_call = [rsync_path_str, '-r', '--checksum',
+    rsync_call = [rsync_path, '-r', '--checksum',
                   str(f'{analysis_dir_path}/'), str(results_dir_path)]
     try:
         subp_run(rsync_call).check_returncode()
@@ -99,7 +99,7 @@ def transfer_results_oncoservice(run_name: str,
 # TODO I don't like that fat function
 def transfer_results_cbmed(flowcell: str,
                            run_name: str,
-                           rsync_path_str: str,
+                           rsync_path: str,
                            logger: Logger,
                            testing: bool = False):
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
@@ -142,7 +142,7 @@ def transfer_results_cbmed(flowcell: str,
         raise RuntimeError(message)
 
     log_file_path = flowcell_cbmed_dir_path / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path_str} -r "
+    rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(data_staging_dir_path)}/ "
@@ -156,7 +156,7 @@ def transfer_results_cbmed(flowcell: str,
         raise RuntimeError(message)
 
     log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path_str} -r "
+    rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(results_staging_dir_path)}/ "
@@ -170,7 +170,7 @@ def transfer_results_cbmed(flowcell: str,
         raise RuntimeError(message)
 
     samplesheet_path = results_cbmed_dir_path / 'SampleSheet.csv'
-    rsync_call = (f"{rsync_path_str} "
+    rsync_call = (f"{rsync_path} "
                   f"{str(samplesheet_path)} "
                   f"{str(flowcell_cbmed_dir_path)}")
     try:
