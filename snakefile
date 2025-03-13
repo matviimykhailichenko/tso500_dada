@@ -209,95 +209,95 @@ rule stage_run:
         logger.info(message)
         notify_bot(message)
         Path(output[0]).touch()
-#
-#
-# # TODO change when finished testing
-# rule process_run:
-#     input:
-#         f"{tmp_logging_dir}/stage_run.done"
-#     output:
-#         f"{tmp_logging_dir}/process_run.done",
-#         f"{tmp_logging_dir}/process_run.log"
-#     run:
-#          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir}/process_run.log")  # TODO check if rule name could be replaced with wildcard
-#          message = f'Started running the DRAGEN TSO500 script for run {run_name}'
-#          logger.info(message)
-#          notify_bot(message)
-#
-#          dragen_call = [tso500_script_path,
-#                         '--runFolder', str(run_staging_dir),
-#                         '--analysisFolder', str(analysis_dir)]
-#          try:
-#              subp_run(dragen_call).check_returncode()
-#          except CalledProcessError as e:
-#              message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
-#              logger.error(message)
-#              notify_bot(message)
-#              delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
-#              delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#              raise RuntimeError(message)
-#
-#          message = f'Done running the DRAGEN TSO500 script for run {run_name}'
-#          logger.info(message)
-#          notify_bot(message)
-#          Path(output[0]).touch()
-#
-#
-# rule transfer_results:
-#     input:
-#         f"{tmp_logging_dir}/process_run.done"
-#     output:
-#         f"{tmp_logging_dir}/transfer_results.done",
-#         f"{tmp_logging_dir}/transfer_results.log"
-#     run:
-#         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
-#         message = f'Started transferring results for run {run_name}'
-#         notify_bot(message)
-#         logger.info(message)
-#
-#         if run_type == 'oncoservice':
-#             try:
-#                 transfer_results_oncoservice(run_name, rsync_path, logger, testing)
-#             except RuntimeError as e:
-#                 raise
-#         elif run_type == 'cbmed':
-#             try:
-#                 transfer_results_cbmed(flowcell, run_name, rsync_path, logger, testing)
-#             except RuntimeError as e:
-#                 raise
-#         # elif run_type == 'patho':
-#         #     try:
-#         #         transfer_results_patho(run_name, rsync_path, logger, testing)
-#         #     except RuntimeError as e:
-#         #         raise
-#
-#         message = f'Done transferring results for run {run_name}'
-#         notify_bot(message)
-#         logger.info(message)
-#         # delete_directory(dead_dir_path=run_dir,logger_runtime=logger)
-#         delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#         delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
-#         Path(output[0]).touch()
+
+
+# TODO change when finished testing
+rule process_run:
+    input:
+        f"{tmp_logging_dir}/stage_run.done"
+    output:
+        f"{tmp_logging_dir}/process_run.done",
+        f"{tmp_logging_dir}/process_run.log"
+    run:
+         logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir}/process_run.log")  # TODO check if rule name could be replaced with wildcard
+         message = f'Started running the DRAGEN TSO500 script for run {run_name}'
+         logger.info(message)
+         notify_bot(message)
+
+         dragen_call = [tso500_script_path,
+                        '--runFolder', str(run_staging_dir),
+                        '--analysisFolder', str(analysis_dir)]
+         try:
+             subp_run(dragen_call).check_returncode()
+         except CalledProcessError as e:
+             message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
+             logger.error(message)
+             notify_bot(message)
+             delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
+             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+             raise RuntimeError(message)
+
+         message = f'Done running the DRAGEN TSO500 script for run {run_name}'
+         logger.info(message)
+         notify_bot(message)
+         Path(output[0]).touch()
+
+
+rule transfer_results:
+    input:
+        f"{tmp_logging_dir}/process_run.done"
+    output:
+        f"{tmp_logging_dir}/transfer_results.done",
+        f"{tmp_logging_dir}/transfer_results.log"
+    run:
+        logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
+        message = f'Started transferring results for run {run_name}'
+        notify_bot(message)
+        logger.info(message)
+
+        if run_type == 'oncoservice':
+            try:
+                transfer_results_oncoservice(run_name, rsync_path, logger, testing)
+            except RuntimeError as e:
+                raise
+        elif run_type == 'cbmed':
+            try:
+                transfer_results_cbmed(flowcell, run_name, rsync_path, logger, testing)
+            except RuntimeError as e:
+                raise
+        # elif run_type == 'patho':
+        #     try:
+        #         transfer_results_patho(run_name, rsync_path, logger, testing)
+        #     except RuntimeError as e:
+        #         raise
+
+        message = f'Done transferring results for run {run_name}'
+        notify_bot(message)
+        logger.info(message)
+        # delete_directory(dead_dir_path=run_dir,logger_runtime=logger)
+        delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
+        delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
+        Path(output[0]).touch()
 
 
 rule summarize_logs:
     input:
-        # f"{tmp_logging_dir}/transfer_results.done",
+        f"{tmp_logging_dir}/transfer_results.done",
         f"{tmp_logging_dir}/check_mountpoint.done",
         f"{tmp_logging_dir}/check_structure.done",
         f"{tmp_logging_dir}/check_docker_image.done",
         f"{tmp_logging_dir}/check_rsync.done",
         f"{tmp_logging_dir}/check_tso500_script.done",
         f"{tmp_logging_dir}/stage_run.done",
-        # f"{tmp_logging_dir}/process_run.done",
+        f"{tmp_logging_dir}/process_run.done",
         f"{tmp_logging_dir}/check_mountpoint.log",
         f"{tmp_logging_dir}/check_structure.log",
         f"{tmp_logging_dir}/check_docker_image.log",
         f"{tmp_logging_dir}/check_rsync.log",
         f"{tmp_logging_dir}/check_tso500_script.log",
         f"{tmp_logging_dir}/stage_run.log",
-        # f"{tmp_logging_dir}/process_run.log",
-        # f"{tmp_logging_dir}/transfer_results.log"
+        f"{tmp_logging_dir}/process_run.log",
+        f"{tmp_logging_dir}/transfer_results.log"
     output:
         unified_log_file
     run:
@@ -308,100 +308,3 @@ rule summarize_logs:
 
         for tmp_file in input:
             Path(tmp_file).unlink()
-=======
-#
-# # TODO change when finished testing
-# rule process_run:
-#     input:
-#         f"{tmp_logging_dir_str}/stage_run.done"
-#     output:
-#         f"{tmp_logging_dir_str}/process_run.done",
-#         f"{tmp_logging_dir_str}/process_run.log"
-#     run:
-#          logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir_str}/process_run.log")  # TODO check if rule name could be replaced with wildcard
-#          message = f'Started running the DRAGEN TSO500 script for run {run_name}'
-#          logger.info(message)
-#          notify_bot(message)
-#
-#          dragen_call = [tso500_script_path,
-#                         '--runFolder', str(run_staging_dir),
-#                         '--analysisFolder', str(analysis_dir_path)]
-#          try:
-#              subp_run(dragen_call).check_returncode()
-#          except CalledProcessError as e:
-#              message = f"DRAGEN failed with a return code, that corresponds to a message: {error_messages[e.returncode]}. Cleaning up..."
-#              logger.error(message)
-#              notify_bot(message)
-#              # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#              # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#              raise RuntimeError(message)
-#
-#          logger.info(f'Done running the DRAGEN TSO500 script for run {run_name}')
-#          notify_bot(f'Done running the DRAGEN TSO500 script for run {run_name}')
-#          Path(output[0]).touch()
-#
-#
-# # TODO would differ for CBmed 1: rearrange stuff and then transfer it ig?
-# rule transfer_results:
-#     input:
-#         f"{tmp_logging_dir_str}/process_run.done"
-#     output:
-#         f"{tmp_logging_dir_str}/transfer_results.done",
-#         f"{tmp_logging_dir_str}/transfer_results.log"
-#     run:
-#         logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir_str}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
-#         message = f'Started transferring results for run {run_name}'
-#         notify_bot(message)
-#         logger.info(message)
-#
-#         rsync_call = [str(rsync_path), '-r', '--checksum',
-#                       str(f"{analysis_dir_path}/"), str(results_dir_path)]
-#         try:
-#             subp_run(rsync_call).check_returncode()
-#         except CalledProcessError as e:
-#             message = f"Transfering results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-#             notify_bot(message)
-#             logger.error(message)
-#             # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#             # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#             # delete_directory(dead_dir_path=results_dir_path,logger_runtime=logger)
-#             raise RuntimeError(message)
-#
-#         # delete_directory(dead_dir_path=analysis_dir_path,logger_runtime=logger)
-#         # delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
-#         # TODO add that if run is processed
-#         # delete_directory(dead_dir_path=run_files_dir_path,logger_runtime=logger)
-#         message = f'Done transferring results for run {run_name}'
-#         notify_bot(message)
-#         logger.info(message)
-#
-#         Path(output[0]).touch()
-#
-#
-# rule summarize_logs:
-#     input:
-#         f"{tmp_logging_dir_str}/transfer_results.done",
-#         f"{tmp_logging_dir_str}/check_mountpoint.done",
-#         f"{tmp_logging_dir_str}/check_structure.done",
-#         f"{tmp_logging_dir_str}/check_docker_image.done",
-#         f"{tmp_logging_dir_str}/check_rsync.done",
-#         f"{tmp_logging_dir_str}/stage_run.done",
-#         f"{tmp_logging_dir_str}/process_run.done",
-#         f"{tmp_logging_dir_str}/check_mountpoint.log",
-#         f"{tmp_logging_dir_str}/check_structure.log",
-#         f"{tmp_logging_dir_str}/check_docker_image.log",
-#         f"{tmp_logging_dir_str}/check_rsync.log",
-#         f"{tmp_logging_dir_str}/stage_run.log",
-#         f"{tmp_logging_dir_str}/process_run.log",
-#         f"{tmp_logging_dir_str}/transfer_results.log"
-#     output:
-#         log_file_str
-#     run:
-#         with open(output[0],'w') as dest:
-#             for log_file in input[6:]:
-#                 with open(log_file,'r') as source:
-#                     dest.write(source.read())
-#
-#         for tmp_file in input:
-#             Path(tmp_file).unlink()
->>>>>>> 817cf70 (Fixing a 250611 run)
