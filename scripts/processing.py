@@ -58,18 +58,18 @@ def process_run(run_type: str = 'None',
     config_file_path = pipeline_dir / 'config.yaml'
     server_busy_tag.touch()
 
-    snakemake_cmd =[
+    snakemake_call =[
             "conda", "run", "-n", "tso500_dragen_pipeline",
             "snakemake", "-s", str(snakefile_path),
             "--configfile", str(config_file_path),
             "--config", f"run_files_dir={str(run_files_dir)}", f'run_type={run_type}', f'testing={str(testing)}'
     ]
     try:
-        subprocess.run(snakemake_cmd).check_returncode()
+        subprocess.run(snakemake_call).check_returncode()
     except CalledProcessError as e:
-        message = f"Error processing run {run_files_dir}"
+        message = f"Error processing run {run_files_dir}: {e}"
         if testing:
-            notify_bot(f"TESTING TSO500: Error processing run {run_files_dir}")
+            notify_bot(f"TESTING TSO500: Error processing run {run_files_dir}: {e}")
         failed_tag.touch()
         server_busy_tag.unlink()
         server_idle_tag.touch()
