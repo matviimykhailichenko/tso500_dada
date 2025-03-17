@@ -234,7 +234,6 @@ rule process_run:
              logger.error(message)
              notify_bot(message)
              delete_directory(dead_dir_path=analysis_dir,logger_runtime=logger)
-             delete_directory(dead_dir_path=run_staging_dir,logger_runtime=logger)
              raise RuntimeError(message)
 
          message = f'Done running the DRAGEN TSO500 script for run {run_name}'
