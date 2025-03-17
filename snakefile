@@ -193,7 +193,7 @@ rule stage_run:
         notify_bot(message)
         logger.info(message)
 
-        rsync_call = [str(rsync_path), '-rl', '--checksum',
+        rsync_call = [str(rsync_path), '-rl',
                       str(f"{str(run_files_dir)}/"), str(run_staging_dir)]
         try:
             subp_run(rsync_call).check_returncode()
