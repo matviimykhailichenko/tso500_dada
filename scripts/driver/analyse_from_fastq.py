@@ -7,7 +7,8 @@ from datetime import datetime
 source_dir = Path('/mnt/NovaseqXplus/02_HuGe_Forschung/Runs/20250410_LH00803_0007_A22L2JGLT4/Analysis/1/Data/BCLConvert/fastq')
 run_name = source_dir.parents[3].name
 staging_base = Path('/staging')
-staging_run_dir = staging_base / '20250410_LH00803_0007_A22L2JGLT4'
+staging_run_dir = staging_base / '20250410_LH00803_0007_A22L2JGLT4' / 'fastq'
+samplesheet = staging_base / '20250410_LH00803_0007_A22L2JGLT4' / 'SampleSheet.csv'
 
 # Generate analysis folder name based on current date
 today_str = datetime.today().strftime('%y%m%d')
@@ -38,7 +39,8 @@ dragen_script = Path('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
 cmd = [
     str(dragen_script),
     '--fastqFolder', str(staging_run_dir),
-    '--analysisFolder', str(analysis_run_dir)
+    '--analysisFolder', str(analysis_run_dir),
+    '--sampleSheet', str(samplesheet)
 ]
 
 print("Running DRAGEN pipeline...")
