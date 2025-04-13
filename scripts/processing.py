@@ -26,16 +26,7 @@ def process_run(run_type: str = 'None',
         cbmed_seqencing_dir: Path = Path(config['cbmed_seqencing_dir'])
         pending_tag: str = config['pending_run_tag']
 
-    if testing:
-        if run_type == 'oncoservice':
-            run_files_dir: Path = Path(config['oncoservice_dir']) / 'Runs_TEST' / f'test_run{run_type}'
-        elif run_type == 'cbmed':
-            run_files_dir: Path = Path(config['cbmed_seqencing_dir']) / 'Runs_TEST' / f'test_run{run_type}'
-        else:
-            notify_bot(f"TESTING TSO500: Unrecognised run type: {run_type}")
-            raise RuntimeError(f"Unrecognised run type: {run_type}")
-
-    elif run_type == 'oncoservice':
+    if run_type == 'oncoservice':
         pending_tag: Path = onco_dir / pending_tag
         run_files_dir: Path = Path(pending_tag.read_text())
 
