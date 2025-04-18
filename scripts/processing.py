@@ -92,6 +92,13 @@ def check_pending_runs():
         print('No Oncoservice or CBmed runs are detected, quitting...')
         return None
 
+# TODO fetch all runs/samples from pending to queue file
+# TODO sort queue
+# TODO process 1 sample/run with most proprity:
+# TODO stage
+# TODO run script
+# TODO transfer
+
 
 def main():
     args = create_parser().parse_args()
