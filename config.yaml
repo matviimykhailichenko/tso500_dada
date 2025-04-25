@@ -4,7 +4,7 @@ testing_fast: False
 # TODO change to a command
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
-staging_dir: '/staging'
+staging_dir: '/staging/tmp'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
 oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
 cbmed_seqencing_dir: '/mnt/Novaseq/08_Projekte/CBmed'
@@ -12,7 +12,8 @@ cbmed_seqencing_dir: '/mnt/Novaseq/08_Projekte/CBmed'
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
-novaseq_mountpoint: '/mnt/Novaseq'
+sx182_mountpoint: '/mnt/Novaseq'
+sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
 logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
 

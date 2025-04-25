@@ -3,8 +3,11 @@ from subprocess import CalledProcessError
 import yaml
 import subprocess
 import argparse
-from scripts.helpers import is_server_available
-from scripts.logging_ops import notify_bot
+from filelock import FileLock
+import pandas as pd
+from scripts.helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
+    check_structure, check_docker_image, check_tso500_script, stage_run, process_run, transfer_results
+from scripts.logging_ops import notify_bot, setup_logger
 
 
 
@@ -92,20 +95,67 @@ def check_pending_runs():
         print('No Oncoservice or CBmed runs are detected, quitting...')
         return None
 
-# TODO fetch all runs/samples from pending to queue file
-# TODO sort queue
-# TODO process 1 sample/run with most proprity:
-# TODO stage
-# TODO run script
-# TODO transfer
+
 
 
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
+    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        pipeline_dir: Path = Path(config['pipeline_dir'])
 
-    if is_server_available():
+    if not is_server_available():
         return
+
+    server = get_server_ip()
+    queue_file = pipeline_dir / f'{server}_QUEUE.txt'
+    pending_file = pipeline_dir / f'{server}_PEDNING.txt'
+    pending_lock = Path(str(queue_file) + '.lock')
+
+    with FileLock(pending_lock):
+        queue = pd.read_csv(pending_file, sep='\t')
+        queue = queue.sort_values(by='Priority', ascending=True)
+        queue_no_processing = queue.iloc[1:,]
+
+        for index, row in queue.iterrows():
+            with open(queue_file, 'a') as f:
+                f.write('\t'.join(map(str, row)) + '\n')
+                queue_no_processing.to_csv(queue_file, sep='\t')
+
+        pending_file.unlink()
+
+    path, input_type, _, tag = queue.iloc[0]
+
+    config = load_config("config.yaml")
+
+    paths: dict = setup_paths(input_path=Path(path),input_type=input_type,tag=tag,config=config)
+
+    logger = setup_logger(logger_name='Logger', log_file=paths['log_file'])
+
+    check_mountpoint(paths=paths, logger=logger)
+
+    check_structure(paths)
+
+    check_docker_image(paths)
+
+    check_rsync(paths)
+
+    check_tso500_script(paths)
+
+    stage_run(paths)
+
+    process_run(paths)
+
+    transfer_results(paths)
+
+    # TODO while stuff in queue process stuff, but check priority first
+
+    # TODO sort queue
+    # TODO process 1 sample/run with most proprity:
+    # TODO stage
+    # TODO run script
+    # TODO transfer
 
     if testing:
         process_run(testing=args.testing)

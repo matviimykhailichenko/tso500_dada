@@ -4,24 +4,27 @@ from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy
 from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
-from scripts.logging_ops import notify_bot
+from scripts.logging_ops import notify_bot, setup_logger
+import datetime
 
 
 
 def is_server_available() -> bool:
     with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
+        server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
-        server_idle_tag = server_availability_dir / config['server_idle_tag']
-        server_busy_tag = server_availability_dir / config['server_busy_tag']
+        server_idle_tag = server_availability_dir / server / config['server_idle_tag']
+        server_busy_tag = server_availability_dir / server / config['server_busy_tag']
 
     try:
         if Path(server_busy_tag).exists() and not Path(server_idle_tag).exists():
             return True
         return False
     except Exception as e:
-        # TODO discord bot?
-        raise RuntimeError(f"Failed to check server status: {e}")
+        message = f"Failed to check server status: {e}"
+        notify_bot(message)
+        raise RuntimeError(message)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -49,6 +52,7 @@ def delete_file(dead_file_path: Path):
 # TODO not sure if returning 255 is most logical
 
 
+# TODO add check of the sx176 mountpoint
 def is_nas_mounted(mountpoint_dir: str,
                    logger_runtime: Logger) -> bool:
     mountpoint_binary = sh_which('mountpoint')
@@ -186,3 +190,253 @@ def transfer_results_cbmed(flowcell: str,
 
 def transfer_results_patho():
     pass
+
+
+def get_server_ip() -> str:
+    try:
+        call = "ip route get 1.1.1.1 | awk '{print $7}'"
+        result = subp_run(call, shell=True, check=True, text=True, capture_output=True)
+        server_ip = result.stdout.split('\n', 1)[0].strip()
+
+    except CalledProcessError as e:
+        message = f"Failed to retrieve server's ID: {e.stderr}"
+        raise RuntimeError(message)
+
+    return server_ip
+
+
+def load_config(configfile: str) -> dict:
+    with open(configfile) as f:
+        return yaml.safe_load(f)
+
+
+def setup_paths(input_path: Path,
+                input_type: str,
+                tag: str,
+                config: dict) -> dict:
+    paths = {}
+    paths['ready_tags'] = config.get('ready_tags', [])
+    paths['blocking_tags'] = config.get('blocking_tags', [])
+    paths['rsync_path'] = sh_which('rsync')
+    paths['testing_fast'] = config.get('testing_fast', False)
+
+    if paths['testing_fast']:
+        paths['tso500_script_path'] = (
+            '/mnt/Novaseq/TSO_pipeline/02_Development/sandbox/tso500_script_sub/tso500_script_sub.sh'
+        )
+    else:
+        paths['tso500_script_path'] = (
+            '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
+        )
+
+    if input_type == 'run':
+        paths['run_dir'] = input_path.parent
+        paths['run_name'] = paths['run_dir'].name
+        paths['flowcell'] = paths['run_files_dir'].name
+        paths['run_staging_dir'] = paths['staging_dir'] / paths['flowcell']
+        paths['analysis_dir'] = paths['staging_dir'] / paths['run_name']
+
+    elif input_type == 'sample':
+        paths['sample_dir'] = input_path
+        paths['run_name'] = paths['sample_dir'].parent.name
+        paths['flowcell'] = paths['run_files_dir'].name
+        paths['run_staging_dir'] = paths['staging_dir'] / paths['flowcell']
+        paths['analysis_dir'] = paths['staging_dir'] / paths['run_name']
+
+    paths['staging_dir'] = Path(config['staging_dir'])
+
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
+
+    paths['error_messages'] = config.get('error_messages', {})
+    paths['run_type'] = config.get('run_type', '')
+    paths['testing'] = config.get('testing', False)
+    paths['sx182_mountpoint'] = config.get('sx182_mountpoint', '')
+
+    return paths
+
+
+def check_mountpoint(paths: dict,
+                     logger: Logger):
+    sx182_mountpoint = Path(paths['sx182_mountpoint'])
+    sy176_mountpoint = Path(paths['sy176_mountpoint'])
+
+    if not sx182_mountpoint.is_dir():
+        msg = f"Directory of a sx182 mountpoint '{sx182_mountpoint}' does not exist"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info(f"Mountpoint found at '{sx182_mountpoint}'")
+
+    if not sy176_mountpoint.is_dir():
+        msg = f"Directory of a sx182 mountpoint '{sy176_mountpoint}' does not exist"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info(f"Mountpoint found at '{sy176_mountpoint}'")
+
+    if not is_nas_mounted(str(sx182_mountpoint), logger):
+        msg = "Mountpoint check had failed"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info("Mountpoint is mounted")
+
+
+def check_structure(paths: dict,
+                    logger: Logger):
+    if not paths['input_dir'].is_dir():
+        msg = f"Directory {paths['input_dir']} does not exist"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info(f"Run directory found at {paths['input_dir']}")
+
+    if not paths['staging_dir'].is_dir():
+        msg = f"Directory {paths['staging_dir']} does not exist"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info(f"Staging directory found at {paths['staging_dir']}")
+
+
+def check_docker_image(paths: dict,
+                       logger: Logger):
+
+    try:
+        result = subp_run(['docker', 'images'], stdout=subp_PIPE, stderr=subp_PIPE, text=True)
+    except Exception as e:
+        msg = f"Error checking docker image: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise
+
+    if 'dragen_tso500_ctdna' not in result.stdout:
+        msg = "The dragen_tso500_ctdna Docker image wasn't found"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
+    logger.info("The dragen_tso500_ctdna was found successfully")
+
+
+def check_rsync(paths: dict,
+                logger: Logger):
+
+    if not paths['rsync_path']:
+        msg = "Rsync not found on the system"
+        notify_bot(msg)
+        logger.error(msg)
+        raise FileNotFoundError(msg)
+    logger.info(f"Rsync found at: {paths['rsync_path']}")
+
+
+def check_tso500_script(paths: dict,
+                        logger: Logger):
+
+    script_path = Path(paths['tso500_script_path'])
+
+    if not script_path.exists():
+        msg = f"TSO500 script not found at {script_path}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise FileNotFoundError(msg)
+    logger.info(f"TSO500 script found at {script_path}")
+
+
+def stage_run(paths: dict):
+    log_file = paths['tmp_logging_dir'] / 'stage_run.log'
+    done_file = paths['tmp_logging_dir'] / 'stage_run.done'
+    logger = setup_logger('stage_run', str(log_file))
+
+    msg = f"Staging a/an {paths['run_type']} run {paths['run_name']}"
+    notify_bot(msg)
+    logger.info(msg)
+
+    rsync_cmd = [
+        paths['rsync_path'], '-rl',
+        f"{paths['run_files_dir']}/", str(paths['run_staging_dir'])
+    ]
+    try:
+        subp_run(rsync_cmd, check=True)
+    except CalledProcessError as e:
+        err = e.stderr.decode() if e.stderr else str(e)
+        msg = f"Staging failed (code {e.returncode}): {err}. Cleaning up..."
+        notify_bot(msg)
+        logger.error(msg)
+        delete_directory(dead_dir_path=paths['run_staging_dir'], logger_runtime=logger)
+        raise RuntimeError(msg)
+
+    msg = f"Done staging run {paths['run_name']}"
+    logger.info(msg)
+    notify_bot(msg)
+    done_file.touch()
+
+
+def process_run(paths: dict):
+    log_file = paths['tmp_logging_dir'] / 'process_run.log'
+    done_file = paths['tmp_logging_dir'] / 'process_run.done'
+    logger = setup_logger('process_run', str(log_file))
+
+    msg = f"Starting DRAGEN TSO500 for run {paths['run_name']}"
+    logger.info(msg)
+    notify_bot(msg)
+
+    cmd = [
+        paths['tso500_script_path'],
+        '--runFolder', str(paths['run_staging_dir']),
+        '--analysisFolder', str(paths['analysis_dir'])
+    ]
+    try:
+        subp_run(cmd, check=True)
+    except CalledProcessError as e:
+        err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
+        msg = f"DRAGEN failed (code {e.returncode}): {err_msg}. Cleaning up..."
+        logger.error(msg)
+        notify_bot(msg)
+        delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+        raise RuntimeError(msg)
+
+    msg = f"Finished DRAGEN TSO500 for run {paths['run_name']}"
+    logger.info(msg)
+    notify_bot(msg)
+    done_file.touch()
+
+
+def transfer_results(paths: dict):
+    log_file = paths['tmp_logging_dir'] / 'transfer_results.log'
+    done_file = paths['tmp_logging_dir'] / 'transfer_results.done'
+    logger = setup_logger('transfer_results', str(log_file))
+
+    msg = f"Transferring results for run {paths['run_name']}"
+    notify_bot(msg)
+    logger.info(msg)
+
+    try:
+        if paths['run_type'] == 'oncoservice':
+            transfer_results_oncoservice(
+                paths['run_name'],
+                paths['rsync_path'],
+                logger,
+                paths['testing'],
+            )
+        elif paths['run_type'] == 'cbmed':
+            transfer_results_cbmed(
+                paths['flowcell'],
+                paths['run_name'],
+                paths['rsync_path'],
+                logger,
+                paths['testing'],
+            )
+        else:
+            raise ValueError(f"Unsupported run type: {paths['run_type']}")
+    except Exception as e:
+        logger.error(str(e))
+        raise
+
+    msg = f"Results transferred for run {paths['run_name']}"
+    notify_bot(msg)
+    logger.info(msg)
+
+    delete_directory(dead_dir_path=paths['run_staging_dir'], logger_runtime=logger)
+    delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+    done_file.touch()

@@ -49,8 +49,8 @@ rule check_mountpoint:
         f"{tmp_logging_dir}/check_mountpoint.done",
         f"{tmp_logging_dir}/check_mountpoint.log"
     run:
-        logger = setup_logger(logger_name='check_mountpoint', log_file_str=f"{tmp_logging_dir}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
-        mountpoint_dir = config["novaseq_mountpoint"]
+        logger = setup_logger(logger_name='check_mountpoint', log_file=f"{tmp_logging_dir}/check_mountpoint.log") # TODO check if rule name could be replaced with wildcard
+        mountpoint_dir = config["sx182_mountpoint"]
 
         if not Path(mountpoint_dir).is_dir():
             message = f"Directory of mountpoint {mountpoint_dir} does not exist"
@@ -74,7 +74,7 @@ rule check_structure:
         f"{tmp_logging_dir}/check_structure.done",
         f"{tmp_logging_dir}/check_structure.log"
     run:
-        logger = setup_logger(logger_name='check_structure', log_file_str=f"{tmp_logging_dir}/check_structure.log") # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='check_structure', log_file=f"{tmp_logging_dir}/check_structure.log") # TODO check if rule name could be replaced with wildcard
 
         if not Path(run_files_dir).is_dir():
             message = f"Directory {run_files_dir} does not exist"
@@ -98,7 +98,7 @@ rule check_docker_image:
         f"{tmp_logging_dir}/check_docker_image.done",
         f"{tmp_logging_dir}/check_docker_image.log"
     run:
-        logger = setup_logger(logger_name='check_docker_image', log_file_str=f"{tmp_logging_dir}/check_docker_image.log")
+        logger = setup_logger(logger_name='check_docker_image', log_file=f"{tmp_logging_dir}/check_docker_image.log")
 
         try:
             result = subp_run(['docker','images'],
@@ -129,7 +129,7 @@ rule check_rsync:
         f"{tmp_logging_dir}/check_rsync.done",
         f"{tmp_logging_dir}/check_rsync.log"
     run:
-        logger = setup_logger(logger_name='check_rsync',log_file_str=f"{tmp_logging_dir}/check_rsync.log")
+        logger = setup_logger(logger_name='check_rsync',log_file=f"{tmp_logging_dir}/check_rsync.log")
 
         if not rsync_path:
             message = "Rsync path cannot be {rsync_path}"
@@ -148,7 +148,7 @@ rule check_tso500_script:
         f"{tmp_logging_dir}/check_tso500_script.done",
         f"{tmp_logging_dir}/check_tso500_script.log"
     run:
-        logger = setup_logger(logger_name='check_tso500_script',log_file_str=f"{tmp_logging_dir}/check_tso500_script.log")
+        logger = setup_logger(logger_name='check_tso500_script',log_file=f"{tmp_logging_dir}/check_tso500_script.log")
 
         if not Path(tso500_script_path):
             message = f"TSO500 script path cannot be {tso500_script_path}"
@@ -188,7 +188,7 @@ rule stage_run:
         f"{tmp_logging_dir}/stage_run.done",
         f"{tmp_logging_dir}/stage_run.log"
     run:
-        logger = setup_logger(logger_name='stage_run',log_file_str=f"{tmp_logging_dir}/stage_run.log")
+        logger = setup_logger(logger_name='stage_run',log_file=f"{tmp_logging_dir}/stage_run.log")
         message = f'Staging a/an {run_type} run {run_name}'
         notify_bot(message)
         logger.info(message)
@@ -219,7 +219,7 @@ rule process_run:
         f"{tmp_logging_dir}/process_run.done",
         f"{tmp_logging_dir}/process_run.log"
     run:
-         logger = setup_logger(logger_name='process_run',log_file_str=f"{tmp_logging_dir}/process_run.log")  # TODO check if rule name could be replaced with wildcard
+         logger = setup_logger(logger_name='process_run',log_file=f"{tmp_logging_dir}/process_run.log")  # TODO check if rule name could be replaced with wildcard
          message = f'Started running the DRAGEN TSO500 script for run {run_name}'
          logger.info(message)
          notify_bot(message)
@@ -249,7 +249,7 @@ rule transfer_results:
         f"{tmp_logging_dir}/transfer_results.done",
         f"{tmp_logging_dir}/transfer_results.log"
     run:
-        logger = setup_logger(logger_name='transfer_results',log_file_str=f"{tmp_logging_dir}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
+        logger = setup_logger(logger_name='transfer_results',log_file=f"{tmp_logging_dir}/transfer_results.log")  # TODO check if rule name could be replaced with wildcard
         message = f'Started transferring results for run {run_name}'
         notify_bot(message)
         logger.info(message)

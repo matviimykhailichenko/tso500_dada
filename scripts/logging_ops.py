@@ -14,12 +14,13 @@ def notify_bot(msg: str,
 
 
 def setup_logger(logger_name: str,
-                 log_file_str: str):
+                 log_file: str):
     logger = logging.getLogger(logger_name)
-    handler = logging.FileHandler(log_file_str)
+    handler = logging.FileHandler(log_file)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
+
     return logger
 

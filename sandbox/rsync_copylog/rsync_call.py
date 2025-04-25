@@ -1,7 +1,7 @@
 # Imports
 from subprocess import run as subp_run, CalledProcessError
-log_file_str = f'/home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/destination/rsync_log.log'
-compute_checksums_call = f"rsync -rl --checksum --checksum-choice=md5 --out-format=\"%C %n\" --log-file={log_file_str} /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/source/ /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/destination > /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/checksum_file_path.txt"
+log_file = f'/home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/destination/rsync_log.log'
+compute_checksums_call = f"rsync -rl --checksum --checksum-choice=md5 --out-format=\"%C %n\" --log-file={log_file} /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/source/ /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/rsync_copylog/destination > /home/matvii/PycharmProjects/TSO_500_DRAGEN_pipeline/sandbox/generate_checksums/checksum_file_path.txt"
 try:
     subp_run(compute_checksums_call, shell=True).check_returncode()
 except CalledProcessError as e:
