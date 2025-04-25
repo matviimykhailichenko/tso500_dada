@@ -108,8 +108,8 @@ def main():
         return
 
     server = get_server_ip()
-    queue_file = pipeline_dir / f'{server}_QUEUE.txt'
-    pending_file = pipeline_dir / f'{server}_PEDNING.txt'
+    queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+    pending_file = pipeline_dir.parent.parent / f'{server}_PEDNING.txt'
     pending_lock = Path(str(queue_file) + '.lock')
 
     with FileLock(pending_lock):
@@ -142,7 +142,7 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    stage_object(paths=paths,input_type=input_type,logger=logger)
+    # stage_object(paths=paths,input_type=input_type,logger=logger)
 
     # process_object(paths=paths, logger=logger)
     #
