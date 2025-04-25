@@ -10,7 +10,7 @@ import datetime
 
 
 def is_server_available() -> bool:
-    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -82,11 +82,11 @@ def transfer_results_oncoservice(run_name: str,
                            rsync_path: str,
                            logger: Logger,
                            testing: bool = False):
-    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        staging_dir_path = Path(config['staging_dir'])
+        staging_temp_dir_path = Path(config['staging_temp_dir'])
         results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
-    analysis_dir_path = staging_dir_path / run_name
+    analysis_dir_path = staging_temp_dir_path / run_name
     rsync_call = [rsync_path, '-r', '--checksum',
                   str(f'{analysis_dir_path}/'), str(results_dir_path)]
     try:
@@ -106,14 +106,14 @@ def transfer_results_cbmed(flowcell: str,
                            rsync_path: str,
                            logger: Logger,
                            testing: bool = False):
-    with open('/mnt/Novaseq/TSO_pipeline/02_Development/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST'if testing else ''}")
-        staging_dir_path = Path(config['staging_dir'])
-    data_staging_dir_path = staging_dir_path / flowcell
+        staging_temp_dir_path = Path(config['staging_temp_dir'])
+    data_staging_temp_dir_path = staging_temp_dir_path / flowcell
     flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir_path = flowcell_cbmed_dir_path / flowcell
-    results_staging_dir_path = staging_dir_path / run_name
+    results_staging_temp_dir_path = staging_temp_dir_path / run_name
     dragen_cbmed_dir_path = cbmed_results_dir / 'dragen'
     results_cbmed_dir_path = dragen_cbmed_dir_path / flowcell / 'Results'
     data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
@@ -121,7 +121,7 @@ def transfer_results_cbmed(flowcell: str,
 
     checksums_file_path = flowcell_cbmed_dir_path / f'{flowcell}.sha256'
     compute_checksums_call = (r'find '
-                              f'{str(data_staging_dir_path)} '
+                              f'{str(data_staging_temp_dir_path)} '
                               r'-type f -exec sha256sum {} \; | tee  '
                               f'{str(checksums_file_path)}')
     try:
@@ -134,7 +134,7 @@ def transfer_results_cbmed(flowcell: str,
 
     checksums_file_path = dragen_cbmed_dir_path / flowcell / f'{flowcell}_Results.sha256'
     compute_checksums_call = (r'find '
-                              f'{str(results_staging_dir_path)} '
+                              f'{str(results_staging_temp_dir_path)} '
                               r'-type f -exec sha256sum {} \; | tee  '
                               f'{str(checksums_file_path)}')
     try:
@@ -149,7 +149,7 @@ def transfer_results_cbmed(flowcell: str,
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
-                  f"{str(data_staging_dir_path)}/ "
+                  f"{str(data_staging_temp_dir_path)}/ "
                   f"{str(data_cbmed_dir_path)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
@@ -163,7 +163,7 @@ def transfer_results_cbmed(flowcell: str,
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
-                  f"{str(results_staging_dir_path)}/ "
+                  f"{str(results_staging_temp_dir_path)}/ "
                   f"{str(results_cbmed_dir_path)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
@@ -210,11 +210,8 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path: Path,
-                input_type: str,
-                tag: str,
-                config: dict) -> dict:
-    paths = {}
+def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
+    paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
@@ -222,32 +219,35 @@ def setup_paths(input_path: Path,
 
     if paths['testing_fast']:
         paths['tso500_script_path'] = (
-            '/mnt/Novaseq/TSO_pipeline/02_Development/sandbox/tso500_script_sub/tso500_script_sub.sh'
+            '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/tso500_script_sub/tso500_script_sub.sh'
         )
     else:
         paths['tso500_script_path'] = (
             '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
         )
-
+        
+    paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
+    
     if input_type == 'run':
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
         paths['flowcell'] = paths['run_files_dir'].name
-        paths['run_staging_dir'] = paths['staging_dir'] / paths['flowcell']
-        paths['analysis_dir'] = paths['staging_dir'] / paths['run_name']
+        paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
+        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
 
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.name
         paths['flowcell'] = paths['run_files_dir'].name
-        paths['run_staging_dir'] = paths['staging_dir'] / paths['flowcell']
-        paths['analysis_dir'] = paths['staging_dir'] / paths['run_name']
+        paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
+        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
 
-    paths['staging_dir'] = Path(config['staging_dir'])
+    
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
 
+    paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['run_type'] = config.get('run_type', '')
     paths['testing'] = config.get('testing', False)
@@ -292,16 +292,15 @@ def check_structure(paths: dict,
         raise RuntimeError(msg)
     logger.info(f"Run directory found at {paths['input_dir']}")
 
-    if not paths['staging_dir'].is_dir():
-        msg = f"Directory {paths['staging_dir']} does not exist"
+    if not paths['staging_temp_dir'].is_dir():
+        msg = f"Directory {paths['staging_temp_dir']} does not exist"
         notify_bot(msg)
         logger.error(msg)
         raise RuntimeError(msg)
-    logger.info(f"Staging directory found at {paths['staging_dir']}")
+    logger.info(f"Staging directory found at {paths['staging_temp_dir']}")
 
 
-def check_docker_image(paths: dict,
-                       logger: Logger):
+def check_docker_image(logger: Logger):
 
     try:
         result = subp_run(['docker', 'images'], stdout=subp_PIPE, stderr=subp_PIPE, text=True)
@@ -319,8 +318,7 @@ def check_docker_image(paths: dict,
     logger.info("The dragen_tso500_ctdna was found successfully")
 
 
-def check_rsync(paths: dict,
-                logger: Logger):
+def check_rsync(paths: dict, logger: Logger):
 
     if not paths['rsync_path']:
         msg = "Rsync not found on the system"
@@ -330,8 +328,7 @@ def check_rsync(paths: dict,
     logger.info(f"Rsync found at: {paths['rsync_path']}")
 
 
-def check_tso500_script(paths: dict,
-                        logger: Logger):
+def check_tso500_script(paths: dict, logger: Logger):
 
     script_path = Path(paths['tso500_script_path'])
 
@@ -343,51 +340,40 @@ def check_tso500_script(paths: dict,
     logger.info(f"TSO500 script found at {script_path}")
 
 
-def stage_run(paths: dict):
-    log_file = paths['tmp_logging_dir'] / 'stage_run.log'
-    done_file = paths['tmp_logging_dir'] / 'stage_run.done'
-    logger = setup_logger('stage_run', str(log_file))
-
+def stage_object(paths: dict,input_type: str, logger: Logger):
     msg = f"Staging a/an {paths['run_type']} run {paths['run_name']}"
     notify_bot(msg)
     logger.info(msg)
 
-    rsync_cmd = [
-        paths['rsync_path'], '-rl',
-        f"{paths['run_files_dir']}/", str(paths['run_staging_dir'])
-    ]
+    rsync_call = f"{paths['rsync_path']} -rl {paths[input_type + '_dir']}/ {paths[input_type + '_staging_temp_dir']}"
     try:
-        subp_run(rsync_cmd, check=True)
+        subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
         err = e.stderr.decode() if e.stderr else str(e)
         msg = f"Staging failed (code {e.returncode}): {err}. Cleaning up..."
         notify_bot(msg)
         logger.error(msg)
-        delete_directory(dead_dir_path=paths['run_staging_dir'], logger_runtime=logger)
+        delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
     msg = f"Done staging run {paths['run_name']}"
     logger.info(msg)
     notify_bot(msg)
-    done_file.touch()
 
 
-def process_run(paths: dict):
-    log_file = paths['tmp_logging_dir'] / 'process_run.log'
-    done_file = paths['tmp_logging_dir'] / 'process_run.done'
-    logger = setup_logger('process_run', str(log_file))
-
+def process_object(paths: dict, logger: Logger):
+    """
+    Can be a run or a sample
+    :param paths:
+    :return:
+    """
     msg = f"Starting DRAGEN TSO500 for run {paths['run_name']}"
     logger.info(msg)
     notify_bot(msg)
 
-    cmd = [
-        paths['tso500_script_path'],
-        '--runFolder', str(paths['run_staging_dir']),
-        '--analysisFolder', str(paths['analysis_dir'])
-    ]
+    tso_script_call = f"{paths['tso500_script_path']} --runFolder '{paths['run_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
     try:
-        subp_run(cmd, check=True)
+        subp_run(tso_script_call, check=True)
     except CalledProcessError as e:
         err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
         msg = f"DRAGEN failed (code {e.returncode}): {err_msg}. Cleaning up..."
@@ -399,14 +385,9 @@ def process_run(paths: dict):
     msg = f"Finished DRAGEN TSO500 for run {paths['run_name']}"
     logger.info(msg)
     notify_bot(msg)
-    done_file.touch()
 
 
-def transfer_results(paths: dict):
-    log_file = paths['tmp_logging_dir'] / 'transfer_results.log'
-    done_file = paths['tmp_logging_dir'] / 'transfer_results.done'
-    logger = setup_logger('transfer_results', str(log_file))
-
+def transfer_results(paths: dict, logger: Logger):
     msg = f"Transferring results for run {paths['run_name']}"
     notify_bot(msg)
     logger.info(msg)
@@ -437,6 +418,5 @@ def transfer_results(paths: dict):
     notify_bot(msg)
     logger.info(msg)
 
-    delete_directory(dead_dir_path=paths['run_staging_dir'], logger_runtime=logger)
+    delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
-    done_file.touch()

@@ -2,9 +2,9 @@
 testing_fast: False
 # TODO Change in prod
 # TODO change to a command
-pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
+pipeline_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
-staging_dir: '/staging/tmp'
+staging_temp_dir: '/staging/tmp'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
 oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
 cbmed_seqencing_dir: '/mnt/Novaseq/08_Projekte/CBmed'
@@ -15,7 +15,7 @@ patho_dir: '/mnt/Patho/TSO500_DRAGEN'
 sx182_mountpoint: '/mnt/Novaseq'
 sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
-logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
+logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
 
 
 ready_tags:
