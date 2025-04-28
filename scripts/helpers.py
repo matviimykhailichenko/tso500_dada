@@ -249,7 +249,8 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     paths['error_messages'] = config.get('error_messages', {})
     paths['run_type'] = config.get('run_type', '')
     paths['testing'] = config.get('testing', False)
-    paths['sx182_mountpoint'] = config.get('sx182_mountpoint', '')
+    paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
+    paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
 
     return paths
 
