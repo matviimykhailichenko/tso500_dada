@@ -215,6 +215,7 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
     paths['testing_fast'] = config.get('testing_fast', False)
+    paths['input_dir'] = input_path
 
     if paths['testing_fast']:
         paths['tso500_script_path'] = (
