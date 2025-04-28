@@ -120,7 +120,7 @@ def main():
         for index, row in queue.iterrows():
             with open(queue_file, 'a') as f:
                 f.write('\t'.join(map(str, row)) + '\n')
-                queue_no_processing.to_csv(queue_file, sep='\t')
+                queue_no_processing.to_csv(queue_file,sep='\t',index=False)
 
         pending_file.unlink()
 
