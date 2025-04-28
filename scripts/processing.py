@@ -124,7 +124,7 @@ def main():
 
         pending_file.unlink()
 
-    path, input_type, _, tag = queue.iloc[0]
+    path, input_type, _, tag, flowcell = queue.iloc[0]
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 

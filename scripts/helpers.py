@@ -229,6 +229,7 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     
     if input_type == 'run':
+        paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
         paths['flowcell'] = paths['run_files_dir'].name
@@ -241,8 +242,6 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
         paths['flowcell'] = paths['run_files_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-
-    
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
