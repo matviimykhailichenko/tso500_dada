@@ -5,8 +5,7 @@ from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, 
 from typing import Optional
 import yaml
 from scripts.logging_ops import notify_bot, setup_logger
-import datetime
-
+from datetime import datetime
 
 
 def is_server_available() -> bool:
