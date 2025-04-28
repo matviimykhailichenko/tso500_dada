@@ -239,7 +239,8 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.name
-        paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
+        paths['sample_id'] = paths['sample_dir'].name
+        paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
