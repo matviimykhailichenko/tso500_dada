@@ -19,6 +19,6 @@ def setup_environment():
     sh_copy('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/PENDING.txt',str(pending_file))
 
 
-def test_processing():
+def test_processing(setup_environment):
     processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py'
     subp_run(processing_call,check=True,shell=True)
