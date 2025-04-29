@@ -3,7 +3,7 @@ from subprocess import CalledProcessError
 import yaml
 import subprocess
 import argparse
-from filelock import FileLock
+from filelock import FileLock, Timeout
 import pandas as pd
 from scripts.helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results
@@ -116,19 +116,23 @@ def main():
 
     assert pending_file.exists(), 'The pending queue file should exist'
     if not pending_file.stat().st_size == 0:
-        with FileLock(pending_lock):
-            queue = pd.read_csv(pending_file, sep='\t')
-            queue = queue.sort_values(by='Priority', ascending=True)
-            queue_no_processing = queue.iloc[1:, ]
+        try:
+            with FileLock(pending_lock, timeout=10):
+                queue = pd.read_csv(pending_file, sep='\t')
+                queue = queue.sort_values(by='Priority', ascending=True)
+                queue_no_processing = queue.iloc[1:, ]
 
-            for index, row in queue.iterrows():
-                with open(queue_file, 'a') as f:
-                    f.write('\t'.join(map(str, row)) + '\n')
-                    queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+                for index, row in queue.iterrows():
+                    with open(queue_file, 'a') as f:
+                        f.write('\t'.join(map(str, row)) + '\n')
+                        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-                open(str(pending_file), "w").close()
+                    open(str(pending_file), "w").close()
 
-                pass
+                    pass
+
+        except Timeout:
+            notify_bot("Another process is holding the lock to the pending file")
 
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
