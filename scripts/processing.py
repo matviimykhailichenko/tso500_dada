@@ -153,8 +153,8 @@ def main():
 
     stage_object(paths=paths,input_type=input_type,logger=logger)
 
-    process_object(paths=paths, logger=logger)
-    #
+    process_object(paths=paths,input_type=input_type,logger=logger)
+
     # transfer_results(paths=paths, logger=logger)
 
     # TODO while stuff in queue process stuff, but check priority first
