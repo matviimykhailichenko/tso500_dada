@@ -117,15 +117,15 @@ def main():
     assert pending_file.exists(), 'The pending queue file should exist'
 
     if not pending_file.stat().st_size == 0:
-        pending_lock.acquire()
-        queue = pd.read_csv(pending_file, sep='\t')
-        queue = queue.sort_values(by='Priority', ascending=True)
-        queue_no_processing = queue.iloc[1:, ]
-        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        try:
+            queue = pd.read_csv(pending_file, sep='\t')
+            queue = queue.sort_values(by='Priority', ascending=True)
+            queue_no_processing = queue.iloc[1:, ]
+            queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-        pending_file.write_text('')
-
-        pending_lock.release()
+            pending_file.write_text('')
+        finally:
+            pending_lock.release()
 
     else:
         queue = pd.read_csv(queue_file, sep='\t')
