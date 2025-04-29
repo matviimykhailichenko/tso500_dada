@@ -342,7 +342,7 @@ def check_tso500_script(paths: dict, logger: Logger):
 
 
 def stage_object(paths: dict,input_type: str, logger: Logger):
-    msg = f"Staging a/an {paths['tag']} {input_type} {paths['run_name']}"
+    msg = f"Staging a {paths['tag']} {input_type} {paths['input_dir']}"
     notify_bot(msg)
     logger.info(msg)
 
@@ -357,7 +357,7 @@ def stage_object(paths: dict,input_type: str, logger: Logger):
         delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
-    msg = f"Done staging run {paths['run_name']}"
+    msg = f"Done staging a {paths['tag']} {input_type} {paths['input_dir']}"
     logger.info(msg)
     notify_bot(msg)
 
