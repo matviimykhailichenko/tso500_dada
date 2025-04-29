@@ -135,6 +135,7 @@ def main():
 
     else:
         pass
+        pass
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
