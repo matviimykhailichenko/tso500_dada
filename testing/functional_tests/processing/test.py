@@ -16,7 +16,7 @@ def setup_environment():
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/PENDING.txt')
-    if not pending_file.exists:
+    if not pending_file.exists():
         sh_copy(str(test_pending_file),str(pending_file))
 
 
