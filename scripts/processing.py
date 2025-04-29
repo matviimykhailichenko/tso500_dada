@@ -124,7 +124,7 @@ def main():
 
                 queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-                    pending_file.write_text('')
+                pending_file.write_text('')
 
                 pass
 
