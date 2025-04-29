@@ -373,7 +373,7 @@ def process_object(input_type:str,paths:dict,logger:Logger):
     notify_bot(msg)
 
     if input_type == 'run':
-        tso_script_call = f"{paths['tso500_script_path']} --runFolder '{paths['run_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
+        tso_script_call = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
         try:
             subp_run(tso_script_call,check=True,shell=True)
         except CalledProcessError as e:
