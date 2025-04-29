@@ -110,7 +110,7 @@ def main():
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-    pending_lock = Path(str(queue_file) + '.lock')
+    pending_lock = Path(str(pending_file) + '.lock')
 
     # TODO if pending not empty
 
