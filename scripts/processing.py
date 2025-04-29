@@ -114,6 +114,8 @@ def main():
 
     # TODO if pending not empty
 
+    assert pending_file.exists() 'The pending queue file should exist'
+
     if not pending_file.stat().st_size == 0:
         with FileLock(pending_lock):
             queue = pd.read_csv(pending_file, sep='\t')
