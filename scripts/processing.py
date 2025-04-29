@@ -135,6 +135,17 @@ def main():
             notify_bot("Another process is holding the lock to the pending file")
             raise Timeout
 
+    else:
+        queue = pd.read_csv(queue_file, sep='\t')
+        queue_no_processing = queue.iloc[1:, ]
+
+        for index, row in queue.iterrows():
+            with open(queue_file, 'a') as f:
+                f.write('\t'.join(map(str, row)) + '\n')
+                queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+
+
+
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
