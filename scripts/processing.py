@@ -112,17 +112,23 @@ def main():
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
     pending_lock = Path(str(queue_file) + '.lock')
 
-    with FileLock(pending_lock):
-        queue = pd.read_csv(pending_file, sep='\t')
-        queue = queue.sort_values(by='Priority', ascending=True)
-        queue_no_processing = queue.iloc[1:,]
+    # TODO if pending not empty
 
-        for index, row in queue.iterrows():
-            with open(queue_file, 'a') as f:
-                f.write('\t'.join(map(str, row)) + '\n')
-                queue_no_processing.to_csv(queue_file,sep='\t',index=False)
+    if not pending_file.stat().st_size == 0:
+        with FileLock(pending_lock):
+            queue = pd.read_csv(pending_file, sep='\t')
+            queue = queue.sort_values(by='Priority', ascending=True)
+            queue_no_processing = queue.iloc[1:, ]
 
-        pending_file.unlink()
+            for index, row in queue.iterrows():
+                with open(queue_file, 'a') as f:
+                    f.write('\t'.join(map(str, row)) + '\n')
+                    queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+
+                open(str(pending_file), "w").close()
+
+                pass
+
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
