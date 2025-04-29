@@ -122,10 +122,7 @@ def main():
                 queue = queue.sort_values(by='Priority', ascending=True)
                 queue_no_processing = queue.iloc[1:, ]
 
-                for index, row in queue.iterrows():
-                    with open(queue_file, 'w') as f:
-                        f.write('\t'.join(map(str, row)) + '\n')
-                        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+                queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
                     pending_file.write_text('')
 
