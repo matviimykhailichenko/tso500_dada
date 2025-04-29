@@ -129,7 +129,7 @@ def main():
 
                     open(str(pending_file), "w").close()
 
-                    pass
+                pass
 
         except Timeout:
             notify_bot("Another process is holding the lock to the pending file")
@@ -143,9 +143,6 @@ def main():
             with open(queue_file, 'w') as f:
                 f.write('\t'.join(map(str, row)) + '\n')
                 queue_no_processing.to_csv(queue_file, sep='\t', index=False)
-
-
-
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
