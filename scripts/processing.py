@@ -142,7 +142,7 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    # stage_object(paths=paths,input_type=input_type,logger=logger)
+    stage_object(paths=paths,input_type=input_type,logger=logger)
 
     # process_object(paths=paths, logger=logger)
     #
