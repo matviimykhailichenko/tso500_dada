@@ -112,11 +112,9 @@ def main():
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
     pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
-    # TODO if pending not empty
-
     assert pending_file.exists(), 'The pending queue file should exist'
 
-    if not pending_file.stat().st_size == 0:
+    if not pending_file.stat().st_size < 38:
         try:
             queue = pd.read_csv(pending_file, sep='\t')
             queue = queue.sort_values(by='Priority', ascending=True)
@@ -130,8 +128,7 @@ def main():
     elif not queue_file.stat().st_size < 38:
         queue = pd.read_csv(queue_file, sep='\t')
         queue_no_processing = queue.iloc[1:, ]
-        with open(queue_file, 'w') as f:
-            queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
     else:
         return
@@ -156,7 +153,7 @@ def main():
 
     stage_object(paths=paths,input_type=input_type,logger=logger)
 
-    # process_object(paths=paths, logger=logger)
+    process_object(paths=paths, logger=logger)
     #
     # transfer_results(paths=paths, logger=logger)
 

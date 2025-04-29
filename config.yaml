@@ -1,5 +1,5 @@
 # TODO Change then testing with real runs
-testing_fast: False
+testing_fast: True
 # TODO Change in prod
 # TODO change to a command
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor'

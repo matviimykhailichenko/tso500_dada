@@ -362,7 +362,7 @@ def stage_object(paths: dict,input_type: str, logger: Logger):
     notify_bot(msg)
 
 
-def process_object(paths: dict, logger: Logger):
+def process_object(input_type:str,paths:dict,logger:Logger):
     """
     Can be a run or a sample
     :param paths:
@@ -372,16 +372,29 @@ def process_object(paths: dict, logger: Logger):
     logger.info(msg)
     notify_bot(msg)
 
-    tso_script_call = f"{paths['tso500_script_path']} --runFolder '{paths['run_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
-    try:
-        subp_run(tso_script_call, check=True)
-    except CalledProcessError as e:
-        err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
-        msg = f"DRAGEN failed (code {e.returncode}): {err_msg}. Cleaning up..."
-        logger.error(msg)
-        notify_bot(msg)
-        delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
-        raise RuntimeError(msg)
+    if input_type == 'run':
+        tso_script_call = f"{paths['tso500_script_path']} --runFolder '{paths['run_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
+        try:
+            subp_run(tso_script_call, check=True)
+        except CalledProcessError as e:
+            err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
+            msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
+            logger.error(msg)
+            notify_bot(msg)
+            delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+            raise RuntimeError(msg)
+
+    elif input_type == 'sample':
+        tso_script_call = f"{paths['tso500_script_path']} --fastqFolder '{paths['sample_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
+        try:
+            subp_run(tso_script_call, check=True)
+        except CalledProcessError as e:
+            err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
+            msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
+            logger.error(msg)
+            notify_bot(msg)
+            delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+            raise RuntimeError(msg)
 
     msg = f"Finished DRAGEN TSO500 for run {paths['run_name']}"
     logger.info(msg)
