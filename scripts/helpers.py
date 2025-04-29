@@ -368,7 +368,7 @@ def process_object(input_type:str,paths:dict,logger:Logger):
     :param paths:
     :return:
     """
-    msg = f"Starting DRAGEN TSO500 for run {paths['run_name']}"
+    msg = f"Starting DRAGEN TSO500 for {paths['tag']} {input_type} {paths['input_dir']}"
     logger.info(msg)
     notify_bot(msg)
 
