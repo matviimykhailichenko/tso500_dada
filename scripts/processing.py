@@ -130,11 +130,8 @@ def main():
     else:
         queue = pd.read_csv(queue_file, sep='\t')
         queue_no_processing = queue.iloc[1:, ]
-
-        for index, row in queue.iterrows():
-            with open(queue_file, 'w') as f:
-                f.write('\t'.join(map(str, row)) + '\n')
-                queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        with open(queue_file, 'w') as f:
+            queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
