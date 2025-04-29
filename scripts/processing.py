@@ -134,8 +134,7 @@ def main():
             queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
     else:
-        pass
-        pass
+        return
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
