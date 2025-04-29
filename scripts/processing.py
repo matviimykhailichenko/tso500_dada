@@ -133,6 +133,7 @@ def main():
 
         except Timeout:
             notify_bot("Another process is holding the lock to the pending file")
+            raise Timeout
 
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
