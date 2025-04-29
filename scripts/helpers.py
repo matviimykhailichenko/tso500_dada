@@ -375,7 +375,7 @@ def process_object(input_type:str,paths:dict,logger:Logger):
     if input_type == 'run':
         tso_script_call = f"{paths['tso500_script_path']} --runFolder '{paths['run_staging_temp_dir']}' --analysisFolder '{paths['analysis_dir']}'"
         try:
-            subp_run(tso_script_call, check=True)
+            subp_run(tso_script_call,check=True,shell=True)
         except CalledProcessError as e:
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
