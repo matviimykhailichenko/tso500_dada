@@ -127,7 +127,7 @@ def main():
                         f.write('\t'.join(map(str, row)) + '\n')
                         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-                    open(str(pending_file), "w").close()
+                    pending_file.write_text('')
 
                 pass
 
