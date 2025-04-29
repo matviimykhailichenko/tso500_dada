@@ -227,7 +227,8 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
         )
         
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
-    
+    paths['input_dir'] = input_path
+
     if input_type == 'run':
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
@@ -248,7 +249,7 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
 
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
-    paths['run_type'] = config.get('run_type', '')
+    paths['tag'] = tag
     paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
@@ -341,11 +342,11 @@ def check_tso500_script(paths: dict, logger: Logger):
 
 
 def stage_object(paths: dict,input_type: str, logger: Logger):
-    msg = f"Staging a/an {paths['run_type']} run {paths['run_name']}"
+    msg = f"Staging a/an {paths['tag']} {input_type} {paths['run_name']}"
     notify_bot(msg)
     logger.info(msg)
 
-    rsync_call = f"{paths['rsync_path']} -rl {paths[input_type + '_dir']}/ {paths[input_type + '_staging_temp_dir']}"
+    rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
