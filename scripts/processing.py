@@ -127,11 +127,14 @@ def main():
         finally:
             pending_lock.release()
 
-    else:
+    elif not queue_file.stat().st_size < 38:
         queue = pd.read_csv(queue_file, sep='\t')
         queue_no_processing = queue.iloc[1:, ]
         with open(queue_file, 'w') as f:
             queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+
+    else:
+        pass
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
