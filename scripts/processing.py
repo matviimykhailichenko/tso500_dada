@@ -110,27 +110,22 @@ def main():
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-    pending_lock = Path(str(pending_file) + '.lock')
+    pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
     # TODO if pending not empty
 
     assert pending_file.exists(), 'The pending queue file should exist'
+
     if not pending_file.stat().st_size == 0:
-        try:
-            with FileLock(pending_lock, timeout=10):
-                queue = pd.read_csv(pending_file, sep='\t')
-                queue = queue.sort_values(by='Priority', ascending=True)
-                queue_no_processing = queue.iloc[1:, ]
+        pending_lock.acquire()
+        queue = pd.read_csv(pending_file, sep='\t')
+        queue = queue.sort_values(by='Priority', ascending=True)
+        queue_no_processing = queue.iloc[1:, ]
+        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-                queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        pending_file.write_text('')
 
-                pending_file.write_text('')
-
-                pass
-
-        except Timeout:
-            notify_bot("Another process is holding the lock to the pending file")
-            raise Timeout
+        pending_lock.release()
 
     else:
         queue = pd.read_csv(queue_file, sep='\t')
