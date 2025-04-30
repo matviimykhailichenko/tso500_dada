@@ -443,7 +443,6 @@ def get_queue(pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
     assert queue_file.exists(), 'The queue file should exist'
 
-
     pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
     if not pending_file.stat().st_size < 38:
@@ -464,3 +463,5 @@ def get_queue(pending_file:Path,queue_file:Path):
 
     else:
         return
+
+    return queue

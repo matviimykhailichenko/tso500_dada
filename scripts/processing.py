@@ -91,7 +91,7 @@ def main():
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    queue = get_queue(queue_file=queue_file,pending_file=pending_file)
+    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
