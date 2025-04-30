@@ -84,10 +84,10 @@ def is_nas_mounted(mountpoint_dir: str,
 def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
     run_name:str = paths['run_name']
     staging_temp_dir:Path = paths['staging_temp_dir']
-    onco_dir:Path = paths['oncoservice_dir']
+    onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
     rsync_path:str = paths['rsync_path']
 
-    results_dir_path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+    results_dir_path = onco_dir / 'Analyseergebnisse'/ run_name
     analysis_dir_path = staging_temp_dir / run_name
 
     rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
