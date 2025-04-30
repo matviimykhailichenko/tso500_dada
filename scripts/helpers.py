@@ -81,7 +81,7 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=False):
+def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
     run_name:str = paths['run_name']
     staging_temp_dir:Path = paths['staging_temp_dir']
     onco_dir:Path = paths['oncoservice_dir']
@@ -90,7 +90,7 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=False):
     results_dir_path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
     analysis_dir_path = staging_temp_dir / run_name
 
-    rsync_call = f'rsync_path -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
+    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
     try:
         subp_run(rsync_call,check=True,Shell=True)
     except CalledProcessError as e:
@@ -405,29 +405,20 @@ def process_object(input_type:str,paths:dict,logger:Logger):
     notify_bot(msg)
 
 
-def transfer_results(paths: dict, logger: Logger):
+def transfer_results(paths: dict,input_type:str,testing:bool=True,logger:Logger=None):
     msg = f"Transferring results for run {paths['run_name']}"
     notify_bot(msg)
     logger.info(msg)
 
+    tag=paths['tag']
+
     try:
-        if paths['run_type'] == 'oncoservice':
-            transfer_results_oncoservice(
-                paths['run_name'],
-                paths['rsync_path'],
-                logger,
-                paths['testing'],
-            )
-        elif paths['run_type'] == 'cbmed':
-            transfer_results_cbmed(
-                paths['flowcell'],
-                paths['run_name'],
-                paths['rsync_path'],
-                logger,
-                paths['testing'],
-            )
+        if tag == 'ONC':
+            transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
+        elif tag == 'CBM':
+            transfer_results_cbmed(paths=paths,logger=logger,testing=testing)
         else:
-            raise ValueError(f"Unsupported run type: {paths['run_type']}")
+            raise ValueError(f"Unsupported run type: {input_type}")
     except Exception as e:
         logger.error(str(e))
         raise

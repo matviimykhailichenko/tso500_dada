@@ -118,7 +118,7 @@ def main():
 
     process_object(paths=paths,input_type=input_type,logger=logger)
 
-    transfer_results(paths=paths, logger=logger)
+    transfer_results(paths=paths,input_type=input_type,logger=logger)
 
 if __name__ == "__main__":
     main()
