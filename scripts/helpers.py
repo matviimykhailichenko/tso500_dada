@@ -92,7 +92,7 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
 
     rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
     try:
-        subp_run(rsync_call,check=True,Shell=True)
+        subp_run(rsync_call,check=True,shell=True)
     except CalledProcessError as e:
         message = f"Transferring results had failed with a return code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
