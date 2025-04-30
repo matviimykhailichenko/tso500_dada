@@ -427,7 +427,7 @@ def transfer_results(paths: dict,input_type:str,testing:bool=True,logger:Logger=
     notify_bot(msg)
     logger.info(msg)
 
-    delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
+    delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
 def get_queue(pending_file:Path,queue_file:Path):
