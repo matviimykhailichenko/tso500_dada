@@ -17,7 +17,7 @@ def setup_environment():
 
     server_ip = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir = cbmed_seq_dir / test_cbmed_run.name
+    test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_run'
 
     if not pending_file.exists():
         sh_copy(str(test_pending_file),str(pending_file))
