@@ -107,19 +107,18 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     cbmed_seq_dir:Path = paths['cbmed_seq_dir']
     staging_temp_dir:Path = paths['staging_temp_dir']
     flowcell:str = paths['flowcell']
+    data_seq_dir:Path = cbmed_seq_dir / paths['run_name']
+    flowcell_cbmed_dir = cbmed_results_dir / 'flowcells' / flowcell
+    data_cbmed_dir = flowcell_cbmed_dir / flowcell
+    results_staging = staging_temp_dir / run_name
+    dragen_cbmed_dir = cbmed_results_dir / 'dragen'
+    results_cbmed_dir = dragen_cbmed_dir / flowcell / 'Results'
+    data_cbmed_dir.mkdir(parents=True, exist_ok=True)
+    results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    data_staging_temp_dir_path = staging_temp_dir / flowcell
-    flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
-    data_cbmed_dir_path = flowcell_cbmed_dir_path / flowcell
-    results_staging_temp_dir_path = staging_temp_dir / run_name
-    dragen_cbmed_dir_path = cbmed_results_dir / 'dragen'
-    results_cbmed_dir_path = dragen_cbmed_dir_path / flowcell / 'Results'
-    data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
-    results_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
-
-    checksums_file_path = flowcell_cbmed_dir_path / f'{flowcell}.sha256'
+    checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
     compute_checksums_call = (r'find '
-                              f'{str(data_staging_temp_dir_path)} '
+                              f'{str(data_seq_dir)} '
                               r'-type f -exec sha256sum {} \; | tee  '
                               f'{str(checksums_file_path)}')
     try:
@@ -130,9 +129,9 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    checksums_file_path = dragen_cbmed_dir_path / flowcell / f'{flowcell}_Results.sha256'
+    checksums_file_path = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     compute_checksums_call = (r'find '
-                              f'{str(results_staging_temp_dir_path)} '
+                              f'{str(results_staging)} '
                               r'-type f -exec sha256sum {} \; | tee  '
                               f'{str(checksums_file_path)}')
     try:
@@ -143,12 +142,12 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    log_file_path = flowcell_cbmed_dir_path / 'CBmed_copylog.log'
+    log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
-                  f"{str(data_staging_temp_dir_path)}/ "
-                  f"{str(data_cbmed_dir_path)}")
+                  f"{str(data_seq_dir)}/ "
+                  f"{str(data_cbmed_dir)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -157,12 +156,12 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    log_file_path = results_cbmed_dir_path / 'CBmed_copylog.log'
+    log_file_path = results_cbmed_dir / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
-                  f"{str(results_staging_temp_dir_path)}/ "
-                  f"{str(results_cbmed_dir_path)}")
+                  f"{str(data_seq_dir)}/ "
+                  f"{str(results_cbmed_dir)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -171,10 +170,10 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    samplesheet_path = results_cbmed_dir_path / 'SampleSheet.csv'
+    samplesheet_path = results_cbmed_dir / 'SampleSheet.csv'
     rsync_call = (f"{rsync_path} "
                   f"{str(samplesheet_path)} "
-                  f"{str(flowcell_cbmed_dir_path)}")
+                  f"{str(flowcell_cbmed_dir)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
