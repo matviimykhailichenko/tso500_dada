@@ -6,6 +6,10 @@ from typing import Optional
 import yaml
 from scripts.logging_ops import notify_bot, setup_logger
 from datetime import datetime
+import pandas as pd
+from filelock import FileLock, Timeout
+
+
 
 
 def is_server_available() -> bool:
@@ -219,7 +223,7 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
 
     if paths['testing_fast']:
         paths['tso500_script_path'] = (
-            '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/tso500_script_sub/tso500_script_sub.sh'
+            '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
         )
     else:
         paths['tso500_script_path'] = (
@@ -396,7 +400,7 @@ def process_object(input_type:str,paths:dict,logger:Logger):
             delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
-    msg = f"Finished DRAGEN TSO500 for run {paths['run_name']}"
+    msg = f"Finished DRAGEN TSO500 for run {paths['tag']} {input_type} {paths['input_dir']}"
     logger.info(msg)
     notify_bot(msg)
 
@@ -434,3 +438,29 @@ def transfer_results(paths: dict, logger: Logger):
 
     delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+
+def get_queue(pending_file:Path,queue_file:Path):
+    assert pending_file.exists(), 'The pending file should exist'
+    assert queue_file.exists(), 'The queue file should exist'
+
+
+    pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
+
+    if not pending_file.stat().st_size < 38:
+        try:
+            queue = pd.read_csv(pending_file, sep='\t')
+            queue = queue.sort_values(by='Priority', ascending=True)
+            queue_no_processing = queue.iloc[1:, ]
+            queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+
+            pending_file.write_text('')
+        finally:
+            pending_lock.release()
+
+    elif not queue_file.stat().st_size < 38:
+        queue = pd.read_csv(queue_file, sep='\t')
+        queue_no_processing = queue.iloc[1:, ]
+        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+
+    else:
+        return
