@@ -104,6 +104,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     rsync_path:str = paths['rsync_path']
     run_name:str = paths['cbmed_results_dir']
     cbmed_results_dir:Path = paths['cbmed_results_dir']
+    cbmed_seq_dir:Path = paths['cbmed_seq_dir']
     staging_temp_dir:Path = paths['staging_temp_dir']
     flowcell:str = paths['flowcell']
 
@@ -254,6 +255,7 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
     paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
+    paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
 
 
     return paths
