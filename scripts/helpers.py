@@ -100,10 +100,12 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
         raise RuntimeError(message)
 
 
-def transfer_results_cbmed(paths:dict,flowcell:str,run_name:str,rsync_path:str,logger:Logger,testing: bool=False):
-    cbmed_results_dir = paths['cbmed_results_dir']
-    staging_temp_dir = paths['staging_temp_dir']
-    flowcell = paths['flowcell']
+def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
+    rsync_path:str = paths['rsync_path']
+    run_name:str = paths['cbmed_results_dir']
+    cbmed_results_dir:Path = paths['cbmed_results_dir']
+    staging_temp_dir:Path = paths['staging_temp_dir']
+    flowcell:str = paths['flowcell']
 
     data_staging_temp_dir_path = staging_temp_dir / flowcell
     flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
