@@ -100,7 +100,7 @@ def main():
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
-    paths: dict = setup_paths(input_path=Path(path),input_type=input_type,tag=tag,config=config)
+    paths: dict = setup_paths(input_path=Path(path),input_type=input_type,tag=tag,flowcell=flowcell,config=config)
 
     logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 

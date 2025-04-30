@@ -100,20 +100,15 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
         raise RuntimeError(message)
 
 
-# TODO I don't like that fat function
-def transfer_results_cbmed(flowcell: str,
-                           run_name: str,
-                           rsync_path: str,
-                           logger: Logger,
-                           testing: bool = False):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST'if testing else ''}")
-        staging_temp_dir_path = Path(config['staging_temp_dir'])
-    data_staging_temp_dir_path = staging_temp_dir_path / flowcell
+def transfer_results_cbmed(paths:dict,flowcell:str,run_name:str,rsync_path:str,logger:Logger,testing: bool=False):
+    cbmed_results_dir = paths['cbmed_results_dir']
+    staging_temp_dir = paths['staging_temp_dir']
+    flowcell = paths['flowcell']
+
+    data_staging_temp_dir_path = staging_temp_dir / flowcell
     flowcell_cbmed_dir_path = cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir_path = flowcell_cbmed_dir_path / flowcell
-    results_staging_temp_dir_path = staging_temp_dir_path / run_name
+    results_staging_temp_dir_path = staging_temp_dir / run_name
     dragen_cbmed_dir_path = cbmed_results_dir / 'dragen'
     results_cbmed_dir_path = dragen_cbmed_dir_path / flowcell / 'Results'
     data_cbmed_dir_path.mkdir(parents=True, exist_ok=True)
@@ -210,13 +205,14 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
+def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
     paths['testing_fast'] = config.get('testing_fast', False)
     paths['input_dir'] = input_path
+    paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
         paths['tso500_script_path'] = (
@@ -234,7 +230,6 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
-        paths['flowcell'] = paths['run_files_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
 
@@ -256,6 +251,7 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
     paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
+    paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
 
 
     return paths
