@@ -151,7 +151,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
@@ -165,7 +165,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
@@ -177,7 +177,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     try:
         subp_run(rsync_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Transferring results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
