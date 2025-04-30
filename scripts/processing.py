@@ -93,6 +93,9 @@ def main():
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
+    if not queue:
+        return
+
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
@@ -115,7 +118,7 @@ def main():
 
     process_object(paths=paths,input_type=input_type,logger=logger)
 
-    # transfer_results(paths=paths, logger=logger)
+    transfer_results(paths=paths, logger=logger)
 
 if __name__ == "__main__":
     main()

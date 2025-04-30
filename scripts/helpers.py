@@ -81,26 +81,23 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(run_name: str,
-                           rsync_path: str,
-                           logger: Logger,
-                           testing: bool = False):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        staging_temp_dir_path = Path(config['staging_temp_dir'])
-        results_dir_path = Path(config['oncoservice_dir']) / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
-    analysis_dir_path = staging_temp_dir_path / run_name
-    rsync_call = [rsync_path, '-r', '--checksum',
-                  str(f'{analysis_dir_path}/'), str(results_dir_path)]
+def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=False):
+    run_name:str = paths['run_name']
+    staging_temp_dir:Path = paths['staging_temp_dir']
+    onco_dir:Path = paths['oncoservice_dir']
+    rsync_path:str = paths['rsync_path']
+
+    results_dir_path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+    analysis_dir_path = staging_temp_dir / run_name
+
+    rsync_call = f'rsync_path -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
     try:
-        subp_run(rsync_call).check_returncode()
+        subp_run(rsync_call,check=True,Shell=True)
     except CalledProcessError as e:
         message = f"Transferring results had failed with a return code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
-
-    return 0
 
 
 # TODO I don't like that fat function
@@ -257,6 +254,9 @@ def setup_paths(input_path: Path,input_type: str,tag: str,config: dict) -> dict:
     paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
+    paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
+    paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
+
 
     return paths
 
