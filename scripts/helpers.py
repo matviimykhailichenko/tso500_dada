@@ -102,7 +102,7 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
 
 def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     rsync_path:str = paths['rsync_path']
-    run_name:str = paths['cbmed_results_dir']
+    run_name:str = paths['run_name']
     cbmed_results_dir:Path = paths['cbmed_results_dir']
     cbmed_seq_dir:Path = paths['cbmed_seq_dir']
     staging_temp_dir:Path = paths['staging_temp_dir']
