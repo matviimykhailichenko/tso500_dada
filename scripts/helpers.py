@@ -162,7 +162,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
             logger.error(message)
             raise RuntimeError(message)
 
-    if not fastq_gen_results_dir.exists or fastq_gen_results_dir.stat().st_size == 0:
+    if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
         log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
