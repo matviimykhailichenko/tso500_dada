@@ -107,20 +107,22 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     cbmed_seq_dir:Path = paths['cbmed_seq_dir']
     staging_temp_dir:Path = paths['staging_temp_dir']
     flowcell:str = paths['flowcell']
-    data_seq_dir:Path = cbmed_seq_dir / paths['run_name']
+    run_seq_dir:Path = cbmed_seq_dir / paths['run_name']
     flowcell_cbmed_dir = cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir = flowcell_cbmed_dir / flowcell
     results_staging = staging_temp_dir / run_name
     dragen_cbmed_dir = cbmed_results_dir / 'dragen'
     results_cbmed_dir = dragen_cbmed_dir / flowcell / 'Results'
-    samplesheet= results_cbmed_dir / 'SampleSheet.csv'
+    samplesheet:Path = results_cbmed_dir / 'SampleSheet.csv'
+    fastq_gen_seq_dir:Path = run_seq_dir / 'FastqGeneration'
+    fastq_gen_results_dir:Path = results_cbmed_dir / 'FastqGeneration'
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    if not data_seq_dir.exists or data_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
         checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
         compute_checksums_call = (r'find '
-                                  f'{str(data_seq_dir)} '
+                                  f'{str(run_seq_dir)} '
                                   r'-type f -exec sha256sum {} \; | tee  '
                                   f'{str(checksums_file_path)}')
         try:
@@ -144,14 +146,29 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    if not data_seq_dir.exists or data_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
                       f"--exclude='Analysis' "
-                      f"{str(data_seq_dir)}/ "
+                      f"{str(run_seq_dir)}/ "
                       f"{str(data_cbmed_dir)}")
+        try:
+            subp_run(rsync_call, shell=True).check_returncode()
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
+
+    if not fastq_gen_results_dir.exists or fastq_gen_results_dir.stat().st_size == 0:
+        log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
+        rsync_call = (f"{rsync_path} -r "
+                      f"--out-format=\"%C %n\" "
+                      f"--log-file {str(log_file_path)} "
+                      f"{str(fastq_gen_seq_dir)}/ "
+                      f"{str(fastq_gen_results_dir)}")
         try:
             subp_run(rsync_call, shell=True).check_returncode()
         except CalledProcessError as e:
@@ -173,6 +190,8 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
+
+
 
     if not samplesheet.exists() or samplesheet.stat().st_size == 0:
         rsync_call = (f"{rsync_path} "
