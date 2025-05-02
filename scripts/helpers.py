@@ -151,7 +151,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
-                      f"--exclude='Analysis' "
+                      f"--exclude='FastqGeneration' "
                       f"{str(run_seq_dir)}/ "
                       f"{str(data_cbmed_dir)}")
         try:
