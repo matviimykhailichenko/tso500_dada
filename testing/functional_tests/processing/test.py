@@ -16,8 +16,12 @@ def setup_environment():
         test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_cbmed_fast')
 
     server_ip = get_server_ip()
+    queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_run'
+
+    if not queue_file.exists():
+        queue_file.touch()
 
     if not pending_file.exists():
         sh_copy(str(test_pending_file),str(pending_file))
