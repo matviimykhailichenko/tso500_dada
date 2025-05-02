@@ -97,6 +97,8 @@ def main():
         return
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
+    if input_type == 'Sample' and (queue['tag'] == tag).sum() == 1:
+        is_last_sample = True
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
@@ -114,11 +116,11 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    stage_object(paths=paths,input_type=input_type,logger=logger)
+    stage_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
 
-    process_object(paths=paths,input_type=input_type,logger=logger)
+    process_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
 
-    transfer_results(paths=paths,input_type=input_type,logger=logger)
+    transfer_results(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
 
 if __name__ == "__main__":
     main()

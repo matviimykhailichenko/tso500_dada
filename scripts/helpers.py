@@ -362,10 +362,14 @@ def check_tso500_script(paths: dict, logger: Logger):
     logger.info(f"TSO500 script found at {script_path}")
 
 
-def stage_object(paths: dict,input_type: str, logger: Logger):
-    msg = f"Staging a {paths['tag']} {input_type} {paths['input_dir']}"
-    notify_bot(msg)
-    logger.info(msg)
+def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
+    run_name = paths['run_name']
+    tag=paths['tag']
+
+    if is_last_sample:
+        msg = f"Staging the last {tag} sample in the run {run_name}"
+        notify_bot(msg)
+        logger.info(msg)
 
     rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
@@ -378,20 +382,25 @@ def stage_object(paths: dict,input_type: str, logger: Logger):
         delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
-    msg = f"Done staging a {paths['tag']} {input_type} {paths['input_dir']}"
-    logger.info(msg)
-    notify_bot(msg)
+    if is_last_sample:
+        msg = f"Done staging the last {tag} sample in the run {run_name}"
+        logger.info(msg)
+        notify_bot(msg)
 
 
-def process_object(input_type:str,paths:dict,logger:Logger):
+def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
     """
     Can be a run or a sample
     :param paths:
     :return:
     """
-    msg = f"Starting DRAGEN TSO500 for {paths['tag']} {input_type} {paths['input_dir']}"
-    logger.info(msg)
-    notify_bot(msg)
+    run_name = paths['run_name']
+    tag=paths['tag']
+
+    if is_last_sample:
+        msg = f"Starting the DRAGEN TSO500 script for the last {tag} sample in the run {run_name}"
+        notify_bot(msg)
+        logger.info(msg)
 
     if input_type == 'run':
         tso_script_call = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
@@ -417,17 +426,20 @@ def process_object(input_type:str,paths:dict,logger:Logger):
             delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
-    msg = f"Finished DRAGEN TSO500 for run {paths['tag']} {input_type} {paths['input_dir']}"
-    logger.info(msg)
-    notify_bot(msg)
+    if is_last_sample:
+        msg = f"The DRAGEN TSO500 script had finished for the last {tag} sample in the run {run_name}"
+        notify_bot(msg)
+        logger.info(msg)
 
 
-def transfer_results(paths: dict,input_type:str,testing:bool=True,logger:Logger=None):
-    msg = f"Transferring results for run {paths['run_name']}"
-    notify_bot(msg)
-    logger.info(msg)
-
+def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool=True,logger:Logger=None):
+    run_name = paths['run_name']
     tag=paths['tag']
+
+    if is_last_sample:
+        msg = f"Transferring results for the last {tag} sample in the run {run_name}"
+        notify_bot(msg)
+        logger.info(msg)
 
     try:
         if tag == 'ONC':
@@ -440,12 +452,14 @@ def transfer_results(paths: dict,input_type:str,testing:bool=True,logger:Logger=
         logger.error(str(e))
         raise
 
-    msg = f"Results transferred for run {paths['run_name']}"
-    notify_bot(msg)
-    logger.info(msg)
+    if is_last_sample:
+        msg = f"The last {tag} sample had been transferred for the run {run_name}"
+        notify_bot(msg)
+        logger.info(msg)
 
     delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+
 
 def get_queue(pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
