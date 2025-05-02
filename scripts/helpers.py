@@ -149,6 +149,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
+                      f"--exclude='Analysis' "
                       f"{str(data_seq_dir)}/ "
                       f"{str(data_cbmed_dir)}")
         try:
@@ -220,13 +221,9 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
-        paths['tso500_script_path'] = (
-            '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
-        )
+        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
     else:
-        paths['tso500_script_path'] = (
-            '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
-        )
+        paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
         
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
@@ -258,7 +255,6 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
-
 
     return paths
 
