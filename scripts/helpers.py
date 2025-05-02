@@ -163,19 +163,19 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
                   f"{str(results_staging)}/ "
                   f"{str(results_cbmed_dir)}")
     try:
-        subp_run(rsync_call, shell=True).check_returncode()
+        subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
         message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
 
-    samplesheet_path = results_cbmed_dir.parent / 'SampleSheet.csv'
+    samplesheet_path = results_cbmed_dir / 'SampleSheet.csv'
     rsync_call = (f"{rsync_path} "
                   f"{str(samplesheet_path)} "
                   f"{str(flowcell_cbmed_dir)}")
     try:
-        subp_run(rsync_call, shell=True).check_returncode()
+        subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
         message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
