@@ -113,21 +113,23 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
     results_staging = staging_temp_dir / run_name
     dragen_cbmed_dir = cbmed_results_dir / 'dragen'
     results_cbmed_dir = dragen_cbmed_dir / flowcell / 'Results'
+    samplesheet= results_cbmed_dir / 'SampleSheet.csv'
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
-    compute_checksums_call = (r'find '
-                              f'{str(data_seq_dir)} '
-                              r'-type f -exec sha256sum {} \; | tee  '
-                              f'{str(checksums_file_path)}')
-    try:
-        subp_run(compute_checksums_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+    if not data_seq_dir.exists or data_seq_dir.stat().st_size == 0:
+        checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
+        compute_checksums_call = (r'find '
+                                  f'{str(data_seq_dir)} '
+                                  r'-type f -exec sha256sum {} \; | tee  '
+                                  f'{str(checksums_file_path)}')
+        try:
+            subp_run(compute_checksums_call, shell=True).check_returncode()
+        except CalledProcessError as e:
+            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
 
     checksums_file_path = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     compute_checksums_call = (r'find '
@@ -142,19 +144,20 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path} -r "
-                  f"--out-format=\"%C %n\" "
-                  f"--log-file {str(log_file_path)} "
-                  f"{str(data_seq_dir)}/ "
-                  f"{str(data_cbmed_dir)}")
-    try:
-        subp_run(rsync_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = f"Transferring results had FAILED: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+    if not data_seq_dir.exists or data_seq_dir.stat().st_size == 0:
+        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
+        rsync_call = (f"{rsync_path} -r "
+                      f"--out-format=\"%C %n\" "
+                      f"--log-file {str(log_file_path)} "
+                      f"{str(data_seq_dir)}/ "
+                      f"{str(data_cbmed_dir)}")
+        try:
+            subp_run(rsync_call, shell=True).check_returncode()
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
@@ -170,17 +173,17 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    samplesheet_path = results_cbmed_dir / 'SampleSheet.csv'
-    rsync_call = (f"{rsync_path} "
-                  f"{str(samplesheet_path)} "
-                  f"{str(flowcell_cbmed_dir)}")
-    try:
-        subp_run(rsync_call,shell=True,check=True)
-    except CalledProcessError as e:
-        message = f"Transferring results had FAILED: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+    if not samplesheet.exists() or samplesheet.stat().st_size == 0:
+        rsync_call = (f"{rsync_path} "
+                      f"{str(samplesheet)} "
+                      f"{str(flowcell_cbmed_dir)}")
+        try:
+            subp_run(rsync_call,shell=True,check=True)
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            raise RuntimeError(message)
 
     return 0
 
