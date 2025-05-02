@@ -156,11 +156,11 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    log_file_path = results_cbmed_dir / 'CBmed_copylog.log'
+    log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
-                  f"{str(data_seq_dir)}/ "
+                  f"{str(results_staging)}/ "
                   f"{str(results_cbmed_dir)}")
     try:
         subp_run(rsync_call, shell=True).check_returncode()
@@ -170,7 +170,7 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-    samplesheet_path = results_cbmed_dir / 'SampleSheet.csv'
+    samplesheet_path = results_cbmed_dir.parent / 'SampleSheet.csv'
     rsync_call = (f"{rsync_path} "
                   f"{str(samplesheet_path)} "
                   f"{str(flowcell_cbmed_dir)}")
