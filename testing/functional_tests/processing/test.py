@@ -13,7 +13,7 @@ def setup_environment():
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir:Path = Path(config['cbmed_seqencing_dir'])
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/PENDING_CBmed.txt')
-        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_cbmed_fast')
+        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/test_run_CBmed')
 
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
