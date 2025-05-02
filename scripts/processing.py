@@ -98,6 +98,7 @@ def main():
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
+    queue.head()
     is_last_sample = False
     if input_type == 'sample' and (queue['Tag'][queue['Tag'] == tag]).sum() == 1:
         is_last_sample = True
