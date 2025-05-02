@@ -99,7 +99,7 @@ def main():
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
     is_last_sample = False
-    if input_type == 'Sample' and (queue['tag'][queue['tag'] == tag]).sum() == 1:
+    if input_type == 'sample' and (queue['tag'][queue['tag'] == tag]).sum() == 1:
         is_last_sample = True
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
