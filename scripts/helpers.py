@@ -413,7 +413,7 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
 def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool=True,logger:Logger=None):
     tag=paths['tag']
 
-    notify_pipeline_status(step='running', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+    notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
                            is_last_sample=is_last_sample)
 
