@@ -100,22 +100,25 @@ def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
         raise RuntimeError(message)
 
 
-def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
-    rsync_path:str = paths['rsync_path']
-    run_name:str = paths['run_name']
-    cbmed_results_dir:Path = paths['cbmed_results_dir']
-    cbmed_seq_dir:Path = paths['cbmed_seq_dir']
-    staging_temp_dir:Path = paths['staging_temp_dir']
-    flowcell:str = paths['flowcell']
-    run_seq_dir:Path = cbmed_seq_dir / paths['run_name']
+def transfer_results_cbmed(paths:dict,input_type:str,logger:Logger,testing: bool=False):
+    rsync_path: str = paths['rsync_path']
+    run_name: str = paths['run_name']
+    cbmed_results_dir: Path = paths['cbmed_results_dir']
+    flowcell: str = paths['flowcell']
     flowcell_cbmed_dir = cbmed_results_dir / 'flowcells' / flowcell
+    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
+    run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
+    staging_temp_dir: Path = paths['staging_temp_dir']
     data_cbmed_dir = flowcell_cbmed_dir / flowcell
     results_staging = staging_temp_dir / run_name
     dragen_cbmed_dir = cbmed_results_dir / 'dragen'
     results_cbmed_dir = dragen_cbmed_dir / flowcell / 'Results'
-    samplesheet:Path = results_cbmed_dir / 'SampleSheet.csv'
-    fastq_gen_seq_dir:Path = run_seq_dir / 'FastqGeneration'
-    fastq_gen_results_dir:Path = results_cbmed_dir / 'FastqGeneration'
+    samplesheet: Path = results_cbmed_dir / 'SampleSheet.csv'
+    if input_type == 'run':
+        fastq_gen_results_dir:Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
+    elif input_type == 'sample':
+        fastq_gen_results_dir:Path = results_cbmed_dir / 'FastqGeneration'
+
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
@@ -271,7 +274,10 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
     paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
-    paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
+    if input_type == 'run':
+        paths['cbmed_seq_dir'] = Path(config.get('cbmed_novaseq_dir'))
+    elif input_type == 'sample':
+        paths['cbmed_seq_dir'] = Path(config.get('mixed_runs_dir'))
 
     return paths
 
@@ -421,7 +427,7 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
         if tag == 'ONC':
             transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
         elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths,logger=logger,testing=testing)
+            transfer_results_cbmed(paths=paths,input_type=input_type,logger=logger,testing=testing)
         else:
             raise ValueError(f"Unsupported run type: {input_type}")
     except Exception as e:
