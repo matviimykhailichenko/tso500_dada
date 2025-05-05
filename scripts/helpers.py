@@ -4,8 +4,6 @@ from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy
 from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
-
-from sandbox.load_df.bar import input_type
 from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
