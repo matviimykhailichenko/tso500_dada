@@ -4,7 +4,9 @@ from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy
 from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
-from scripts.logging_ops import notify_bot, setup_logger
+
+from sandbox.load_df.bar import input_type
+from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
 from filelock import FileLock, Timeout
@@ -191,8 +193,6 @@ def transfer_results_cbmed(paths:dict,logger:Logger,testing: bool=False):
         logger.error(message)
         raise RuntimeError(message)
 
-
-
     if not samplesheet.exists() or samplesheet.stat().st_size == 0:
         rsync_call = (f"{rsync_path} "
                       f"{str(samplesheet)} "
@@ -363,13 +363,8 @@ def check_tso500_script(paths: dict, logger: Logger):
 
 
 def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
-    run_name = paths['run_name']
-    tag=paths['tag']
-
-    if is_last_sample:
-        msg = f"Staging the last {tag} sample in the run {run_name}"
-        notify_bot(msg)
-        logger.info(msg)
+    notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
+                           is_last_sample=is_last_sample)
 
     rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
@@ -382,11 +377,6 @@ def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
         delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
-    if is_last_sample:
-        msg = f"Done staging the last {tag} sample in the run {run_name}"
-        logger.info(msg)
-        notify_bot(msg)
-
 
 def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
     """
@@ -394,13 +384,8 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
     :param paths:
     :return:
     """
-    run_name = paths['run_name']
-    tag=paths['tag']
-
-    if is_last_sample:
-        msg = f"Starting the DRAGEN TSO500 script for the last {tag} sample in the run {run_name}"
-        notify_bot(msg)
-        logger.info(msg)
+    notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
+                           is_last_sample=is_last_sample)
 
     if input_type == 'run':
         tso_script_call = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
@@ -426,20 +411,13 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
-    if is_last_sample:
-        msg = f"The DRAGEN TSO500 script had finished for the last {tag} sample in the run {run_name}"
-        notify_bot(msg)
-        logger.info(msg)
-
 
 def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool=True,logger:Logger=None):
-    run_name = paths['run_name']
     tag=paths['tag']
 
-    if is_last_sample:
-        msg = f"Transferring results for the last {tag} sample in the run {run_name}"
-        notify_bot(msg)
-        logger.info(msg)
+    notify_pipeline_status(step='running', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type,
+                           is_last_sample=is_last_sample)
 
     try:
         if tag == 'ONC':
@@ -451,11 +429,6 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
     except Exception as e:
         logger.error(str(e))
         raise
-
-    if is_last_sample:
-        msg = f"The last {tag} sample had been transferred for the run {run_name}"
-        notify_bot(msg)
-        logger.info(msg)
 
     delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)

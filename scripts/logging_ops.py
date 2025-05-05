@@ -1,6 +1,7 @@
 from discord import SyncWebhook
 import logging
 import os
+from logging import Logger
 
 
 # TODO move the Webhook URL to config file
@@ -23,4 +24,26 @@ def setup_logger(logger_name: str,
     logger.setLevel(logging.INFO)
 
     return logger
+
+
+def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",is_last_sample:bool=False):
+    prefix = f"the last {tag} sample in" if input_type == "sample" and is_last_sample else ""
+
+    if step == "staging":
+        msg = f"Staging {prefix} the run {run_name}"
+
+    elif step == "running":
+        msg = f"Running the TSO500 script for {prefix} the run {run_name}"
+
+    elif step == "transferring":
+        msg = f"Transferring the results for {prefix} the run {run_name}"
+
+    elif step == 'finished':
+        msg = f"Finished processing {prefix} the run {run_name}"
+
+    else:
+        raise RuntimeError(f'Unknown step:{step}')
+
+    logger.info(msg)
+    notify_bot(msg)
 
