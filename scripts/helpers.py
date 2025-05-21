@@ -426,8 +426,8 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             raise RuntimeError(msg)
 
 
-def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool=True,logger:Logger=None):
-    tag=paths['tag']
+def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing: bool = True, logger: Logger = None):
+    tag = paths['tag']
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
@@ -437,7 +437,7 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
         if tag == 'ONC':
             transfer_results_oncoservice(paths=paths,input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths,logger=logger,testing=testing)
+            transfer_results_cbmed(paths=paths,logger=logger, testing=testing)
         else:
             raise ValueError(f"Unsupported run type: {input_type}")
     except Exception as e:
