@@ -82,16 +82,16 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing:bool=True):
-    run_name:str = paths['run_name']
-    staging_temp_dir:Path = paths['staging_temp_dir']
+    run_name: str = paths['run_name']
+    staging_temp_dir: Path = paths['staging_temp_dir']
 
     if input_type == 'run':
-        onco_dir:Path = Path(str(paths['oncoservice_dir']))
-        results_dir:Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+        onco_dir: Path = Path(str(paths['oncoservice_dir']))
+        results_dir: Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
 
     elif input_type == 'sample':
-        onco_dir:Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
-        results_dir:Path = onco_dir / 'Analyseergebnisse' / run_name
+        onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+        results_dir: Path = onco_dir / 'Analyseergebnisse' / run_name
 
     rsync_path:str = paths['rsync_path']
 
