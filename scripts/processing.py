@@ -59,11 +59,11 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    stage_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
-    process_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
-    transfer_results(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
 
     notify_pipeline_status(step='finished',run_name=paths['run_name'],logger=logger,tag=paths['tag'],
                            input_type=input_type, is_last_sample=is_last_sample)
