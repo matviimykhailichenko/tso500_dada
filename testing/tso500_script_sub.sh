@@ -49,6 +49,12 @@ if [ -n "$FASTQ_FOLDER" ]; then
   # Get base name of FASTQ folder
   BASE_NAME=$(basename "$FASTQ_FOLDER")
   mkdir -p "$ANALYSIS_FOLDER/Results/$BASE_NAME"
+
+  mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample1"
+  mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample2"
+  mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample3"
+
+
 elif [ -n "$RUN_FOLDER" ]; then
   mkdir -p "$ANALYSIS_FOLDER/Results/Sample1"
   mkdir -p "$ANALYSIS_FOLDER/Results/Sample2"
