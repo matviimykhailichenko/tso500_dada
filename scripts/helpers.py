@@ -251,6 +251,8 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
+
 
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
@@ -258,6 +260,10 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+
+    else:
+        RuntimeError(f'Unrecognised input type: {input_type}')
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
@@ -269,7 +275,6 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
 
