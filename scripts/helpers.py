@@ -125,7 +125,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
         fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
     elif input_type == 'run':
-        fastq_gen_seq_dir: Path = results_staging / 'Logs_intermediates' / 'FastqGeneration'
+        fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
         fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
 
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
