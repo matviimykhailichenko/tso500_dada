@@ -440,9 +440,9 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
 
     try:
         if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths,input_type=input_type,logger=logger,testing=testing)
+            transfer_results_oncoservice(paths=paths, input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths,logger=logger, testing=testing)
+            transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger, testing=testing)
         else:
             raise ValueError(f"Unsupported run type: {input_type}")
     except Exception as e:
