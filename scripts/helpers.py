@@ -72,7 +72,7 @@ def is_nas_mounted(mountpoint_dir: str,
         # TODO BOT!
         logger_runtime.error(f"the expected NAS mountpoint was not found at {mountpoint_dir}. Terminating..")
         return False
-    # check if the command returned as expected:
+
     if ran_mount_check.stdout.strip() != f'{mountpoint_dir} is a mountpoint':
         logger_runtime.error(f"the expected NAS mountpoint was not found at '{mountpoint_dir}'. "
                              f"Terminating..")
@@ -81,16 +81,23 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
+def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing:bool=True):
     run_name:str = paths['run_name']
     staging_temp_dir:Path = paths['staging_temp_dir']
-    onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+
+    if input_type == 'run':
+        onco_dir:Path = Path(str(paths['oncoservice_dir']))
+        results_dir:Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+
+    elif input_type == 'sample':
+        onco_dir:Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+        results_dir:Path = onco_dir / 'Analyseergebnisse' / run_name
+
     rsync_path:str = paths['rsync_path']
 
-    results_dir_path = onco_dir / 'Analyseergebnisse'/ run_name
-    analysis_dir_path = staging_temp_dir / run_name
+    analysis_dir = staging_temp_dir / run_name
 
-    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
+    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
     try:
         subp_run(rsync_call,check=True,shell=True)
     except CalledProcessError as e:
@@ -424,7 +431,7 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
 
     try:
         if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
+            transfer_results_oncoservice(paths=paths,input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
             transfer_results_cbmed(paths=paths,logger=logger,testing=testing)
         else:
