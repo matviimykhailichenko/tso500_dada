@@ -107,7 +107,7 @@ def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing
         raise RuntimeError(message)
 
 
-def transfer_results_cbmed(paths: dict, logger: Logger, testing: bool = False):
+def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
     rsync_path: str = paths['rsync_path']
     run_name: str = paths['run_name']
     cbmed_results_dir: Path = paths['cbmed_results_dir']
@@ -121,8 +121,13 @@ def transfer_results_cbmed(paths: dict, logger: Logger, testing: bool = False):
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet: Path = results_cbmed_dir / 'SampleSheet.csv'
-    fastq_gen_seq_dir: Path = run_seq_dir / 'Logs_Intermediates' / 'FastqGeneration'
-    results_staging: Path = results_cbmed_dir / 'FastqGeneration'
+    if input_type == 'sample':
+        fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
+        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
+    elif input_type == 'run':
+        fastq_gen_seq_dir: Path = results_staging / 'Logs_intermediates' / 'FastqGeneration'
+        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
+
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
