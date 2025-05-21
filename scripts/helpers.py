@@ -126,7 +126,7 @@ def transfer_results_cbmed(paths: dict, logger: Logger, testing: bool = False):
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists() or run_seq_dir.stat().st_size == 0:
         checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
         compute_checksums_call = (r'find '
                                   f'{str(run_seq_dir)} '
@@ -153,7 +153,7 @@ def transfer_results_cbmed(paths: dict, logger: Logger, testing: bool = False):
         logger.error(message)
         raise RuntimeError(message)
 
-    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists() or run_seq_dir.stat().st_size == 0:
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
