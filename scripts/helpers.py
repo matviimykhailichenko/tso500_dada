@@ -220,8 +220,30 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     return 0
 
 
-def transfer_results_patho():
-    pass
+def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+    run_name: str = paths['run_name']
+    staging_temp_dir: Path = paths['staging_temp_dir']
+
+    if input_type == 'run':
+        patho_dir: Path = Path(str(paths['pathology_dir']))
+        results_dir: Path = patho_dir / f'TSO500_DRAGEN{'_TEST' if testing else ''}' / run_name
+
+    # elif input_type == 'sample':
+    #     onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+    #     results_dir: Path = onco_dir / 'Analyseergebnisse' / run_name
+
+    rsync_path: str = paths['rsync_path']
+
+    analysis_dir = staging_temp_dir / run_name
+
+    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
+    try:
+        subp_run(rsync_call, check=True, shell=True)
+    except CalledProcessError as e:
+        message = f"Transferring results had failed: {e}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
 
 
 def get_server_ip() -> str:
@@ -445,8 +467,10 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
             transfer_results_oncoservice(paths=paths, input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
             transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger, testing=testing)
+        elif tag == 'PAT':
+            transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
         else:
-            raise ValueError(f"Unsupported run type: {input_type}")
+            raise ValueError(f"Unrecognised run type: {input_type}")
     except Exception as e:
         logger.error(str(e))
         raise
