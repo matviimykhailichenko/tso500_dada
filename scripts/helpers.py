@@ -318,6 +318,8 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif not testing:
         paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
 
+    paths['pathology_dir'] = Path(config.get('pathology_dir'))
+
     return paths
 
 
