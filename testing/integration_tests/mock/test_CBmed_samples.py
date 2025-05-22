@@ -18,7 +18,7 @@ def setup_environment():
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_run'
+    test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_run_CBmed_nsqx'
 
     if not queue_file.exists():
         queue_file.touch()
