@@ -121,7 +121,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_staging: Path = staging_temp_dir / run_name
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
-    samplesheet: Path = dragen_cbmed_dir/ 'flowcell' / 'SampleSheet.csv'
+    samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
+    samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ 'flowcell' / 'SampleSheet.csv'
     if input_type == 'sample':
         fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
         fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
@@ -204,10 +205,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    if not samplesheet.exists() or samplesheet.stat().st_size == 0:
+    if not samplesheet_cbmed_dir.exists() or samplesheet_cbmed_dir.stat().st_size == 0:
         rsync_call = (f"{rsync_path} "
-                      f"{str(samplesheet)} "
-                      f"{str(flowcell_cbmed_dir)}")
+                      f"{str(samplesheet_results_dir)} "
+                      f"{str(samplesheet_cbmed_dir)}")
         try:
             subp_run(rsync_call,shell=True,check=True)
         except CalledProcessError as e:
