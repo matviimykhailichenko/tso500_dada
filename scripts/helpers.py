@@ -82,16 +82,16 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing:bool=True):
-    run_name:str = paths['run_name']
-    staging_temp_dir:Path = paths['staging_temp_dir']
+    run_name: str = paths['run_name']
+    staging_temp_dir: Path = paths['staging_temp_dir']
 
     if input_type == 'run':
-        onco_dir:Path = Path(str(paths['oncoservice_dir']))
-        results_dir:Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+        onco_dir: Path = Path(str(paths['oncoservice_dir']))
+        results_dir: Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
 
     elif input_type == 'sample':
-        onco_dir:Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
-        results_dir:Path = onco_dir / 'Analyseergebnisse' / run_name
+        onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+        results_dir: Path = onco_dir / 'Analyseergebnisse' / run_name
 
     rsync_path:str = paths['rsync_path']
 
@@ -107,29 +107,31 @@ def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing
         raise RuntimeError(message)
 
 
-def transfer_results_cbmed(paths:dict,input_type:str,logger:Logger,testing: bool=False):
+def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
     rsync_path: str = paths['rsync_path']
     run_name: str = paths['run_name']
     cbmed_results_dir: Path = paths['cbmed_results_dir']
-    flowcell: str = paths['flowcell']
-    flowcell_cbmed_dir = cbmed_results_dir / 'flowcells' / flowcell
     cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
-    data_cbmed_dir = flowcell_cbmed_dir / flowcell
-    results_staging = staging_temp_dir / run_name
-    dragen_cbmed_dir = cbmed_results_dir / 'dragen'
-    results_cbmed_dir = dragen_cbmed_dir / flowcell / 'Results'
+    flowcell: str = paths['flowcell']
+    run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
+    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
+    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
+    results_staging: Path = staging_temp_dir / run_name
+    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
+    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet: Path = results_cbmed_dir / 'SampleSheet.csv'
-    if input_type == 'run':
-        fastq_gen_results_dir:Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
-    elif input_type == 'sample':
-        fastq_gen_results_dir:Path = results_cbmed_dir / 'FastqGeneration'
+    if input_type == 'sample':
+        fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
+        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
+    elif input_type == 'run':
+        fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
+        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
 
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists() or run_seq_dir.stat().st_size == 0:
         checksums_file_path = flowcell_cbmed_dir / f'{flowcell}.sha256'
         compute_checksums_call = (r'find '
                                   f'{str(run_seq_dir)} '
@@ -156,7 +158,7 @@ def transfer_results_cbmed(paths:dict,input_type:str,logger:Logger,testing: bool
         logger.error(message)
         raise RuntimeError(message)
 
-    if not run_seq_dir.exists or run_seq_dir.stat().st_size == 0:
+    if not run_seq_dir.exists() or run_seq_dir.stat().st_size == 0:
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
@@ -238,7 +240,7 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict) -> dict:
+def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict, testing: bool = False) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
@@ -286,10 +288,11 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
-    if input_type == 'run':
-        paths['cbmed_seq_dir'] = Path(config.get('cbmed_novaseq_dir'))
-    elif input_type == 'sample':
-        paths['cbmed_seq_dir'] = Path(config.get('mixed_runs_dir'))
+
+    if testing:
+        paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir') + '_TEST')
+    elif not testing:
+        paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
 
     return paths
 
@@ -428,8 +431,8 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             raise RuntimeError(msg)
 
 
-def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool=True,logger:Logger=None):
-    tag=paths['tag']
+def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing: bool = True, logger: Logger = None):
+    tag = paths['tag']
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
@@ -437,9 +440,9 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
 
     try:
         if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths,input_type=input_type,logger=logger,testing=testing)
+            transfer_results_oncoservice(paths=paths, input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths,input_type=input_type,logger=logger,testing=testing)
+            transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger, testing=testing)
         else:
             raise ValueError(f"Unsupported run type: {input_type}")
     except Exception as e:

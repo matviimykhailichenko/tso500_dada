@@ -45,7 +45,7 @@ def main():
 
     config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
-    paths: dict = setup_paths(input_path=Path(path),input_type=input_type,tag=tag,flowcell=flowcell,config=config)
+    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config, testing=testing)
 
     logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 
@@ -59,11 +59,11 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    stage_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
-    process_object(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
-    transfer_results(paths=paths,input_type=input_type,is_last_sample=is_last_sample,logger=logger)
+    transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
 
     notify_pipeline_status(step='finished',run_name=paths['run_name'],logger=logger,tag=paths['tag'],
                            input_type=input_type, is_last_sample=is_last_sample)
