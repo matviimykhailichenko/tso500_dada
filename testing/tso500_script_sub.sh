@@ -4,6 +4,7 @@
 RUN_FOLDER=""
 ANALYSIS_FOLDER=""
 FASTQ_FOLDER=""
+SAMPLE_IDS=()
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -20,6 +21,10 @@ while [[ $# -gt 0 ]]; do
       ANALYSIS_FOLDER="$2"
       shift 2
       ;;
+    --sampleIDs)
+      IFS=',' read -ra SAMPLE_IDS <<< "$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
       exit 1
@@ -32,8 +37,22 @@ INPUT_FOLDER="${RUN_FOLDER:-$FASTQ_FOLDER}"
 
 # Check if required parameters are provided
 if [ -z "$INPUT_FOLDER" ] || [ -z "$ANALYSIS_FOLDER" ]; then
-  echo "Usage: $0 (--runFolder <run_folder_path> | --fastqFolder <fastq_folder_path>) --analysisFolder <analysis_folder_path>"
+  echo "Usage: $0 (--runFolder <run_folder_path> | --fastqFolder <fastq_folder_path>) --analysisFolder <analysis_folder_path> [--sampleIDs id1,id2,...]"
   exit 1
+fi
+
+# Check FASTQ files for provided sample IDs
+if [ -n "$FASTQ_FOLDER" ] && [ ${#SAMPLE_IDS[@]} -gt 0 ]; then
+  echo "Checking for FASTQ files matching sample IDs in $FASTQ_FOLDER..."
+  for sample_id in "${SAMPLE_IDS[@]}"; do
+    matches=$(find "$FASTQ_FOLDER" -type f -name "*${sample_id}*.fastq.gz")
+    if [ -z "$matches" ]; then
+      echo "Warning: No FASTQ files found for sample ID: $sample_id"
+    else
+      echo "Found FASTQ files for $sample_id:"
+      echo "$matches"
+    fi
+  done
 fi
 
 # Create the analysis folder and its subdirectories
@@ -46,7 +65,6 @@ mkdir -p "$ANALYSIS_FOLDER/work"
 
 # Handle specific logic for fastqFolder or runFolder
 if [ -n "$FASTQ_FOLDER" ]; then
-  # Get base name of FASTQ folder
   BASE_NAME=$(basename "$FASTQ_FOLDER")
   mkdir -p "$ANALYSIS_FOLDER/Results/$BASE_NAME"
 

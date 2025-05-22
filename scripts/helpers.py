@@ -445,7 +445,8 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             raise RuntimeError(msg)
 
     elif input_type == 'sample':
-        tso_script_call = f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
+        tso_script_call = (f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} "
+                           f"--sampleIDs {paths['sample_id']}")
         try:
             subp_run(tso_script_call,check=True,shell=True)
         except CalledProcessError as e:
