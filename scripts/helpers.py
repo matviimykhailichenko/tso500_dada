@@ -115,6 +115,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     staging_temp_dir: Path = paths['staging_temp_dir']
     flowcell: str = paths['flowcell']
     run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
+    flowcell_run_dir: Path = cbmed_seq_dir / paths['run_name'] / flowcell
     flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
     results_staging: Path = staging_temp_dir / run_name
@@ -158,13 +159,13 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    if not run_seq_dir.exists() or run_seq_dir.stat().st_size == 0:
+    if not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0:
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
                       f"--exclude='FastqGeneration' "
-                      f"{str(run_seq_dir)}/ "
+                      f"{str(flowcell_run_dir)}/ "
                       f"{str(data_cbmed_dir)}")
         try:
             subp_run(rsync_call, shell=True).check_returncode()
