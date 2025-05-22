@@ -42,8 +42,8 @@ def setup_environment():
     queue_file.unlink()
     pending_file.unlink()
 
-    for dir in output_dirs:
-        sh_rmtree(dir)
+    # for dir in output_dirs:
+    #     sh_rmtree(dir)
 
 
 
