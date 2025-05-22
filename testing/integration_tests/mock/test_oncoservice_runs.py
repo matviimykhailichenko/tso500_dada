@@ -11,7 +11,7 @@ def setup_environment():
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        onco_seq_dir:Path = Path(config['oncoservice_novaseq_dir'])
+        onco_seq_dir:Path = Path(config['oncoservice_novaseq6000_dir'])
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_oncoservice_runs.txt')
         test_onco_run_1:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_oncoservice_1')
         test_onco_run_2:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_oncoservice_2')

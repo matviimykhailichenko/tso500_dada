@@ -72,7 +72,7 @@ def is_nas_mounted(mountpoint_dir: str,
         # TODO BOT!
         logger_runtime.error(f"the expected NAS mountpoint was not found at {mountpoint_dir}. Terminating..")
         return False
-    # check if the command returned as expected:
+
     if ran_mount_check.stdout.strip() != f'{mountpoint_dir} is a mountpoint':
         logger_runtime.error(f"the expected NAS mountpoint was not found at '{mountpoint_dir}'. "
                              f"Terminating..")
@@ -81,16 +81,23 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths:dict,logger:Logger,testing:bool=True):
+def transfer_results_oncoservice(paths:dict,input_type:str,logger:Logger,testing:bool=True):
     run_name:str = paths['run_name']
     staging_temp_dir:Path = paths['staging_temp_dir']
-    onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+
+    if input_type == 'run':
+        onco_dir:Path = Path(str(paths['oncoservice_dir']))
+        results_dir:Path = onco_dir / f'Analyseergebnisse{'_TEST' if testing else ''}' / run_name
+
+    elif input_type == 'sample':
+        onco_dir:Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
+        results_dir:Path = onco_dir / 'Analyseergebnisse' / run_name
+
     rsync_path:str = paths['rsync_path']
 
-    results_dir_path = onco_dir / 'Analyseergebnisse'/ run_name
-    analysis_dir_path = staging_temp_dir / run_name
+    analysis_dir = staging_temp_dir / run_name
 
-    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir_path}/')} {str(results_dir_path)}'
+    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
     try:
         subp_run(rsync_call,check=True,shell=True)
     except CalledProcessError as e:
@@ -254,6 +261,8 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
+
 
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
@@ -261,6 +270,10 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+
+    else:
+        RuntimeError(f'Unrecognised input type: {input_type}')
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
@@ -272,7 +285,6 @@ def setup_paths(input_path:Path,input_type:str,tag:str,flowcell:str,config: dict
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['oncoservice_dir'] = Path(config.get('oncoservice_dir'))
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
     if input_type == 'run':
         paths['cbmed_seq_dir'] = Path(config.get('cbmed_novaseq_dir'))
@@ -425,7 +437,7 @@ def transfer_results(paths: dict,input_type:str,is_last_sample:bool,testing:bool
 
     try:
         if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
+            transfer_results_oncoservice(paths=paths,input_type=input_type,logger=logger,testing=testing)
         elif tag == 'CBM':
             transfer_results_cbmed(paths=paths,input_type=input_type,logger=logger,testing=testing)
         else:
