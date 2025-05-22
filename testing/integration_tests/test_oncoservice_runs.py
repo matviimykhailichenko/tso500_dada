@@ -12,7 +12,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_novaseq6000_dir'])
-        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_oncoservice_runs.txt')
+        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/PENDING_oncoservice_runs.txt')
         test_onco_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_oncoservice')
 
     server_ip = get_server_ip()
