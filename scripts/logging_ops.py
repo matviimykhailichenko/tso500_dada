@@ -44,6 +44,7 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
     else:
         raise RuntimeError(f'Unknown step:{step}')
 
+    if (input_type == 'sample' and is_last_sample) or input_type == 'run':
+        notify_bot(msg)
     logger.info(msg)
-    notify_bot(msg)
 
