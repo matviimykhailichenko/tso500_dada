@@ -314,9 +314,9 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
 
     if testing:
-        paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir') + '_TEST')
+        paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir') + '_TEST')
     elif not testing:
-        paths['cbmed_seq_dir'] = Path(config.get('cbmed_seqencing_dir'))
+        paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir'))
 
     paths['pathology_dir'] = Path(config.get('pathology_dir'))
 
@@ -508,3 +508,13 @@ def get_queue(pending_file:Path,queue_file:Path):
         return
 
     return queue
+
+
+def scan_dir(dir: Path):
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        sx182_mountpoint = config['sx182_mountpoint']
+        sy176_mountpoint = config['sy176_mountpoint']
+
+    if sx182_mountpoint in str(dir):
+    elif sy176_mountpoint in str(dir):
