@@ -5,7 +5,7 @@
 import argparse
 import yaml
 from pathlib import Path
-from helpers import scan_dir_nsq6000, scan_dir_nsqx
+from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples
 import pandas as pd
 
 def create_parser():
@@ -51,12 +51,12 @@ def main():
         pass
 
     if input_type == 'run':
-        append_pending_run()
+        append_pending_run(input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        append_pending_sample()
+        append_pending_samples()
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
 
 
-if _name__ == '__main__':
+if __name__ == '__main__':
     main()

@@ -540,22 +540,72 @@ def scan_dir_nsq6000(seq_dir: Path):
         return None
 
 
-def scan_dir_nsqx():
-    pass
+def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        blocking_tags = config['blocking_tags']
+        ready_tags = config['ready_tags_nsqx']
+    fastq_dir = None
+
+    for run_dir in seq_dir.iterdir():
+        txt_files = list(Path(run_dir).glob('*.txt'))
+        file_names = [path.name for path in txt_files]
+
+        if any(f in blocking_tags for f in file_names):
+            continue
+
+        if not all(tag in file_names for tag in ready_tags):
+            continue
+
+        analyses_dir = run_dir / 'Analysis'
+
+        if not analyses_dir.exists():
+            continue
+
+        for analysis_dir in analyses_dir.iterdir():
+            analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
+            if not analysis_dir.exists() or not analysis_complete_tag.exists():
+                continue
+
+            fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
+            if not fastq_dir.exists():
+                continue
+
+            return fastq_dir
 
 def append_pending_run(input_dir:Path, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs {'_TEST' if testing else ''}'
-        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']) / f'Runs {'_TEST' if testing else ''}'
+        onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
+        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
         patho_dir = Path(config['pathology_dir'])
         pipeline_dir = Path(config['pipeline_dir'])
+    server = get_server_ip()
+    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
     priority = priority_map.get(input_dir)[0]
     tag = priority_map.get(input_dir)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
+    new_run = pd.DataFrame(entry, columns=['Path','InputType','Priority','Tag','Flowcell'])
+    new_run.to_csv(pending_file, mode='a', header=False, index=False)
 
+
+def append_pending_samples(input_dir:Path, testing:bool = True):
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        onco_nsqx_dir = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
+        cbmed_nsqx_dir = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}/CBmed') / f'Runs'
+        mixed_runs_dir = Path(config['mixed_runs_dir'])
+        pipeline_dir = Path(config['pipeline_dir'])
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+
+    priority_map = {onco_nsqx_dir:[1,'ONC'], cbmed_nsqx_dir:[2,'CMB'],mixed_runs_dir:[3,'PAT']}
+    priority = priority_map.get(input_dir)[0]
+    tag = priority_map.get(input_dir)[1]
+
+    entry = [str(input_dir), 'run', priority, tag, input_dir.name]
+    new_run = pd.DataFrame(entry, columns=['Path','InputType','Priority','Tag','Flowcell'])
+    new_run.to_csv(pending_file, mode='a', header=False, index=False)

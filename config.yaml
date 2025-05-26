@@ -1,5 +1,5 @@
 # TODO Change then testing with real runs
-testing_fast: True
+testing_fast: False
 # TODO Change in prod
 # TODO change to a command
 pipeline_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor'
@@ -26,6 +26,10 @@ logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
 
 ready_tags:
   - SequenceComplete.txt
+  - CopyComplete.txt
+  - RTAComplete.txt
+
+ready_tags_nsqx:
   - CopyComplete.txt
   - RTAComplete.txt
 
