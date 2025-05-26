@@ -8,6 +8,7 @@ from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
 from filelock import FileLock, Timeout
+import re
 
 
 
@@ -419,7 +420,7 @@ def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
         msg = f"Staging failed (code {e.returncode}): {err}. Cleaning up..."
         notify_bot(msg)
         logger.error(msg)
-        delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
+        # delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
 
@@ -441,7 +442,7 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
             notify_bot(msg)
-            delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+            # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
     elif input_type == 'sample':
@@ -454,7 +455,7 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
             notify_bot(msg)
-            delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+            # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
 
@@ -478,8 +479,8 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
         logger.error(str(e))
         raise
 
-    delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
-    delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+    # delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
+    # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
 
 def get_queue(pending_file:Path,queue_file:Path):
@@ -510,11 +511,51 @@ def get_queue(pending_file:Path,queue_file:Path):
     return queue
 
 
-def scan_dir(dir: Path):
+def scan_dir_nsq6000(seq_dir: Path):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        sx182_mountpoint = config['sx182_mountpoint']
-        sy176_mountpoint = config['sy176_mountpoint']
+        blocking_tags = config['blocking_tags']
+        ready_tags = config['ready_tags']
 
-    if sx182_mountpoint in str(dir):
-    elif sy176_mountpoint in str(dir):
+    flowcell_dir = None
+    for run_dir in seq_dir.iterdir():
+        for object in run_dir.iterdir():
+            if object.is_dir() and re.search('^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',object.name):
+                flowcell_dir = object
+
+                txt_files = list(Path(flowcell_dir).glob('*.txt'))
+                file_names = [path.name for path in txt_files]
+
+                if any(f in blocking_tags for f in file_names):
+                    continue
+
+                if all(tag in file_names for tag in ready_tags):
+                    return flowcell_dir
+            else:
+                continue
+
+    if flowcell_dir:
+        return flowcell_dir
+    else:
+        return None
+
+
+def scan_dir_nsqx():
+    pass
+
+def append_pending_run(input_dir:Path, testing:bool = True):
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs {'_TEST' if testing else ''}'
+        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']) / f'Runs {'_TEST' if testing else ''}'
+        patho_dir = Path(config['pathology_dir'])
+        pipeline_dir = Path(config['pipeline_dir'])
+
+    priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
+    priority = priority_map.get(input_dir)[0]
+    tag = priority_map.get(input_dir)[1]
+
+    entry = [str(input_dir), 'run', priority, tag, input_dir.name]
+
+    server = get_server_ip()
+    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
