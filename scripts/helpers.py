@@ -568,10 +568,10 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
                 continue
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
-            if not fastq_dir.exists():
-                continue
+            if fastq_dir.exists():
+                break
 
-            return fastq_dir
+    return fastq_dir
 
 def append_pending_run(input_dir:Path, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:

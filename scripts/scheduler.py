@@ -5,7 +5,7 @@
 import argparse
 import yaml
 from pathlib import Path
-from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples
+from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, rearrange_fastqs
 import pandas as pd
 
 def create_parser():
@@ -43,6 +43,7 @@ def main():
         elif sy176_mountpoint in str(dir):
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
+            rearrange_fastqs(fastq_dir=input_path)
 
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
