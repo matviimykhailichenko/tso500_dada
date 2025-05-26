@@ -29,6 +29,10 @@ def setup_environment():
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_run),str(test_onco_run_seq_dir))
 
+    yield
+
+    queue_file.unlink()
+    pending_file.unlink()
 
 
 def test_processing(setup_environment):
