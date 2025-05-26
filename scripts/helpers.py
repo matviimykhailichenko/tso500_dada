@@ -1,6 +1,6 @@
 from pathlib import Path
 from logging import Logger
-from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy
+from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move
 from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
@@ -592,7 +592,7 @@ def append_pending_run(input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, mode='a', header=False, index=False)
 
 
-def append_pending_samples(input_dir:Path, testing:bool = True):
+def append_pending_samples(input_dir:Path, samples:list, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_nsqx_dir = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
@@ -609,3 +609,26 @@ def append_pending_samples(input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame(entry, columns=['Path','InputType','Priority','Tag','Flowcell'])
     new_run.to_csv(pending_file, mode='a', header=False, index=False)
+
+
+def rearrange_fastqs(fastq_dir: Path) -> list:
+    samples = []
+    for fastq in fastq_dir.iterdir():
+        sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:2])
+        samples.append(str(sample_dir))
+
+        if not sample_dir.exists():
+            sample_dir.mkdir(parents=True)
+
+        sh_move(str(fastq), str(sample_dir))
+
+    samples = list(set(samples))
+
+    if not any(fastq_dir.iterdir()):
+        sh_rmtree(fastq_dir)
+    else:
+        message = f'Fastq dir is not empty after rearranging for dir {fastq_dir}'
+        notify_bot(message)
+        RuntimeError(message)
+
+    return samples
