@@ -590,7 +590,7 @@ def append_pending_run(input_dir:Path, testing:bool = True):
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
-    priority = priority_map.get(input_dir)[0]
+    priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
