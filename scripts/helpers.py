@@ -591,7 +591,7 @@ def append_pending_run(input_dir:Path, testing:bool = True):
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
-    tag = priority_map.get(input_dir)[1]
+    tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame(entry, columns=['Path','InputType','Priority','Tag','Flowcell'])
