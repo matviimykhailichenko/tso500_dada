@@ -45,7 +45,7 @@ def main():
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
     if not input_path or not input_type:
-        pass
+        print('Oh shit')
 
     if input_type == 'run':
         append_pending_run(input_dir=input_path, testing=testing)
