@@ -34,7 +34,6 @@ def main():
     input_type = None
     sample_ids = None
     for dir in seq_dirs:
-        notify_bot(str(dir))
         if sx182_mountpoint in str(dir):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
