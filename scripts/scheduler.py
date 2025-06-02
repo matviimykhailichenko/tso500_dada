@@ -1,12 +1,7 @@
-# Monitor Oncoservice
-# Monitor CBmed
-# Monitor Patho
-
 import argparse
 import yaml
 from pathlib import Path
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, rearrange_fastqs
-import pandas as pd
 
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script to monitor sequencing directories')
@@ -35,7 +30,7 @@ def main():
 
     input_path = None
     input_type = None
-    samples = None
+    sample_ids = None
     for dir in seq_dirs:
         if sx182_mountpoint in str(dir):
             input_type = 'run'
@@ -44,7 +39,7 @@ def main():
         elif sy176_mountpoint in str(dir):
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
-            samples: list = rearrange_fastqs(fastq_dir=input_path)
+            sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
 
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
@@ -55,7 +50,7 @@ def main():
     if input_type == 'run':
         append_pending_run(input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        append_pending_samples(input_dir=input_path, samples=samples, testing=testing)
+        append_pending_samples(input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
 

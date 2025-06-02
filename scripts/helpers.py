@@ -592,23 +592,21 @@ def append_pending_run(input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, mode='a', header=False, index=False)
 
 
-def append_pending_samples(input_dir:Path, samples:list, testing:bool = True):
+def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        onco_nsqx_dir = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
-        cbmed_nsqx_dir = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}/CBmed') / f'Runs'
-        mixed_runs_dir = Path(config['mixed_runs_dir'])
         pipeline_dir = Path(config['pipeline_dir'])
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    priority_map = {onco_nsqx_dir:[1,'ONC'], cbmed_nsqx_dir:[2,'CMB'],mixed_runs_dir:[3,'PAT']}
-    priority = priority_map.get(input_dir)[0]
-    tag = priority_map.get(input_dir)[1]
+    priority_map = {'ONC':1, 'CMB':2}
+    tags = [s.split("-", 1)[1] for s in sample_ids]
 
-    entry = [str(input_dir), 'run', priority, tag, input_dir.name]
-    new_run = pd.DataFrame(entry, columns=['Path','InputType','Priority','Tag','Flowcell'])
-    new_run.to_csv(pending_file, mode='a', header=False, index=False)
+    priorities = [priority_map.get(t) for t in tags]
+
+    entries = [str(input_dir), 'sample', priorities, tags, input_dir.name]
+    new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
+    new_samples.to_csv(pending_file, mode='a', header=False, index=False)
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
