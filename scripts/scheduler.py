@@ -45,6 +45,9 @@ def main():
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
+        if input_path:
+            break
+
     if not input_path or not input_type:
         exit(0)
 
