@@ -1,7 +1,7 @@
 import argparse
 import yaml
 from pathlib import Path
-from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, rearrange_fastqs
+from scripts.helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, rearrange_fastqs
 
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script to monitor sequencing directories')
