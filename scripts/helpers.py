@@ -523,7 +523,6 @@ def scan_dir_nsq6000(seq_dir: Path):
             continue
 
         for obj in run_dir.iterdir():
-            notify_bot(str(obj))
             if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',obj.name):
                 flowcell_dir = obj
 
@@ -534,6 +533,7 @@ def scan_dir_nsq6000(seq_dir: Path):
                     continue
 
                 if all(tag in file_names for tag in ready_tags):
+                    notify_bot(str(flowcell_dir))
                     return flowcell_dir
             else:
                 continue
