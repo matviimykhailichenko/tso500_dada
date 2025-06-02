@@ -25,7 +25,7 @@ def main():
         # TODO STUPID
         cbmed_nsqx_dir = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
         patho_dir = Path(config['pathology_dir'])
-        mixed_runs_dir = Path(config['mixed_runs'])
+        mixed_runs_dir = Path(config['mixed_runs_dir'])
     seq_dirs = [onco_nsq6000_dir, onco_nsqx_dir, cbmed_nsq6000_dir, cbmed_nsqx_dir, patho_dir, mixed_runs_dir]
 
     input_path = None
