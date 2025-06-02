@@ -18,7 +18,7 @@ mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
 pathology_dir: '/mnt/Patho'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
-sx182_mountpoint: '/mnt/Novaseq'
+sx182_mountpoint: '/mnt/Novaseq/'
 sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
 logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
