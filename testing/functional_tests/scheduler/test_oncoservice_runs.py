@@ -1,7 +1,6 @@
 import pytest
 from pathlib import Path
-from scripts.helpers import get_server_ip
-from shutil import copy as sh_copy, copytree as sh_copytree
+from shutil import copytree as sh_copytree
 from subprocess import run as subp_run
 import yaml
 
