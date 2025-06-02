@@ -48,7 +48,7 @@ def main():
         if input_path:
             break
 
-    notify_bot(str(input_path))
+    notify_bot(str(input_type))
 
     if not input_path or not input_type:
         exit(0)
