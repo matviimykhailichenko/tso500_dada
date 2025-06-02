@@ -524,7 +524,7 @@ def scan_dir_nsq6000(seq_dir: Path):
 
         for obj in run_dir.iterdir():
             print(obj)
-            if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',object.name):
+            if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',obj.name):
                 flowcell_dir = obj
 
                 txt_files = list(Path(flowcell_dir).glob('*.txt'))
