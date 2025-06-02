@@ -552,7 +552,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 
     for run_dir in seq_dir.iterdir():
         if not run_dir.is_dir():
-            pass
+            continue
 
         txt_files = list(Path(run_dir).glob('*.txt'))
         file_names = [path.name for path in txt_files]
