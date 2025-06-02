@@ -2,6 +2,8 @@ import argparse
 import yaml
 from pathlib import Path
 from scripts.helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, rearrange_fastqs
+from scripts.logging_ops import notify_bot
+
 
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script to monitor sequencing directories')
@@ -32,7 +34,7 @@ def main():
     input_type = None
     sample_ids = None
     for dir in seq_dirs:
-        print(dir)
+        notify_bot(dir)
         if sx182_mountpoint in str(dir):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
@@ -41,7 +43,6 @@ def main():
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
             sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
-
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
