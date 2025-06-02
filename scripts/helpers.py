@@ -596,7 +596,7 @@ def append_pending_run(input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    new_run.to_tsv(pending_file, mode='a', header=True, index=False)
+    new_run.to_csv(pending_file, sep='\t', mode='a', header=True, index=False)
 
 
 def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
