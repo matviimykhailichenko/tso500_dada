@@ -42,7 +42,7 @@ def main():
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
             if not input_path:
-                break
+                continue
             sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
