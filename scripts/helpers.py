@@ -616,7 +616,6 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
-    notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if pending_file.stat().st_size < 37:
         with open(pending_file, 'a') as f:
