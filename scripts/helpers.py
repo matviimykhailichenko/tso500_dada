@@ -636,16 +636,16 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     entries = [str(input_dir), 'sample', priorities, tags, input_dir.name]
     new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
 
-    if pending_file.exists():
-        with open(pending_file, 'rb+') as f:
-            f.seek(-1, os.SEEK_END)
-            last_char = f.read(1)
-            if last_char != b'\n':
-                f.write(b'\n')
-        header = False
-    else:
-        header = True
-    new_samples.to_csv(pending_file, mode='a', header=header, index=False)
+    header_needed = not pending_file.exists()
+    with open(pending_file, mode='a', newline='') as f:
+        if not header_needed:
+            f.seek(0, os.SEEK_END)
+            if f.tell() > 0:
+                f.seek(-1, os.SEEK_END)
+                if f.read(1) != '\n':
+                    f.write('\n')
+
+    new_samples.to_csv(f, header=header_needed, index=False)
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
