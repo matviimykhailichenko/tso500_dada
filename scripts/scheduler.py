@@ -30,12 +30,12 @@ def main():
         mixed_runs_dir = Path(config['mixed_runs_dir'])
     seq_dirs = [onco_nsq6000_dir, onco_nsqx_dir, cbmed_nsq6000_dir, cbmed_nsqx_dir, patho_dir, mixed_runs_dir]
 
-    notify_bot(seq_dirs)
     input_path = None
     input_type = None
     sample_ids = None
     for dir in seq_dirs:
         if sx182_mountpoint in str(dir):
+            notify_bot(dir)
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
 
