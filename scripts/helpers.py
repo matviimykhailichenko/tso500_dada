@@ -638,12 +638,10 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     entries = [str(input_dir), 'sample', priorities, tags, input_dir.name]
     new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
 
-    header_needed = not pending_file.exists()
     if pending_file.stat().st_size < 37:
         with open(pending_file, 'a') as f:
             f.write('\n')
-
-    new_samples.to_csv(f, header=header_needed, index=False)
+    new_samples.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
