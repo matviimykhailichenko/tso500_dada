@@ -511,6 +511,27 @@ def get_queue(pending_file:Path,queue_file:Path):
     return queue
 
 
+def setup_paths_scheduler(testing:bool=True):
+    paths = {}
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        paths['blocking_tags'] = config['blocking_tags']
+        paths['ready_tags'] = config['ready_tags']
+        paths['pending_tag'] = config['pending_tag']
+        paths['sx182_mountpoint'] = config['sx182_mountpoint']
+        paths['sy176_mountpoint'] = config['sy176_mountpoint']
+        paths['onco_nsq6000_dir'] = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
+        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
+        paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
+        # TODO STUPID
+        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
+        paths['patho_dir'] = Path(config['pathology_dir'])
+        paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
+        paths['pipeline_dir'] = Path(config['pipeline_dir'])
+
+        return paths
+
+
 def scan_dir_nsq6000(seq_dir: Path):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -577,16 +598,15 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(input_dir:Path, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
-        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
-        patho_dir = Path(config['pathology_dir'])
-        pipeline_dir = Path(config['pipeline_dir'])
+def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
+    onco_nsq6000_dir = paths['oncoservice_novaseq6000_dir']
+    cbmed_nsq6000_dir = paths['cbmed_nsq6000_dir']
+    patho_dir = paths['pathology_dir']
+    pipeline_dir = paths['pipeline_dir']
+
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-    pending_tag = input_dir / config['pending_tag']
+    pending_tag = input_dir / paths['pending_tag']
     pending_tag.touch()
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
