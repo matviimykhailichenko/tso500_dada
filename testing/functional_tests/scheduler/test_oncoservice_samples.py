@@ -1,7 +1,10 @@
 import pytest
 from pathlib import Path
+
+from setuptools.compat.py311 import shutil_rmtree
+
 from scripts.helpers import get_server_ip
-from shutil import copy as sh_copy, copytree as sh_copytree
+from shutil import copy as sh_copy, copytree as sh_copytree, rmtree as sh_rmtree
 from subprocess import run as subp_run
 import yaml
 
@@ -18,6 +21,9 @@ def setup_environment():
     server_ip = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
+
+    if test_onco_run_seq_dir.exists():
+        sh_rmtree(test_onco_run_seq_dir)
 
     if pending_file.exists():
         pending_file.unlink()
