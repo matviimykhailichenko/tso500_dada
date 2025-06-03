@@ -23,7 +23,7 @@ def main():
         sy176_mountpoint = config['sy176_mountpoint']
         onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
         onco_nsqx_dir = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
-        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']+ {'_TEST' if testing else ''})
+        cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']+ '_TEST' if testing else '')
         # TODO STUPID
         cbmed_nsqx_dir = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
         patho_dir = Path(config['pathology_dir'])
