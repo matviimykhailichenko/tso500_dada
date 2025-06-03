@@ -15,7 +15,7 @@ cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 # TODO Change in prod
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
 mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
-pathology_dir: '/mnt/Patho'
+patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
 sx182_mountpoint: '/mnt/Novaseq/'

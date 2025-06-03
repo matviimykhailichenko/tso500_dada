@@ -525,7 +525,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
         paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
-        paths['patho_dir'] = Path(config['pathology_dir'])
+        paths['patho_seq_dir'] = Path(config['patho_seq_dir'] + '_TEST' if testing else '')
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
@@ -601,7 +601,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     onco_nsq6000_dir = paths['onco_nsq6000_dir']
     cbmed_nsq6000_dir = paths['cbmed_nsq6000_dir']
-    patho_dir = paths['patho_dir']
+    patho_seq_dir = paths['patho_seq_dir']
     pipeline_dir = paths['pipeline_dir']
 
     server = get_server_ip()
@@ -609,7 +609,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     pending_tag = input_dir / paths['pending_tag']
     pending_tag.touch()
 
-    priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
+    priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
