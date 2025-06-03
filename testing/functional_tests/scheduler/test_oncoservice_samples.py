@@ -27,7 +27,8 @@ def setup_environment():
 
     if pending_file.exists():
         pending_file.unlink()
-        sh_copy(str(pending_blank),str(pending_file))
+
+    sh_copy(str(pending_blank),str(pending_file))
 
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_run),str(test_onco_run_seq_dir))

@@ -639,13 +639,9 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
 
     header_needed = not pending_file.exists()
-    with open(pending_file, mode='a', newline='') as f:
-        if not header_needed:
-            f.seek(0, os.SEEK_END)
-            if f.tell() > 0:
-                f.seek(-1, os.SEEK_END)
-                if f.read(1) != '\n':
-                    f.write('\n')
+    if pending_file.stat().st_size < 37:
+        with open(pending_file, 'a') as f:
+            f.write('\n')
 
     new_samples.to_csv(f, header=header_needed, index=False)
 
