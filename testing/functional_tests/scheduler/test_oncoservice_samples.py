@@ -24,19 +24,13 @@ def setup_environment():
 
     if test_onco_run_seq_dir.exists():
         sh_rmtree(test_onco_run_seq_dir)
-
     if pending_file.exists():
         pending_file.unlink()
 
+    sh_copytree(str(test_onco_run), str(test_onco_run_seq_dir))
     sh_copy(str(pending_blank),str(pending_file))
 
-    if not test_onco_run_seq_dir.exists():
-        sh_copytree(str(test_onco_run),str(test_onco_run_seq_dir))
-
     yield
-
-    if pending_file.exists():
-        pending_file.unlink()
 
 
 def test_scheduler(setup_environment):
