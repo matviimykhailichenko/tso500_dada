@@ -31,9 +31,8 @@ def main():
 
         elif paths['sy176_mountpoint'] in str(dir):
             input_type = 'sample'
-            notify_bot(str(dir))
-
             input_path = scan_dir_nsqx(seq_dir=dir)
+            notify_bot(str(input_path))
             if not input_path:
                 continue
             sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
