@@ -37,8 +37,6 @@ def main():
         if sx182_mountpoint in str(dir):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
-            if input_path:
-                notify_bot(input_path)
 
         elif sy176_mountpoint in str(dir):
             input_type = 'sample'
