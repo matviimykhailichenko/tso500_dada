@@ -31,7 +31,7 @@ def main():
 
         elif paths['sy176_mountpoint'] in str(dir):
             input_type = 'sample'
-            notify_bot(str(input_path))
+
             input_path = scan_dir_nsqx(seq_dir=dir)
             if not input_path:
                 continue
@@ -41,6 +41,8 @@ def main():
 
         if input_path:
             break
+
+        notify_bot(str(input_path, input_type) )
 
     if not input_path or not input_type:
         exit(0)
