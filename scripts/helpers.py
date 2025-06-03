@@ -599,7 +599,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
     return fastq_dir
 
 def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
-    onco_nsq6000_dir = paths['oncoservice_novaseq6000_dir']
+    onco_nsq6000_dir = paths['onco_nsq6000_dir']
     cbmed_nsq6000_dir = paths['cbmed_nsq6000_dir']
     patho_dir = paths['pathology_dir']
     pipeline_dir = paths['pipeline_dir']
