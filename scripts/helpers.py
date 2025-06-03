@@ -588,13 +588,14 @@ def append_pending_run(input_dir:Path, testing:bool = True):
         pipeline_dir = Path(config['pipeline_dir'])
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+    pending_tag = input_dir / config['pending_tag']
+    pending_tag.touch()
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
-    notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     new_run.to_csv(pending_file, sep='\t', mode='a', header=True, index=False)
 

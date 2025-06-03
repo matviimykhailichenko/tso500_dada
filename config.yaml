@@ -36,13 +36,13 @@ ready_tags_nsqx:
 blocking_tags:
   - ANALYZED.txt
   - FAILED.txt
-  - IGNORED.txt
+  - PENDING.txt
 
 status_tags:
   - Analyzing.txt
   - ARCHIVING.txt
 
-pending_run_tag: PENDING_RUN.txt
+pending_tag: PENDING.txt
 analysed_tag: ANALYZED.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt
