@@ -25,7 +25,7 @@ def main():
     input_type = None
     sample_ids = None
     for dir in seq_dirs:
-        if paths['sx182_mountpoint'] or paths['patho_seq_dir'] in str(dir):
+        if str(paths['sx182_mountpoint']) or str(paths['patho_seq_dir']) in str(dir):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
 
