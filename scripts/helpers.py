@@ -618,16 +618,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    header_needed = not pending_file.exists()
-    with open(pending_file, mode='a', newline='') as f:
-        if not header_needed:
-            f.seek(0, os.SEEK_END)
-            if f.tell() > 0:
-                f.seek(-1, os.SEEK_END)
-                if f.read(1) != '\n':
-                    f.write('\n')
-
-    new_run.to_csv(f, header=header_needed, index=False)
+    new_run.to_csv(pending_file, sep='\t', mode='a', header='\n', index=False)
 
 
 def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
