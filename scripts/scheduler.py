@@ -29,7 +29,7 @@ def main():
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
 
-        elif paths['sy176_mountpoint'] in str(dir):
+        elif str(paths['sy176_mountpoint']) in str(dir):
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
             if not input_path:
