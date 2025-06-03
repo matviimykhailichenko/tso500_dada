@@ -537,10 +537,7 @@ def scan_dir_nsq6000(seq_dir: Path):
             else:
                 continue
 
-    if flowcell_dir:
-        return flowcell_dir
-    else:
-        return None
+    return None
 
 
 def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
@@ -596,7 +593,7 @@ def append_pending_run(input_dir:Path, testing:bool = True):
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
-    notify_bot(entry)
+    notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
