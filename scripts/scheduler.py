@@ -24,7 +24,6 @@ def main():
         onco_nsq6000_dir = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
         onco_nsqx_dir = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
         cbmed_nsq6000_dir = Path(config['cbmed_nsq6000_dir']+ f'{'_TEST' if testing else ''}')
-        notify_bot(str(cbmed_nsq6000_dir))
         # TODO STUPID
         cbmed_nsqx_dir = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
         patho_dir = Path(config['pathology_dir'])
@@ -38,6 +37,7 @@ def main():
         if sx182_mountpoint in str(dir):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
+            notify_bot(input_path)
 
         elif sy176_mountpoint in str(dir):
             input_type = 'sample'
