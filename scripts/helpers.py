@@ -637,6 +637,7 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
 
     entries = [str(input_dir), 'sample', priorities, tags, input_dir.name]
     new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
+    notify_bot(new_samples)
 
     if pending_file.stat().st_size < 37:
         with open(pending_file, 'a') as f:
