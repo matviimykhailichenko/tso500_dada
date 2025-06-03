@@ -28,7 +28,8 @@ def setup_environment():
 
     yield
 
-    pending_file.unlink()
+    if pending_file.exists():
+        pending_file.unlink()
 
 
 def test_scheduler(setup_environment):
