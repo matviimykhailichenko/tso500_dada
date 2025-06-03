@@ -650,7 +650,8 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     new_samples.to_csv(f, header=header_needed, index=False)
 
 
-def rearrange_fastqs(fastq_dir: Path) -> list:
+def rearrange_fastqs(input_dir: Path) -> list:
+    fastq_dir:Path = input_dir / 'Analysis' /
     samples = []
     for fastq in fastq_dir.iterdir():
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:2])
