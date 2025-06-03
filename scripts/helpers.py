@@ -593,6 +593,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
                 continue
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
+            notify_bot(str(fastq_dir))
             if not fastq_dir.exists():
                 return None
             else:
