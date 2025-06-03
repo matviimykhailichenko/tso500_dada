@@ -618,7 +618,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     notify_bot(str(entry))
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    with open(pending_file, 'r+') as f:
+    with open(pending_file, 'a') as f:
         f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
