@@ -533,6 +533,7 @@ def scan_dir_nsq6000(seq_dir: Path):
                     continue
 
                 if all(tag in file_names for tag in ready_tags):
+                    notify_bot(str(flowcell_dir))
                     return flowcell_dir
             else:
                 continue
