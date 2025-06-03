@@ -570,7 +570,6 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
     fastq_dir = None
 
     for run_dir in seq_dir.iterdir():
-        notify_bot(str(run_dir))
         if not run_dir.is_dir():
             continue
 
@@ -587,6 +586,8 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 
         if not analyses_dir.exists():
             continue
+
+        notify_bot(str(analyses_dir))
 
         for analysis_dir in analyses_dir.iterdir():
             analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
