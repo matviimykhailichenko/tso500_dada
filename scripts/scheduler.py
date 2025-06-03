@@ -32,6 +32,7 @@ def main():
         elif str(paths['sy176_mountpoint']) in str(dir):
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
+            notify_bot(str(input_path))
             if not input_path:
                 continue
             sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
@@ -39,7 +40,6 @@ def main():
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
         if input_path:
-            notify_bot(str(input_path))
             break
 
     if not input_path or not input_type:
