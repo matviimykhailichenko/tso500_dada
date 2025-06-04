@@ -11,9 +11,9 @@ def setup_environment():
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        cbmed_seq_dir:Path = Path(config['cbmed_nsq6000_dir'] + '_TEST')
+        cbmed_seq_dir: Path = Path(config['cbmed_nsq6000_dir'] + '_TEST')
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/PENDING_cbmed_runs.txt')
-        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_cbmed')
+        test_cbmed_run: Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_cbmed')
 
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
