@@ -11,7 +11,7 @@ def setup_environment():
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        patho_seq_dir:Path = Path(config['patho_seq_dir']) / '_TEST'
+        patho_seq_dir:Path = Path(config['patho_seq_dir'] + '_TEST')
         test_patho_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_oncoservice')
 
     server_ip = get_server_ip()
