@@ -371,7 +371,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         RuntimeError(f'Unrecognised input type: {input_type}')
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(config['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(config.get['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
 
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
