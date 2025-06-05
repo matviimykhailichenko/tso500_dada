@@ -1,0 +1,44 @@
+# Edit this file to introduce tasks to be run by cron.
+#
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+#
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+#
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+#
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+#
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+SHELL=/bin/bash
+BASH_ENV=~/.bashrc
+#
+# ->| QC METRICS FOR DIAGNOSTICS RUNS:
+# 0,5,10,15,20,25,30,35,40,45,50,55 * * * * conda run -n DRAGEN_pipeline_fix-Innsbruck python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/QCmetrics/WES_and_WGS_QC_metrics_v4.3_forTSODRAGEN_automated_execution.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/QCmetrics/last_WES-WGS_QC_metrics_execution-crontab.log 2>&1
+#
+# ->| ARCHIVING: CONVERT BAM TO CRAM (once every hour - takes quite some time; uses about 6 processes)
+# 39 4 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream bash /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/DRAGENnuArchiving/automatically_CRAM_convert_BAM_files.sh > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/archiving/last_Diagnostics_CRAM_conversion-crontab.log 2>&1
+#
+# ->| DEL-OPS: ANALYSEERGEBNISSE Cleaner (deletes files and folders >6 months in Analyseergebnisse [get moved to #recycle])
+# 42 22 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/analyses_results_cleaner.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/analyses_results_cleaner/latest_analyses_results_cleaner_execution-crontab.log 2>&1
+#
+# ->| DEL-OPS: RECYCLE BIN Skimmer (ultimately deletes files and folders residing longer than 3 months in hte recycle bin [total age: >9 months])
+# 24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
+#
+#
+# ->| TSO500 SCHEDULING:
+# * * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/03_Production/logs/crontab_last_execution.log
+#
+# ->| TSO500 PROCESSING:
+# * * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/03_Production/logs/crontab_last_execution.log

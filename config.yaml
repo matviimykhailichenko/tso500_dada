@@ -1,0 +1,87 @@
+testing_fast: False
+# TODO Change in prod
+# TODO change to a command
+pipeline_dir: '/mnt/Novaseq/TSO_pipeline/03_Production'
+test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
+staging_temp_dir: '/staging/tmp'
+server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
+oncoservice_novaseqx_dir: '/mnt/NovaseqXplus/07_Oncoservice'
+oncoservice_novaseq6000_dir: '/mnt/Novaseq/07_Oncoservice'
+cbmed_novaseq_dir: '/mnt/Novaseq/08_Projekte/CBmed'
+oncoservice_dir: '/mnt/NovaseqXplus/07_Oncoservice'
+cbmed_nsq6000_dir: '/mnt/Novaseq/08_Projekte/CBmed/Runs'
+cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
+# TODO Change in prod
+cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
+mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
+patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
+# cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
+patho_dir: '/mnt/Patho/TSO500_DRAGEN'
+sx182_mountpoint: '/mnt/Novaseq/'
+sy176_mountpoint: '/mnt/NovaseqXplus'
+# TODO Change in prod
+logging_dir: '/mnt/Novaseq/TSO_pipeline/03_Production/logs'
+
+
+ready_tags:
+  - SequenceComplete.txt
+  - CopyComplete.txt
+  - RTAComplete.txt
+
+ready_tags_nsqx:
+  - CopyComplete.txt
+  - RTAComplete.txt
+
+blocking_tags:
+  - ANALYZED.txt
+  - FAILED.txt
+  - PENDING.txt
+
+status_tags:
+  - Analyzing.txt
+  - ARCHIVING.txt
+
+pending_tag: PENDING.txt
+analysed_tag: ANALYZED.txt
+server_idle_tag: IDLE.txt
+failed_tag: FAILED.txt
+server_busy_tag: BUSY.txt
+samplesheet: 'SampleSheet.csv'
+mountpoint_binary: '/usr/bin/mountpoint'
+
+error_messages:
+  1: "No or invalid options passed - general error"
+  5: "Needs either --runFolder or --fastqFolder"
+  6: "An input folder is not a directory, does not exist, or has wrong permissions"
+  7: "Specified config file does not exist"
+  8: "Mount permission errors on docker - try not using a network mount"
+  9: "DRAGEN is not installed or wrong DRAGEN version is installed"
+  10: "Attempt to run without a runFolder"
+  11: "Not enough available disk space for analysis output"
+  12: "Existing DRAGEN process or workflow docker container running"
+  13: "Missing CopyComplete.txt file in run folder"
+  14: "User can't run docker"
+  15: "Invalid/expired/missing DRAGEN license"
+  16: "Passed wrong combination of runFolder and fastqFolder"
+
+
+
+# Useful stuff
+#ready_tags = [
+#    "SequenceComplete.txt",
+#    "CopyComplete.txt",
+#    "RTAComplete.txt"
+#]
+#
+#blocking_tags = [
+#    "ANALYZED.txt",
+#    "ANALYSIS_FAILED.txt",
+#    "FAILED.txt",
+#    "IGNORED.txt"
+#]
+#
+#status_tags = [
+#    "Analyzing.txt",
+#    "ARCHIVING.txt",
+#    "DECOMPRESSING.txt"
+#]
