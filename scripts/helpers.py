@@ -292,7 +292,7 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     staging_temp_dir: Path = paths['staging_temp_dir']
 
     if input_type == 'run':
-        patho_dir: Path = Path(str(paths['pathology_dir']))
+        patho_dir: Path = Path(str(paths['patho_seq_dir']))
         results_dir: Path = patho_dir / f'TSO500_DRAGEN{'_TEST' if testing else ''}' / run_name
 
     # elif input_type == 'sample':
@@ -385,7 +385,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif not testing:
         paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir'))
 
-    paths['pathology_dir'] = Path(config.get('pathology_dir'))
+    paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
 
     return paths
 
