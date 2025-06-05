@@ -684,7 +684,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    if pending_file.stat().st_size < 37:
+    if pending_file.stat().st_size < 38:
         with open(pending_file, 'a') as f:
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
