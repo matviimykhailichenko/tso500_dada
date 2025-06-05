@@ -362,13 +362,14 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['run_name'] = paths['sample_dir'].parent.parent.name
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
+        paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
     paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(config.get['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
 
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
