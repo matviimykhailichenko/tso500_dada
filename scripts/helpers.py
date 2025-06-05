@@ -367,9 +367,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
-    else:
-        RuntimeError(f'Unrecognised input type: {input_type}')
-
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config.get['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
 
