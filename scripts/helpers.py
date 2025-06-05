@@ -342,6 +342,8 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     if paths['testing_fast']:
         paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+    elif tag == 'PAT':
+        paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
         
