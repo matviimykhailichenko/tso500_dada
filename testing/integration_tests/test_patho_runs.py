@@ -16,7 +16,6 @@ def setup_environment():
 
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
-    pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_patho_run_seq_dir = patho_seq_dir / 'test_run_patho'
 
     if not queue_file.exists():
@@ -24,11 +23,6 @@ def setup_environment():
 
     if not test_patho_run_seq_dir.exists():
         sh_copytree(str(test_patho_run),str(test_patho_run_seq_dir))
-
-    yield
-
-    queue_file.unlink()
-    pending_file.unlink()
 
 
 @pytest.mark.dependency(name="scheduler")
