@@ -146,4 +146,4 @@ dependencies:
   - zstandard=0.23.0=py312hef9b889_1
   - zstd=1.5.6=ha6fb4c9_0
 variables:
-  PYTHONPATH: /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor
+  PYTHONPATH: /mnt/Novaseq/TSO_pipeline/03_Production

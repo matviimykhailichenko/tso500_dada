@@ -5,7 +5,7 @@ flowcell = "test_run_files_dir"
 testing = True
 run_name = "test_results_dir"
 
-with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
     config = yaml.safe_load(file)
     cbmed_results_dir = Path(f"{config['cbmed_results_dir']}{'_TEST' if testing else ''}")
     staging_dir_path = Path(config['staging_dir'])

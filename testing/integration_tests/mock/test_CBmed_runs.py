@@ -8,13 +8,13 @@ import yaml
 
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir:Path = Path(config['cbmed_novaseq_dir'])
-    test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_cbmed_runs.txt')
-    test_cbmed_run_1:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_cbmed_1')
-    test_cbmed_run_2:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_cbmed_2')
+    test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/integration_tests/mock/PENDING_cbmed_runs.txt')
+    test_cbmed_run_1:Path = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/integration_tests/mock/test_run_cbmed_1')
+    test_cbmed_run_2:Path = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/integration_tests/mock/test_run_cbmed_2')
     output_dirs = ['/mnt/CBmed/Genomics/TSO500_liquid/flowcells',
                    '/mnt/CBmed/Genomics/TSO500_liquid/dragen']
 
@@ -50,7 +50,7 @@ def setup_environment():
 
 
 def test_processing(setup_environment):
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py -t'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
 

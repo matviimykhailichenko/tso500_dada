@@ -11,12 +11,12 @@ import yaml
 
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_novaseqx_dir'] + '_TEST') / 'Runs'
-        pending_blank:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        test_onco_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_onco_nsqx')
+        pending_blank:Path = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/functional_tests/scheduler/PENDING_blank.txt')
+        test_onco_run:Path = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/integration_tests/mock/test_run_onco_nsqx')
 
     server_ip = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
@@ -34,6 +34,6 @@ def setup_environment():
 
 
 def test_scheduler(setup_environment):
-    scheduler_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    scheduler_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/scheduler.py -t'
     for i in range(1):
         subp_run(scheduler_call,check=True,shell=True)

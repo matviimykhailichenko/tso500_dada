@@ -14,7 +14,7 @@ import os
 
 
 def is_server_available() -> bool:
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -341,7 +341,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
-        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/03_Production/testing/tso500_script_sub.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
         
@@ -577,7 +577,7 @@ def get_queue(pending_file:Path,queue_file:Path):
 
 def setup_paths_scheduler(testing:bool=True):
     paths = {}
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
@@ -597,7 +597,7 @@ def setup_paths_scheduler(testing:bool=True):
 
 
 def scan_dir_nsq6000(seq_dir: Path):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
@@ -627,7 +627,7 @@ def scan_dir_nsq6000(seq_dir: Path):
 
 
 def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
@@ -690,7 +690,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
 
 def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
     server = get_server_ip()

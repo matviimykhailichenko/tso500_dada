@@ -8,12 +8,12 @@ import yaml
 
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir:Path = Path(config['cbmed_novaseq_dir'])
-        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/PENDING_CBmed.txt')
-        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/processing/test_run_CBmed')
+        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/functional_tests/processing/PENDING_CBmed.txt')
+        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/functional_tests/processing/test_run_CBmed')
 
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
@@ -31,7 +31,7 @@ def setup_environment():
 
 
 def test_processing(setup_environment):
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py'
 
     for i in range(8):
         subp_run(processing_call,check=True,shell=True)

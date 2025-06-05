@@ -8,7 +8,7 @@ import yaml
 
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         patho_seq_dir:Path = Path(config['patho_seq_dir'] + '_TEST')
@@ -26,10 +26,10 @@ def setup_environment():
 
 
 def test_scheduler(setup_environment):
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/scheduler.py -t'
     subp_run(processing_call, check=True, shell=True)
 
 
 def test_processing():
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py'
     subp_run(processing_call, check=True, shell=True)

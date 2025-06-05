@@ -8,7 +8,7 @@ from scripts.processing import process_run
 
 
 
-config_path: str = "/mnt/Novaseq/TSO_Pipeline/01_Staging/pure-python-refactor/config.yaml"
+config_path: str = "/mnt/Novaseq/TSO_Pipeline/03_Production/config.yaml"
 
 
 

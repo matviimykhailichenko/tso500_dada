@@ -17,7 +17,7 @@ def main():
     # args = parser.parse_args()
 
     # Definitions
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         ready_tags = set(config['ready_tags'])
         blocking_tags = set(config['blocking_tags'])

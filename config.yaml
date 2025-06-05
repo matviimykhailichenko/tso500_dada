@@ -1,8 +1,7 @@
-# TODO Change then testing with real runs
 testing_fast: False
 # TODO Change in prod
 # TODO change to a command
-pipeline_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor'
+pipeline_dir: '/mnt/Novaseq/TSO_pipeline/03_Production'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
 staging_temp_dir: '/staging/tmp'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
@@ -21,7 +20,7 @@ patho_dir: '/mnt/Patho/TSO500_DRAGEN'
 sx182_mountpoint: '/mnt/Novaseq/'
 sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
-logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
+logging_dir: '/mnt/Novaseq/TSO_pipeline/03_Production/logs'
 
 
 ready_tags:

@@ -21,7 +21,7 @@ def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
 
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
 
@@ -43,7 +43,7 @@ def main():
     if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
         is_last_sample = True
 
-    config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
+    config = load_config('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml')
 
     paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config, testing=testing)
 

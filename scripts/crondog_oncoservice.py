@@ -11,7 +11,7 @@ def create_parser():
 
 
 def has_new_runs(runs_dir_path: Path) -> bool:
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_dir = Path(config['oncoservice_dir'])
         pending_tag: Path = onco_dir / config['pending_run_tag']
@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
 
     # Definitions
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_dir = Path(config['oncoservice_dir'])
         runs_onco_dir_path = onco_dir / f'Runs{'_TEST' if args.testing else ''}'

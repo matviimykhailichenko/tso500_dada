@@ -8,11 +8,11 @@ import yaml
 
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_novaseq6000_dir']) / 'Runs_TEST'
-        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/PENDING_oncoservice_runs.txt')
+        test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/03_Production/testing/integration_tests/PENDING_oncoservice_runs.txt')
         test_onco_run:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_run_oncoservice')
 
     server_ip = get_server_ip()
@@ -36,5 +36,5 @@ def setup_environment():
 
 
 def test_processing(setup_environment):
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py'
     subp_run(processing_call, check=True, shell=True)
