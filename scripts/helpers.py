@@ -684,6 +684,10 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
+    if not pending_file.exists():
+        pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        sh_copy(pending_blank, pending_file)
+
     if pending_file.stat().st_size < 38:
         with open(pending_file, 'a') as f:
             f.write('\n')
