@@ -2,7 +2,7 @@ from scripts.helpers import transfer_results_cbmed
 from scripts.logging_ops import setup_logger
 
 logger_runtime = setup_logger('transfer_results_cbmed',
-                              '/mnt/Novaseq/TSO_pipeline/02_Development/testing/functional_tests/transfer_results_cbmed/last_execution.log')
+                              '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/transfer_results_cbmed/last_execution.log')
 try:
     transfer_results_cbmed(flowcell='test_run_files_dir',
                        rsync_path_str='/usr/bin/rsync',

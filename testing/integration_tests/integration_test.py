@@ -8,7 +8,7 @@ from scripts.processing import process_run
 
 
 
-config_path: str = "/mnt/Novaseq/TSO_Pipeline/02_Development/config.yaml"
+config_path: str = "/mnt/Novaseq/TSO_Pipeline/01_Staging/pure-python-refactor/config.yaml"
 
 
 
@@ -28,7 +28,7 @@ def test_environment(request):
             sequencing_dir: Path = Path(config['oncoservice_dir']) / 'Runs_TEST'
             results_dir: Path = Path(config['oncoservice_dir']) / 'Analyseergebnisse_TEST'
         elif run_type == 'cbmed':
-            sequencing_dir: Path = Path(config['cbmed_seqencing_dir']) / 'Runs_TEST'
+            sequencing_dir: Path = Path(config['cbmed_nsq6000_dir']) / 'Runs_TEST'
             results_dir: Path = Path(config['cbmed_results_dir'])
         elif run_type == 'patho':
             pass

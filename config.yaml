@@ -2,19 +2,26 @@
 testing_fast: False
 # TODO Change in prod
 # TODO change to a command
-pipeline_dir: '/mnt/Novaseq/TSO_pipeline/02_Development'
+pipeline_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
-staging_dir: '/staging'
+staging_temp_dir: '/staging/tmp'
 server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
-oncoservice_dir: '/mnt/Novaseq/07_Oncoservice'
-cbmed_seqencing_dir: '/mnt/Novaseq/08_Projekte/CBmed'
+oncoservice_novaseqx_dir: '/mnt/NovaseqXplus/07_Oncoservice'
+oncoservice_novaseq6000_dir: '/mnt/Novaseq/07_Oncoservice'
+cbmed_novaseq_dir: '/mnt/Novaseq/08_Projekte/CBmed'
+oncoservice_dir: '/mnt/NovaseqXplus/07_Oncoservice'
+cbmed_nsq6000_dir: '/mnt/Novaseq/08_Projekte/CBmed/Runs'
+cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 # TODO Change in prod
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
+mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
+patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
-novaseq_mountpoint: '/mnt/Novaseq'
+sx182_mountpoint: '/mnt/Novaseq/'
+sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
-logging_dir: '/mnt/Novaseq/TSO_pipeline/02_Development/logs'
+logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
 
 
 ready_tags:
@@ -22,16 +29,20 @@ ready_tags:
   - CopyComplete.txt
   - RTAComplete.txt
 
+ready_tags_nsqx:
+  - CopyComplete.txt
+  - RTAComplete.txt
+
 blocking_tags:
   - ANALYZED.txt
   - FAILED.txt
-  - IGNORED.txt
+  - PENDING.txt
 
 status_tags:
   - Analyzing.txt
   - ARCHIVING.txt
 
-pending_run_tag: PENDING_RUN.txt
+pending_tag: PENDING.txt
 analysed_tag: ANALYZED.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt

@@ -1,0 +1,2 @@
+Path	InputType	Priority	Tag	Flowcell
+/mnt/Novaseq/08_Projekte/CBmed/Runs_TEST/test_run_cbmed/250123_A01664_0443_AH2J5YDMX2	run	2	CBM	250123_A01664_0443_AH2J5YDMX2

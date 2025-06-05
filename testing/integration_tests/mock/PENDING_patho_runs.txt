@@ -1,0 +1,3 @@
+Path	InputType	Priority	Tag	Flowcell
+/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_patho_1/250213_A01664_0452_AH2J5VDMX2	run	1	PAT	250213_A01664_0452_AH2J5VDMX2
+/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_patho_2/250522_A01664_0452_AH2J5VDMX2	run	1	PAT	250522_A01664_0452_AH2J5VDMX2
