@@ -38,7 +38,7 @@ BASH_ENV=~/.bashrc
 #
 #
 # ->| TSO500 SCHEDULING:
-# * * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/03_Production/logs/crontab_last_execution.log
+# * * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/scheduler.py > /mnt/Novaseq/TSO_pipeline/03_Production/logs/crontab_last_execution.log
 #
 # ->| TSO500 PROCESSING:
 # * * * * * conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/03_Production/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/03_Production/logs/crontab_last_execution.log
