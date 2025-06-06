@@ -27,7 +27,7 @@ def is_server_available() -> bool:
         elif server_busy_tag.exists() and not server_idle_tag.exists():
             return False
         else:
-            message = f"Failed to check server status: {e}"
+            message = f"There is a problem with busy/idle tags for the {server} server"
             notify_bot(message)
             raise RuntimeError(message)
 
