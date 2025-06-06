@@ -586,7 +586,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
-        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
+        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'] + '_TEST' if testing else '')
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
