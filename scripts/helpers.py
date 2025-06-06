@@ -587,7 +587,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
         paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
-        paths['patho_seq_dir'] = Path(config['patho_seq_dir'] + '_TEST' if testing else '')
+        paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
@@ -604,8 +604,6 @@ def scan_dir_nsq6000(seq_dir: Path):
     for run_dir in seq_dir.iterdir():
         if not run_dir.is_dir():
             continue
-
-        notify_bot(str(run_dir))
 
         for obj in run_dir.iterdir():
             if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',obj.name):
