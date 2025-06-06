@@ -355,14 +355,9 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
 
-
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.parent.name
-        paths['run_dir'] = input_path.parent.parent.parent.parent.parent
-        notify_bot(paths['run_dir'])
-        paths['fastq_gen_dir'] = paths['run_dir'] / 'FastqGeneration'
-        notify_bot(paths['fastq_gen_dir'])
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
@@ -699,13 +694,13 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(paths:dict, input_dir:Path,  sample_ids:list, testing:bool = True):
+def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
 
-    fastq_gen_dir = paths['fastq_gen_dir']
+    fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
 
     paths = [fastq_gen_dir / id for id in sample_ids]
     priority_map = {'ONC':1, 'CBM':2}
