@@ -654,11 +654,12 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 
         for analysis_dir in analyses_dir.iterdir():
             analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
+            notify_bot(f'We have an analysis dir {analysis_dir}')
+
             if not analysis_complete_tag.exists():
                 continue
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
-            notify_bot(f'We have a fastq dir {fastq_dir}')
 
             if not fastq_dir.exists():
                 return None
