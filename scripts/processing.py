@@ -33,12 +33,12 @@ def main():
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
-
     if queue.stat().st_size < 38:
         queue_blank = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
         sh_copy(queue_blank,queue_file)
         return
+
+    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
