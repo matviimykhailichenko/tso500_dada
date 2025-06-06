@@ -10,6 +10,7 @@ import pandas as pd
 from filelock import FileLock, Timeout
 import re
 import os
+import numpy as np
 
 
 
@@ -699,8 +700,8 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
+        available_servers = config['available_servers']
     server = get_server_ip()
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
     priority_map = {'ONC':1, 'CBM':2}
     tags = [s.split("-", 1)[1] for s in sample_ids]
@@ -709,12 +710,16 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
 
     entries = {'Path':str(input_dir),'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
-    notify_bot(str(new_samples))
+    len(new_samples)
+    pedning_files = np.array_split(new_samples, len(available_servers))
 
-    if pending_file.stat().st_size < 37:
-        with open(pending_file, 'a') as f:
-            f.write('\n')
-    new_samples.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+    for i in range(len(available_servers)):
+        server = available_servers[i]
+        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        if pending_file.stat().st_size < 37:
+            with open(pending_file, 'a') as f:
+                f.write('\n')
+        pedning_files[i].to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
