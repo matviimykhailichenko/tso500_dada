@@ -28,7 +28,6 @@ def main():
     for dir in seq_dirs:
 
         if (str(paths['sx182_mountpoint']) in str(dir)) or (str(paths['patho_seq_dir']) in str(dir)):
-            notify_bot(str(dir))
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)
 
