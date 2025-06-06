@@ -605,6 +605,8 @@ def scan_dir_nsq6000(seq_dir: Path):
         if not run_dir.is_dir():
             continue
 
+        notify_bot(str(run_dir))
+
         for obj in run_dir.iterdir():
             if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',obj.name):
                 flowcell_dir = obj
