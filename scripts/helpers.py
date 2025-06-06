@@ -361,6 +361,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['run_name'] = paths['sample_dir'].parent.parent.name
         paths['run_dir'] = input_path.parent.parent.parent.parent.parent
         paths['fastq_gen_dir'] = paths['run_dir'] / 'FastqGeneration'
+        notify_bot(paths['fastq_gen_dir'])
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
