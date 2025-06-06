@@ -25,8 +25,8 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
 
-    # if not is_server_available():
-    #     return
+    if not is_server_available():
+        return
 
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
@@ -59,7 +59,7 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
-    stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
+    # stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
     process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
