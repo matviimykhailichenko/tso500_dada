@@ -30,6 +30,7 @@ def main():
             input_path = scan_dir_nsq6000(seq_dir=dir)
 
         elif str(paths['sy176_mountpoint']) in str(dir):
+            notify_bot(str(dir))
             input_type = 'sample'
             input_path = scan_dir_nsqx(seq_dir=dir)
             if not input_path:
@@ -47,7 +48,6 @@ def main():
     if input_type == 'run':
         append_pending_run(paths=paths, input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        notify_bot('There are samples!')
         append_pending_samples(input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
