@@ -359,8 +359,9 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.parent.name
+        paths['run_dir'] = input_path.parent.parent.parent.parent.parent
+        paths['fastq_gen_dir'] = paths['run_dir'] / 'FastqGeneration'
         paths['sample_id'] = paths['sample_dir'].name
-        paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
@@ -696,19 +697,21 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
+def append_pending_samples(paths:dict, input_dir:Path,  sample_ids:list, testing:bool = True):
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
-    server = get_server_ip()
 
+    fastq_gen_dir = paths['fastq_gen_dir']
+
+    paths = [fastq_gen_dir / id for id in sample_ids]
     priority_map = {'ONC':1, 'CBM':2}
     tags = [s.split("-", 1)[1] for s in sample_ids]
 
     priorities = (int(priority_map.get(t)) for t in tags)
 
-    entries = {'Path':str(input_dir),'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
+    entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
     len(new_samples)
     pedning_files = np.array_split(new_samples, len(available_servers))

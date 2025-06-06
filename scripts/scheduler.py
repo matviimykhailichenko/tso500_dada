@@ -47,7 +47,7 @@ def main():
     if input_type == 'run':
         append_pending_run(paths=paths, input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        append_pending_samples(input_dir=input_path, sample_ids=sample_ids, testing=testing)
+        append_pending_samples(paths=paths, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
 
