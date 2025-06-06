@@ -15,7 +15,7 @@ import numpy as np
 
 
 def is_server_available() -> bool:
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -338,7 +338,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
-        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/03_Production/testing/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
@@ -575,7 +575,7 @@ def get_queue(pending_file:Path,queue_file:Path):
 
 def setup_paths_scheduler(testing:bool=True):
     paths = {}
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
@@ -595,7 +595,7 @@ def setup_paths_scheduler(testing:bool=True):
 
 
 def scan_dir_nsq6000(seq_dir: Path):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
@@ -625,7 +625,7 @@ def scan_dir_nsq6000(seq_dir: Path):
 
 
 def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
@@ -685,7 +685,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = '/mnt/Novaseq/TSO_pipeline/03_Production/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:
@@ -695,7 +695,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
 
 def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
@@ -717,7 +717,7 @@ def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True
         server = available_servers[i]
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
-            pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+            pending_blank = '/mnt/Novaseq/TSO_pipeline/03_Production/testing/functional_tests/scheduler/PENDING_blank.txt'
             sh_copy(pending_blank, pending_file)
         if pending_file.stat().st_size < 37:
             with open(pending_file, 'a') as f:
