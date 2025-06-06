@@ -5,6 +5,7 @@ import subprocess
 import argparse
 from filelock import FileLock, Timeout
 import pandas as pd
+from shutil import copy as sh_copy
 from scripts.helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, get_queue
 from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
@@ -34,7 +35,9 @@ def main():
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
-    if queue is None or queue.empty:
+    if queue.stat().st_size < 38:
+        queue_blank = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        sh_copy(queue_blank,queue_file)
         return
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
