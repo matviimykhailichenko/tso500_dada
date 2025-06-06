@@ -291,13 +291,9 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    if input_type == 'run':
-        patho_dir: Path = Path(str(paths['patho_seq_dir']))
-        results_dir: Path = patho_dir / f'TSO500_DRAGEN{'_TEST' if testing else ''}' / run_name
-
-    # elif input_type == 'sample':
-    #     onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
-    #     results_dir: Path = onco_dir / 'Analyseergebnisse' / run_name
+    assert input_type == 'run', 'Patho only supposed to sequence runs from NSQ6000'
+    # TODO Temporary until sx182 is fixed
+    results_dir: Path = Path('/mnt/NovaseqXplus/08_Projekte/CBmed') / f'Analyseergebnisse' / run_name
 
     rsync_path: str = paths['rsync_path']
 
