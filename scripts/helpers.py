@@ -702,10 +702,10 @@ def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True)
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    priority_map = {'ONC':1, 'CMB':2}
+    priority_map = {'ONC':1, 'CBM':2}
     tags = [s.split("-", 1)[1] for s in sample_ids]
 
-    priorities = [priority_map.get(t) for t in tags]
+    priorities = (int(priority_map.get(t)) for t in tags)
 
     entries = {'Path':str(input_dir),'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
