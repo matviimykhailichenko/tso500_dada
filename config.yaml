@@ -41,6 +41,10 @@ status_tags:
   - Analyzing.txt
   - ARCHIVING.txt
 
+available_servers:
+  - 10.200.215.35
+  - 10.200.214.104
+
 pending_tag: PENDING.txt
 analysed_tag: ANALYZED.txt
 server_idle_tag: IDLE.txt
@@ -54,7 +58,7 @@ error_messages:
   5: "Needs either --runFolder or --fastqFolder"
   6: "An input folder is not a directory, does not exist, or has wrong permissions"
   7: "Specified config file does not exist"
-  8: "Mount permission errors on docker - try not using a network mount"
+  8: "Mount permissfastq_dirion errors on docker - try not using a network mount"
   9: "DRAGEN is not installed or wrong DRAGEN version is installed"
   10: "Attempt to run without a runFolder"
   11: "Not enough available disk space for analysis output"
@@ -63,25 +67,3 @@ error_messages:
   14: "User can't run docker"
   15: "Invalid/expired/missing DRAGEN license"
   16: "Passed wrong combination of runFolder and fastqFolder"
-
-
-
-# Useful stuff
-#ready_tags = [
-#    "SequenceComplete.txt",
-#    "CopyComplete.txt",
-#    "RTAComplete.txt"
-#]
-#
-#blocking_tags = [
-#    "ANALYZED.txt",
-#    "ANALYSIS_FAILED.txt",
-#    "FAILED.txt",
-#    "IGNORED.txt"
-#]
-#
-#status_tags = [
-#    "Analyzing.txt",
-#    "ARCHIVING.txt",
-#    "DECOMPRESSING.txt"
-#]

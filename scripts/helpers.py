@@ -10,11 +10,12 @@ import pandas as pd
 from filelock import FileLock, Timeout
 import re
 import os
+import numpy as np
 
 
 
 def is_server_available() -> bool:
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -291,13 +292,9 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    if input_type == 'run':
-        patho_dir: Path = Path(str(paths['pathology_dir']))
-        results_dir: Path = patho_dir / f'TSO500_DRAGEN{'_TEST' if testing else ''}' / run_name
-
-    # elif input_type == 'sample':
-    #     onco_dir: Path = Path(str(paths['oncoservice_dir']) + '_TEST') if testing else Path(paths['oncoservice_dir'])
-    #     results_dir: Path = onco_dir / 'Analyseergebnisse' / run_name
+    assert input_type == 'run', 'Patho only supposed to sequence runs from NSQ6000'
+    # TODO Temporary until sx182 is fixed
+    results_dir: Path = Path('/mnt/NovaseqXplus/08_Projekte/CBmed') / f'Analyseergebnisse' / run_name
 
     rsync_path: str = paths['rsync_path']
 
@@ -341,7 +338,9 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
-        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/03_Production/testing/tso500_script_sub.sh'
+        paths['tso500_script_path'] = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+    elif tag == 'PAT':
+        paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
         
@@ -356,7 +355,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
 
-
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.parent.name
@@ -368,7 +366,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(config.get['logging_dir']) / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
 
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
@@ -384,7 +382,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif not testing:
         paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir'))
 
-    paths['pathology_dir'] = Path(config.get('pathology_dir'))
+    paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
 
     return paths
 
@@ -577,7 +575,7 @@ def get_queue(pending_file:Path,queue_file:Path):
 
 def setup_paths_scheduler(testing:bool=True):
     paths = {}
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
@@ -588,7 +586,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
-        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'Runs'
+        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'] + '_TEST' if testing else '')
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
@@ -597,7 +595,7 @@ def setup_paths_scheduler(testing:bool=True):
 
 
 def scan_dir_nsq6000(seq_dir: Path):
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
@@ -627,7 +625,7 @@ def scan_dir_nsq6000(seq_dir: Path):
 
 
 def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
@@ -655,10 +653,13 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
 
         for analysis_dir in analyses_dir.iterdir():
             analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
+            notify_bot(f'We have an analysis dir {analysis_dir}')
+
             if not analysis_complete_tag.exists():
                 continue
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
+
             if not fastq_dir.exists():
                 return None
             else:
@@ -683,32 +684,45 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    if pending_file.stat().st_size < 37:
+    if not pending_file.exists():
+        pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        sh_copy(pending_blank, pending_file)
+
+    if pending_file.stat().st_size < 38:
         with open(pending_file, 'a') as f:
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(input_dir:Path, sample_ids:list, testing:bool = True):
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True):
+    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
-    server = get_server_ip()
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        available_servers = config['available_servers']
 
-    priority_map = {'ONC':1, 'CMB':2}
+    fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
+
+    paths = [fastq_gen_dir / id for id in sample_ids]
+    priority_map = {'ONC':1, 'CBM':2}
     tags = [s.split("-", 1)[1] for s in sample_ids]
 
-    priorities = [priority_map.get(t) for t in tags]
+    priorities = (int(priority_map.get(t)) for t in tags)
 
-    entries = [str(input_dir), 'sample', priorities, tags, input_dir.name]
-    new_samples = pd.DataFrame(entries, columns=['Path','InputType','Priority','Tag','Flowcell'])
-    notify_bot(str(new_samples))
+    entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
+    new_samples = pd.DataFrame(entries)
+    len(new_samples)
+    pedning_files = np.array_split(new_samples, len(available_servers))
 
-    if pending_file.stat().st_size < 37:
-        with open(pending_file, 'a') as f:
-            f.write('\n')
-    new_samples.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+    for i in range(len(available_servers)):
+        server = available_servers[i]
+        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        if not pending_file.exists():
+            pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+            sh_copy(pending_blank, pending_file)
+        if pending_file.stat().st_size < 37:
+            with open(pending_file, 'a') as f:
+                f.write('\n')
+        pedning_files[i].to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
