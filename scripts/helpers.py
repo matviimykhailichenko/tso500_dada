@@ -633,7 +633,6 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
     fastq_dir = None
 
     for run_dir in seq_dir.iterdir():
-        notify_bot(f'We have a run dir {run_dir}')
         if not run_dir.is_dir():
             continue
 
@@ -659,6 +658,8 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
                 continue
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
+            notify_bot(f'We have a fastq dir {fastq_dir}')
+
             if not fastq_dir.exists():
                 return None
             else:
