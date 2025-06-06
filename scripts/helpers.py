@@ -22,14 +22,14 @@ def is_server_available() -> bool:
         server_idle_tag = server_availability_dir / server / config['server_idle_tag']
         server_busy_tag = server_availability_dir / server / config['server_busy_tag']
 
-    try:
-        if Path(server_busy_tag).exists() and not Path(server_idle_tag).exists():
+        if server_idle_tag.exists() and not server_busy_tag.exists():
             return True
-        return False
-    except Exception as e:
-        message = f"Failed to check server status: {e}"
-        notify_bot(message)
-        raise RuntimeError(message)
+        elif server_busy_tag.exists() and not server_idle_tag.exists():
+            return False
+        else:
+            message = f"Failed to check server status: {e}"
+            notify_bot(message)
+            raise RuntimeError(message)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
