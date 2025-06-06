@@ -583,7 +583,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
         paths['onco_nsq6000_dir'] = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
-        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
+        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + ('_TEST' if testing else '')) / 'Runs'
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
         paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
