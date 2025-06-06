@@ -360,6 +360,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['sample_dir'] = input_path
         paths['run_name'] = paths['sample_dir'].parent.parent.name
         paths['run_dir'] = input_path.parent.parent.parent.parent.parent
+        notify_bot(paths['run_dir'])
         paths['fastq_gen_dir'] = paths['run_dir'] / 'FastqGeneration'
         notify_bot(paths['fastq_gen_dir'])
         paths['sample_id'] = paths['sample_dir'].name
