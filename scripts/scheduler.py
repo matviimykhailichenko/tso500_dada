@@ -1,9 +1,6 @@
 import argparse
-import yaml
-from pathlib import Path
-from scripts.helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
+from .helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler
-from scripts.logging_ops import notify_bot
 
 
 def create_parser():
@@ -25,7 +22,6 @@ def main():
     input_type = None
     sample_ids = None
     for dir in seq_dirs:
-
         if (str(paths['sx182_mountpoint']) in str(dir)) or (str(paths['patho_seq_dir']) in str(dir)):
             input_type = 'run'
             input_path = scan_dir_nsq6000(seq_dir=dir)

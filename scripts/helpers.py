@@ -357,11 +357,17 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
+        paths['run_dir'] = input_path.parent.parent
         paths['run_name'] = paths['sample_dir'].parent.parent.name
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+
+    paths['flowcell_dir'] = paths['run_dir'] / flowcell
+    paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
+    paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
+    paths['analysed_tag'] = paths['flowcell_dir'] / config.get('analysed_tag')
 
     paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
@@ -548,6 +554,10 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
                            input_type=input_type, is_last_sample=is_last_sample)
 
 
+    # TODO add done tag
+    # TODO delete QUEUED tag
+
+
 def get_queue(pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
     assert queue_file.exists(), 'The queue file should exist'
@@ -582,7 +592,7 @@ def setup_paths_scheduler(testing:bool=True):
         config = yaml.safe_load(file)
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
-        paths['pending_tag'] = config['pending_tag']
+        paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
         paths['onco_nsq6000_dir'] = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
@@ -678,8 +688,8 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-    pending_tag = input_dir / paths['pending_tag']
-    pending_tag.touch()
+    queued_tag = input_dir / paths['queued_tag']
+    queued_tag.touch()
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
