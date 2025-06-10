@@ -1,13 +1,13 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move
-from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
 from logging_ops import notify_bot, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
-from filelock import FileLock, Timeout
+from filelock import FileLock
 import re
 import numpy as np
 

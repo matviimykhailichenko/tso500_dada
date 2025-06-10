@@ -1,6 +1,5 @@
 from discord import SyncWebhook
 import logging
-import os
 from logging import Logger
 
 
