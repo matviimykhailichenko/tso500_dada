@@ -1,5 +1,5 @@
 import argparse
-from .helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
+from scripts.helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler
 
 
