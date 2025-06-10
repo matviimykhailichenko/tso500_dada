@@ -544,6 +544,9 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
     # delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
+    notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type, is_last_sample=is_last_sample)
+
 
 def get_queue(pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
@@ -688,7 +691,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
         pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
 
-    if pending_file.stat().st_size < 38:
+    if pending_file.stat().st_size > 38:
         with open(pending_file, 'a') as f:
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)

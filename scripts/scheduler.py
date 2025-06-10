@@ -24,7 +24,6 @@ def main():
     input_path = None
     input_type = None
     sample_ids = None
-    notify_bot(str(seq_dirs))
     for dir in seq_dirs:
 
         if (str(paths['sx182_mountpoint']) in str(dir)) or (str(paths['patho_seq_dir']) in str(dir)):

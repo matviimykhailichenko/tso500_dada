@@ -67,8 +67,6 @@ def main():
 
     transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
 
-    notify_pipeline_status(step='finished',run_name=paths['run_name'],logger=logger,tag=paths['tag'],
-                           input_type=input_type, is_last_sample=is_last_sample)
 
 if __name__ == "__main__":
     main()
