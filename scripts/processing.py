@@ -1,13 +1,10 @@
 from pathlib import Path
-from subprocess import CalledProcessError
 import yaml
-import subprocess
 import argparse
-from filelock import FileLock, Timeout
-import pandas as pd
-from scripts.helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
+from shutil import copy as sh_copy
+from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, get_queue
-from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
+from logging_ops import setup_logger
 
 
 
@@ -25,17 +22,18 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
 
-    # if not is_server_available():
-    #     return
+    if not is_server_available():
+        return
 
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
+    if not queue_file.exists() or queue_file.stat().st_size < 38:
+        queue_blank = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        sh_copy(queue_blank,queue_file)
 
-    if queue is None or queue.empty:
-        return
+    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
@@ -59,14 +57,16 @@ def main():
 
     check_tso500_script(paths=paths, logger=logger)
 
+    paths['analyzing_tag'].touch()
+    paths['queued_tag'].unlink()
     stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
     process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
     transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
+    paths['analysed_tag'].touch()
+    paths['analyzing_tag'].unlink()
 
-    notify_pipeline_status(step='finished',run_name=paths['run_name'],logger=logger,tag=paths['tag'],
-                           input_type=input_type, is_last_sample=is_last_sample)
 
 if __name__ == "__main__":
     main()

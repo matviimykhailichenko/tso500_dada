@@ -1,15 +1,14 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move
-from subprocess import Popen as subp_Popen, run as subp_run, PIPE as subp_PIPE, CalledProcessError
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
-from scripts.logging_ops import notify_bot, setup_logger, notify_pipeline_status
+from logging_ops import notify_bot, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
-from filelock import FileLock, Timeout
+from filelock import FileLock
 import re
-import os
 import numpy as np
 
 
@@ -22,14 +21,14 @@ def is_server_available() -> bool:
         server_idle_tag = server_availability_dir / server / config['server_idle_tag']
         server_busy_tag = server_availability_dir / server / config['server_busy_tag']
 
-    try:
-        if Path(server_busy_tag).exists() and not Path(server_idle_tag).exists():
+        if server_idle_tag.exists() and not server_busy_tag.exists():
             return True
-        return False
-    except Exception as e:
-        message = f"Failed to check server status: {e}"
-        notify_bot(message)
-        raise RuntimeError(message)
+        elif server_busy_tag.exists() and not server_idle_tag.exists():
+            return False
+        else:
+            message = f"There is a problem with busy/idle tags for the {server} server"
+            notify_bot(message)
+            raise RuntimeError(message)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -357,11 +356,17 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
+        paths['run_dir'] = input_path.parent.parent
         paths['run_name'] = paths['sample_dir'].parent.parent.name
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+
+    paths['flowcell_dir'] = paths['run_dir'] / flowcell
+    paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
+    paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
+    paths['analysed_tag'] = paths['flowcell_dir'] / config.get('analysed_tag')
 
     paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
@@ -544,6 +549,13 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
     # delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
+    notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type, is_last_sample=is_last_sample)
+
+
+    # TODO add done tag
+    # TODO delete QUEUED tag
+
 
 def get_queue(pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
@@ -579,15 +591,15 @@ def setup_paths_scheduler(testing:bool=True):
         config = yaml.safe_load(file)
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
-        paths['pending_tag'] = config['pending_tag']
+        paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
         paths['onco_nsq6000_dir'] = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
-        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
+        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir']) / 'Runs'
         paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
         # TODO STUPID
         paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
-        paths['patho_seq_dir'] = Path(config['patho_seq_dir'] + '_TEST' if testing else '')
+        paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
@@ -675,8 +687,8 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
 
     server = get_server_ip()
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-    pending_tag = input_dir / paths['pending_tag']
-    pending_tag.touch()
+    queued_tag = input_dir / paths['queued_tag']
+    queued_tag.touch()
 
     priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]

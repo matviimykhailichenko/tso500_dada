@@ -36,6 +36,7 @@ blocking_tags:
   - ANALYZED.txt
   - FAILED.txt
   - PENDING.txt
+  - ANALYZING.txt
 
 status_tags:
   - Analyzing.txt
@@ -46,7 +47,9 @@ available_servers:
   - 10.200.214.104
 
 pending_tag: PENDING.txt
+queued_tag: QUEUED.txt
 analysed_tag: ANALYZED.txt
+analyzing_tag: ANALYZING.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt
 server_busy_tag: BUSY.txt
@@ -58,7 +61,7 @@ error_messages:
   5: "Needs either --runFolder or --fastqFolder"
   6: "An input folder is not a directory, does not exist, or has wrong permissions"
   7: "Specified config file does not exist"
-  8: "Mount permissfastq_dirion errors on docker - try not using a network mount"
+  8: "Mount permissions fastq_dirion errors on docker - try not using a network mount"
   9: "DRAGEN is not installed or wrong DRAGEN version is installed"
   10: "Attempt to run without a runFolder"
   11: "Not enough available disk space for analysis output"
