@@ -16,7 +16,6 @@ def setup_environment():
     test_onco_run_seq_dir_1 = onco_seq_dir / 'test_run_1'
     test_onco_run_seq_dir_2 = onco_seq_dir / 'test_run_2'
 
-
     if not test_onco_run_seq_dir_1.exists():
         sh_copytree(str(test_onco_run_1),str(test_onco_run_seq_dir_1))
 
