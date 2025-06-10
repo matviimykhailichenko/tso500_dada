@@ -691,7 +691,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
         pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
 
-    if pending_file.stat().st_size > 38:
+    if pending_file.stat().st_size < 38:
         with open(pending_file, 'a') as f:
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
