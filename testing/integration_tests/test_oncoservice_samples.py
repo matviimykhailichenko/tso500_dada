@@ -24,13 +24,14 @@ def setup_environment():
     pending_file.unlink()
 
 
+@pytest.mark.dependency()
 def test_scheduling(setup_environment):
     scheduling_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
     subp_run(scheduling_call, check=True, shell=True)
 
 
+@pytest.mark.dependency(depends=["test_scheduling"])
 def test_processing():
     processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
-
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
