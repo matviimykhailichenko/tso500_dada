@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-from scripts.helpers import get_server_ip
 from shutil import copytree as sh_copytree
 from subprocess import run as subp_run
 import yaml
@@ -15,7 +14,7 @@ def setup_environment():
         test_onco_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
 
     server_ip = get_server_ip()
-    pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
+    pending_file = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
 
     if not test_onco_run_seq_dir.exists():

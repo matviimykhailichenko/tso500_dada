@@ -38,7 +38,7 @@ BASH_ENV=~/.bashrc
 #
 #
 # ->| TSO500 SCHEDULING:
-* * * * * source /staging/venvs/production && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/venvs/production/bin/activate && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
 #
 # ->| TSO500 PROCESSING:
-* * * * * source /staging/venvs/production && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/venvs/production/bin/activate && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
