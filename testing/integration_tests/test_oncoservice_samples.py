@@ -14,7 +14,7 @@ def setup_environment():
         test_onco_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
 
     pending_file = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
-    pending_blank = '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+    pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
 
     if not pending_file.exists():
@@ -30,12 +30,12 @@ def setup_environment():
 
 @pytest.mark.dependency()
 def test_scheduling(setup_environment):
-    scheduling_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    scheduling_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
     subp_run(scheduling_call, check=True, shell=True)
 
 
 @pytest.mark.dependency(depends=["test_scheduling"])
 def test_processing():
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
+    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
