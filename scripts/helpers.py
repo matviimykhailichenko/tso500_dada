@@ -675,7 +675,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
                 return None
             else:
                 break
-
+    notify_bot(str(fastq_dir))
     return fastq_dir
 
 def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
