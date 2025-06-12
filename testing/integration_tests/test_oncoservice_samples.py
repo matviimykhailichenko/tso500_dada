@@ -30,11 +30,11 @@ def setup_environment():
 
     if queued_tag.exists():
         queued_tag.unlink()
-    for sample_dir in fastq_gen_dir.iterdir():
-        for fastq in sample_dir.iterdir():
-            if not fastq_analysis_dir.exists():
-                fastq_analysis_dir.mkdir()
-            sh_move(str(fastq),fastq_analysis_dir)
+    # for sample_dir in fastq_gen_dir.iterdir():
+    #     for fastq in sample_dir.iterdir():
+    #         if not fastq_analysis_dir.exists():
+    #             fastq_analysis_dir.mkdir()
+    #         sh_move(str(fastq),fastq_analysis_dir)
 
 
 @pytest.mark.dependency()
