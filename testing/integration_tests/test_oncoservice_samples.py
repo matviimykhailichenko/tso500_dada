@@ -43,8 +43,8 @@ def setup_environment():
 #     subp_run(scheduling_call, check=True, shell=True)
 
 
-@pytest.mark.dependency(setup_environment)
-def test_processing():
+@pytest.mark.dependency()
+def test_processing(setup_environment):
     processing_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t && deactivate'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
