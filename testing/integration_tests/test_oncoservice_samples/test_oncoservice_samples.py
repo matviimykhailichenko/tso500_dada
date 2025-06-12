@@ -13,6 +13,7 @@ def setup_environment():
         onco_seq_dir:Path = Path(config['oncoservice_novaseqx_dir'] + '_TEST') / 'Runs'
         test_onco_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
 
+    pending_file_samples = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/scheduler/PENDING_oncoservice_samples.txt'
     pending_file = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
     pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
@@ -22,8 +23,7 @@ def setup_environment():
 
     queued_tag.touch()
 
-    if not pending_file.exists():
-        sh_copy(str(pending_blank), str(pending_file))
+    sh_copy(str(pending_file_samples), str(pending_file))
 
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
