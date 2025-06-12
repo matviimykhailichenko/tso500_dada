@@ -28,7 +28,6 @@ def setup_environment():
 
     yield
 
-    pending_file.unlink()
     if queued_tag.exists():
         queued_tag.unlink()
     for sample_dir in fastq_gen_dir.iterdir():
