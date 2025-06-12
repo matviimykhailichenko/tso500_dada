@@ -362,6 +362,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+        paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
 
     paths['flowcell_dir'] = paths['run_dir'] / flowcell
     paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
@@ -513,7 +514,8 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             raise RuntimeError(msg)
 
     elif input_type == 'sample':
-        tso_script_call = (f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} "
+        tso_script_call = (f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']}  "
+                           f"--sampleSheet {paths['sample_sheet']} --analysisFolder {paths['analysis_dir']} "
                            f"--sampleIDs {paths['sample_id']}")
         try:
             subp_run(tso_script_call,check=True,shell=True)
