@@ -364,7 +364,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
 
     paths['flowcell_dir'] = paths['run_dir'] / flowcell
-    paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
+    paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
     paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
     paths['analysed_tag'] = paths['flowcell_dir'] / config.get('analysed_tag')
 
