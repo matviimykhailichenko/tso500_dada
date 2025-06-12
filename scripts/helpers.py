@@ -740,7 +740,7 @@ def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True
 def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
-        sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:2])
+        sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:1])
         samples.append(str(sample_dir))
 
         if not sample_dir.exists():
