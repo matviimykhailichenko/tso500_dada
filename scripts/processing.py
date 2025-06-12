@@ -63,7 +63,7 @@ def main():
 
     paths['analyzing_tag'].touch()
     paths['queued_tag'].unlink()
-    stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
+    # stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
     process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
