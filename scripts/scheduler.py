@@ -22,6 +22,7 @@ def main():
     input_path = None
     input_type = None
     sample_ids = None
+    print(seq_dirs)
     for dir in seq_dirs:
         if (str(paths['sx182_mountpoint']) in str(dir)) or (str(paths['patho_seq_dir']) in str(dir)):
             input_type = 'run'
