@@ -675,7 +675,7 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
                 return None
             else:
                 break
-    notify_bot(str(fastq_dir))
+
     return fastq_dir
 
 def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
@@ -742,8 +742,9 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
+        notify_bot(fastq)
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:1])
-        notify_bot(str(sample_dir))
+
         samples.append(str(sample_dir))
 
         if not sample_dir.exists():
