@@ -743,6 +743,7 @@ def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:1])
+        notify_bot(str(sample_dir))
         samples.append(str(sample_dir))
 
         if not sample_dir.exists():
