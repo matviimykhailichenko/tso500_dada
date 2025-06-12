@@ -5,7 +5,7 @@ testing_fast: False
 pipeline_dir: '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
 staging_temp_dir: '/staging/tmp'
-server_availability_dir: '/mnt/Novaseq/TSO_pipeline/server_availability'
+server_availability_dir: '/mnt/NovaseqXplus/TSO_pipeline/server_availability'
 oncoservice_novaseqx_dir: '/mnt/NovaseqXplus/07_Oncoservice'
 oncoservice_novaseq6000_dir: '/mnt/Novaseq/07_Oncoservice'
 cbmed_novaseq_dir: '/mnt/Novaseq/08_Projekte/CBmed'
