@@ -582,6 +582,7 @@ def get_queue(pending_file:Path,queue_file:Path):
     else:
         return
 
+    notify_bot(str(queue))
     return queue
 
 
