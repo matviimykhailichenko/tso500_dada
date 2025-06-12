@@ -661,14 +661,13 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
         if not analyses_dir.exists():
             continue
 
-        notify_bot(str(analyses_dir))
-
         for analysis_dir in analyses_dir.iterdir():
             analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
-            notify_bot(f'We have an analysis dir {analysis_dir}')
 
             if not analysis_complete_tag.exists():
                 continue
+
+            notify_bot(f'We have an analysis dir {analysis_dir}')
 
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
 
@@ -706,13 +705,15 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True):
+def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testing:bool = True):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
+    run_dir = fastq_gen_dir.parent
+    queued_tag = run_dir / paths['queued_tag']
 
     paths = [fastq_gen_dir / id for id in sample_ids]
     priority_map = {'ONC':1, 'CBM':2}
@@ -722,7 +723,6 @@ def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True
 
     entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
-    len(new_samples)
     pedning_files = np.array_split(new_samples, len(available_servers))
 
     for i in range(len(available_servers)):
@@ -735,6 +735,8 @@ def append_pending_samples(input_dir:Path,  sample_ids:list, testing:bool = True
             with open(pending_file, 'a') as f:
                 f.write('\n')
         pedning_files[i].to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+
+    queued_tag.touch()
 
 
 def rearrange_fastqs(fastq_dir: Path) -> list:
