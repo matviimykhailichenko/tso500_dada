@@ -723,6 +723,7 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 
     entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
+    notify_bot(str(new_samples))
     pedning_files = np.array_split(new_samples, len(available_servers))
 
     for i in range(len(available_servers)):
