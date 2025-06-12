@@ -30,12 +30,12 @@ def setup_environment():
 
 @pytest.mark.dependency()
 def test_scheduling(setup_environment):
-    scheduling_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    scheduling_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t && deactivate'
     subp_run(scheduling_call, check=True, shell=True)
 
 
 @pytest.mark.dependency(depends=["test_scheduling"])
 def test_processing():
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
+    processing_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t && deactivate'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
