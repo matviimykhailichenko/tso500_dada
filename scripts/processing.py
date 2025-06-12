@@ -18,7 +18,7 @@ def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
 
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
 
@@ -30,7 +30,7 @@ def main():
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
     if not queue_file.exists() or queue_file.stat().st_size < 38:
-        queue_blank = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
         sh_copy(queue_blank,queue_file)
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
@@ -41,7 +41,7 @@ def main():
     if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
         is_last_sample = True
 
-    config = load_config('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
+    config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
     paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config, testing=testing)
 
