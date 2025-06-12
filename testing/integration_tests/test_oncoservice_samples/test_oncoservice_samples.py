@@ -20,6 +20,8 @@ def setup_environment():
     fastq_gen_dir = test_onco_run_seq_dir / 'FastqGeneration'
     queued_tag = test_onco_run_seq_dir / config['queued_tag']
 
+    queued_tag.touch()
+
     if not pending_file.exists():
         sh_copy(str(pending_blank), str(pending_file))
 
@@ -27,6 +29,7 @@ def setup_environment():
         sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
 
     yield
+
 
     # if queued_tag.exists():
     #     queued_tag.unlink()
