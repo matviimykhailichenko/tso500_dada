@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree, copy as sh_copy
+from shutil import copytree as sh_copytree, copy as sh_copy, move as sh_move
 from subprocess import run as subp_run
 import yaml
 
@@ -16,6 +16,9 @@ def setup_environment():
     pending_file = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
     pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
+    fastq_analysis_dir = test_onco_run_seq_dir / 'Analysis/1/Data/BCLConvert/fastq'
+    fastq_gen_dir = test_onco_run_seq_dir / 'FastqGeneration'
+    queued_tag = test_onco_run_seq_dir / config['queued_tag']
 
     if not pending_file.exists():
         sh_copy(str(pending_blank), str(pending_file))
@@ -26,6 +29,10 @@ def setup_environment():
     yield
 
     pending_file.unlink()
+    queued_tag.unlink()
+    for sample_dir in fastq_gen_dir.iterdir():
+        for fastq in sample_dir.iterdir():
+            sh_move(str(fastq),fastq_analysis_dir)
 
 
 @pytest.mark.dependency()
