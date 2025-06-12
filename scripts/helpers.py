@@ -726,8 +726,7 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
     notify_bot(str(new_samples))
     pedning_files = np.array_split(new_samples, len(available_servers))
 
-    for i in range(len(available_servers)):
-        server = available_servers[i]
+    for server in available_servers:
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
             pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
@@ -735,7 +734,9 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
         if pending_file.stat().st_size < 37:
             with open(pending_file, 'a') as f:
                 f.write('\n')
-        pedning_files[i].to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+
+        pending = pd.DataFrame(pedning_files[available_servers.index(server)])
+        pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
     queued_tag.touch()
 
