@@ -25,7 +25,7 @@ SHELL=/bin/bash
 BASH_ENV=~/.bashrc
 #
 # ->| QC METRICS FOR DIAGNOSTICS RUNS:
-# 0,5,10,15,20,25,30,35,40,45,50,55 * * * * conda run -n DRAGEN_pipeline_fix-Innsbruck python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/QCmetrics/WES_and_WGS_QC_metrics_v4.3_forTSODRAGEN_automated_execution.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/QCmetrics/last_WES-WGS_QC_metrics_execution-crontab.log 2>&1
+# 0,5,10,15,20,25,30,35,40,45,50,55 * * * * conda run -n DRAGEN_pipeline_fix-Innsbruck python3 /mnt/NovaseqXplus/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/QCmetrics/WES_and_WGS_QC_metrics_v4.3_forTSODRAGEN_automated_execution.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/QCmetrics/last_WES-WGS_QC_metrics_execution-crontab.log 2>&1
 #
 # ->| ARCHIVING: CONVERT BAM TO CRAM (once every hour - takes quite some time; uses about 6 processes)
 # 39 4 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream bash /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/DRAGENnuArchiving/automatically_CRAM_convert_BAM_files.sh > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/archiving/last_Diagnostics_CRAM_conversion-crontab.log 2>&1
