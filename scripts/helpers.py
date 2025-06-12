@@ -742,7 +742,7 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
-        notify_bot(fastq)
+        notify_bot(str(fastq))
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:1])
 
         samples.append(str(sample_dir))
