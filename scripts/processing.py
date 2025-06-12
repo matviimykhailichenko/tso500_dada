@@ -31,17 +31,13 @@ def main():
 
     if not queue_file.exists() or queue_file.stat().st_size < 38:
         queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        sh_copy(queue_blank,queue_file)
+        sh_copy(queue_blank, queue_file)
 
     if not pending_file.exists() or pending_file.stat().st_size < 38:
         queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        sh_copy(queue_blank,pending_file)
-
-    if queue_file.exists():
-        return
+        sh_copy(queue_blank, pending_file)
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
-    notify_bot(queue)
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
