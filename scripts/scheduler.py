@@ -1,6 +1,6 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
-    rearrange_fastqs, setup_paths_scheduler
+    rearrange_fastqs, setup_paths_scheduler, get_server_ip
 
 
 def create_parser():
@@ -16,8 +16,9 @@ def main():
     testing = args.testing
 
     paths = setup_paths_scheduler(testing=testing)
-    seq_dirs = [paths['onco_nsq6000_dir'], paths['onco_nsqx_dir'], paths['cbmed_nsq6000_dir'], paths['cbmed_nsqx_dir'],
-                paths['patho_seq_dir'], paths['mixed_runs_dir']]
+    seq_dirs = [paths['onco_nsq6000_dir'], paths['onco_nsqx_dir'], paths['cbmed_nsq6000_dir'], paths['cbmed_nsqx_dir'], paths['mixed_runs_dir']]
+    if get_server_ip() == '10.200.215.35':
+        seq_dirs.append(paths['patho_seq_dir'])
     input_path = None
     input_type = None
     sample_ids = None
