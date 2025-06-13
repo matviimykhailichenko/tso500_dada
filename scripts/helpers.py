@@ -369,7 +369,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
     paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
 
-    paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyzeergebnisse'
+    paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
