@@ -89,9 +89,7 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
     if input_type == 'run':
         results_dir:Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Runs'/ run_name
     elif input_type == 'sample':
-        results_dir:Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Runs'/ run_name
-
-
+        results_dir:Path = paths['onco_results_dir'] / run_name
 
     rsync_path:str = paths['rsync_path']
 
