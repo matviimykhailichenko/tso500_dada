@@ -14,7 +14,10 @@ def setup_environment():
         test_onco_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
 
     pending_file_samples = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/test_oncoservice_samples/PENDING_oncoservice_samples.txt'
-    pending_file = pipeline_dir.parent.parent / f'10.200.214.104_PENDING.txt'
+
+    pending_file_35 = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
+    pending_file_104 = pipeline_dir.parent.parent / f'10.200.214.104_PENDING.txt'
+
     pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
     fastq_analysis_dir = test_onco_run_seq_dir / 'Analysis/1/Data/BCLConvert/fastq'
@@ -28,6 +31,11 @@ def setup_environment():
 
     if queued_tag.exists():
         queued_tag.unlink()
+    if pending_file_35.exists():
+        pending_file_35.unlink()
+    if pending_file_104.exists():
+        pending_file_104.unlink()
+
     for sample_dir in fastq_gen_dir.iterdir():
         for fastq in sample_dir.iterdir():
             if not fastq_analysis_dir.exists():
