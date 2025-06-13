@@ -49,7 +49,7 @@ available_servers:
 
 pending_tag: PENDING.txt
 queued_tag: QUEUED.txt
-analysed_tag: ANALYZED.txt
+analyzed_tag: ANALYZED.txt
 analyzing_tag: ANALYZING.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt
