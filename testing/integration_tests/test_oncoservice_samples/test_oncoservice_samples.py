@@ -43,13 +43,13 @@ def setup_environment():
             sh_move(str(fastq),fastq_analysis_dir)
 
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="scheduling")
 def test_scheduling(setup_environment):
     scheduling_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t && deactivate'
     subp_run(scheduling_call, check=True, shell=True)
 
 
-@pytest.mark.dependency(test_scheduling)
+@pytest.mark.dependency(depends=["scheduling"])
 def test_processing():
     processing_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t && deactivate'
     for i in range(2):
