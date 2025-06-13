@@ -95,7 +95,7 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
     analysis_dir = staging_temp_dir / run_name
 
-    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
+    rsync_call = f'{rsync_path} -r --checksum --exclude="work" {str(f'{analysis_dir}/')} {str(results_dir)}'
     try:
         subp_run(rsync_call,check=True,shell=True)
     except CalledProcessError as e:
