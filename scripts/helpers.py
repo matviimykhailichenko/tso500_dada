@@ -361,7 +361,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing)
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing else '')
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
 
     paths['flowcell_dir'] = paths['run_dir'] / flowcell
