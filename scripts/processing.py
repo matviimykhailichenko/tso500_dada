@@ -68,8 +68,10 @@ def main():
     process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
 
     transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
-    paths['analyzed_tag'].touch()
-    paths['analyzing_tag'].unlink()
+
+    if is_last_sample or input_type == 'run':
+        paths['analyzed_tag'].touch()
+        paths['analyzing_tag'].unlink()
 
 
 if __name__ == "__main__":
