@@ -361,7 +361,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing)
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
 
     paths['flowcell_dir'] = paths['run_dir'] / flowcell
@@ -369,7 +369,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
     paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
 
-    paths['onco_results_dir'] = Path(config.get('oncoservice_novaseqx_dir'))
+    paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyzeergebnisse'
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
