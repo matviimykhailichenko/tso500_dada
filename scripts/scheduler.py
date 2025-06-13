@@ -18,8 +18,8 @@ def main():
 
     paths = setup_paths_scheduler(testing=testing)
     seq_dirs = [paths['onco_nsq6000_dir'], paths['onco_nsqx_dir'], paths['cbmed_nsq6000_dir'], paths['cbmed_nsqx_dir'], paths['mixed_runs_dir']]
-    if get_server_ip() == '10.200.215.35':
-        seq_dirs.append(paths['patho_seq_dir'])
+    # if get_server_ip() == '10.200.215.35':
+    #     seq_dirs.append(paths['patho_seq_dir'])
     input_path = None
     input_type = None
     sample_ids = None
