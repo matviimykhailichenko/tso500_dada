@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 import datetime
 from shutil import copytree as sh_copytree
-from ..logging_ops import notify_bot
+from scripts.logging_ops import notify_bot
 from subprocess import run as subp_run
 
 
