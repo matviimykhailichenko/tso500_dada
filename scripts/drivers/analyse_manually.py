@@ -52,7 +52,7 @@ def main():
     print(f"Staging the run {run_name}.")
     input_staging_dir.mkdir(parents=True, exist_ok=True)
     for sample_id in sample_list:
-        matching_dirs = list(input_dir.glob(f'*{sample_id}*'))
+        matching_dirs = list(input_dir.glob(f'{sample_id}*'))
         for src_dir in matching_dirs:
             dst_dir = input_staging_dir / src_dir.name
             if src_dir.is_dir():
