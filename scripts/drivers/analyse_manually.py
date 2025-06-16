@@ -2,8 +2,9 @@ import argparse
 from pathlib import Path
 import re
 from datetime import datetime
-from shutil import copytree as sh_copytree
+from shutil import copytree as sh_copytree, copy2 as sh_copy
 from subprocess import run as subp_run
+
 
 
 
@@ -52,11 +53,9 @@ def main():
     print(f"Staging the run {run_name}.")
     input_staging_dir.mkdir(parents=True, exist_ok=True)
     for sample_id in sample_list:
-        matching_dirs = list(input_dir.glob(f'{sample_id}*'))
-        for src_dir in matching_dirs:
-            dst_dir = input_staging_dir / src_dir.name
-            if src_dir.is_dir():
-                sh_copytree(src_dir, dst_dir, dirs_exist_ok=True)
+        for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
+            dst_file = input_staging_dir / fastq_file.name
+            sh_copy(fastq_file, dst_file)
 
     print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
