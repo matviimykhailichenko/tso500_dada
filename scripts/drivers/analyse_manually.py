@@ -43,7 +43,7 @@ def main():
     sample_list = [s.strip() for s in sample_ids.split(',')]
     flowcell_name = run_dir.name
     input_staging_dir = Path('/staging/tmp') / flowcell_name
-    run_name = f"{datetime.today().strftime('%y%m%d')}_TSO_Onco"
+    run_name = f"{datetime.today().strftime('%y%m%d')}_TSO500_Onco"
     analysis_dir = input_staging_dir / run_name
     sample_sheet = run_dir / 'SampleSheet_Analysis.csv'
     results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
