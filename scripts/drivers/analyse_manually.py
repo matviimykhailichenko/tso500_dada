@@ -74,7 +74,10 @@ def main():
     # subp_run(dragen_call, check=True, shell=True)
 
     print(f"TSO500 script completed! Transferring results for the run {run_name}.")
-    copytree_36(analysis_dir, results_dir)
+    import subprocess
+
+    rsync_call = f'rsync -av --exclude=".nextflow" --exclude "work" ${analysis_dir}/" "${results_dir}/"'
+    subp_run(rsync_call, check=True, shell=True)
 
     print(f"Transfer completed! The run {run_name} was succesfully processed")
 
