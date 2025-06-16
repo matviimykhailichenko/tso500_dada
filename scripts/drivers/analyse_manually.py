@@ -52,15 +52,15 @@ def main():
 
     print(f"Staging the run {run_name}.")
     input_staging_dir.mkdir(parents=True, exist_ok=True)
-    for sample_id in sample_list:
-        for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
-            dst_file = input_staging_dir / fastq_file.name
-            sh_copy(fastq_file, dst_file)
+    # for sample_id in sample_list:
+    #     for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
+    #         dst_file = input_staging_dir / fastq_file.name
+    #         sh_copy(fastq_file, dst_file)
 
     print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
     dragen_call = f'{str(dragen_script)} --fastqFolder {str(input_staging_dir)}  --sampleSheet {str(sample_sheet)} --sampleIDs {str(sample_ids)} --analysisFolder {str(analysis_dir)}'
-    subp_run(dragen_call, check=True, shell=True)
+    # subp_run(dragen_call, check=True, shell=True)
 
     print(f"TSO500 script completed! Transferring results for the run {run_name}.")
     sh_copytree(analysis_dir, results_dir, dirs_exist_ok=True)
