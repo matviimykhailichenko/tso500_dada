@@ -63,7 +63,7 @@ def main():
     subp_run(dragen_call, check=True, shell=True)
 
     print(f"TSO500 script completed! Transferring results for the run {run_name}.")
-    sh_copytree(analysis_dir, results_dir)
+    sh_copytree(analysis_dir, results_dir, dirs_exist_ok=True)
 
     print(f"Transfer completed! The run {run_name} was succesfully processed")
 
