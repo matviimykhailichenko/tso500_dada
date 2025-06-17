@@ -1,6 +1,5 @@
 import argparse
 from pathlib import Path
-import re
 from datetime import datetime
 from shutil import copytree as sh_copytree, copy2 as sh_copy
 from subprocess import run as subp_run
@@ -74,7 +73,6 @@ def main():
     # subp_run(dragen_call, check=True, shell=True)
 
     print(f"TSO500 script completed! Transferring results for the run {run_name}.")
-    import subprocess
 
     rsync_call = f'rsync -av --exclude=".nextflow" --exclude "work" {analysis_dir} {results_dir}/'
     subp_run(rsync_call, check=True, shell=True)

@@ -1,0 +1,19 @@
+# Start from Miniconda base image (lightweight)
+FROM continuumio/miniconda3
+
+# Optional: update conda first
+RUN conda update -n base -c defaults conda -y
+
+# Create a new base env with Python 3.12 and required packages
+RUN conda create -n base_env -y \
+    python=3.12 \
+    pyyaml \
+    requests \
+    filelock \
+    pandas
+
+# Activate the environment by default
+SHELL ["conda", "run", "-n", "base_env", "/bin/bash", "-c"]
+
+# Set the default command to bash (optional)
+CMD ["bash"]
