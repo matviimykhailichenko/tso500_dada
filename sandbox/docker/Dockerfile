@@ -10,7 +10,8 @@ RUN conda install -y \
     pyyaml \
     requests \
     filelock \
-    pandas
+    pandas \
+    pytest
 
 # Ensure future commands use conda's base env
 SHELL ["/bin/bash", "-c"]
