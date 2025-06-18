@@ -309,9 +309,9 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
 
 def get_server_ip() -> str:
     try:
-        call = "ip route get 1.1.1.1 | awk '{print $7}'"
+        call = "hostname -I"
         result = subp_run(call, shell=True, check=True, text=True, capture_output=True)
-        server_ip = result.stdout.split('\n', 1)[0].strip()
+        server_ip = result.stdout
 
     except CalledProcessError as e:
         message = f"Failed to retrieve server's ID: {e.stderr}"

@@ -22,8 +22,9 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
 
-    if not is_server_available():
-        return
+    # TODO change in prod
+    # if not is_server_available():
+    #     return
 
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
