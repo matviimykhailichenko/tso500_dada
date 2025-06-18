@@ -45,12 +45,18 @@ def setup_environment():
 
 @pytest.mark.dependency(name="scheduling")
 def test_scheduling(setup_environment):
-    scheduling_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t && deactivate'
+    scheduling_call = ('docker run -it --rm '
+    '-v /mnt/NovaseqXplus:/mnt/NovaseqXplus '
+    'tso500_dragen_pipeline '
+    'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t')
     subp_run(scheduling_call, check=True, shell=True)
 
 
 @pytest.mark.dependency(depends=["scheduling"])
 def test_processing():
-    processing_call = 'source /staging/venvs/pure-python-refactor/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t && deactivate'
+    processing_call = ('docker run -it --rm '
+    '-v /mnt/NovaseqXplus:/mnt/NovaseqXplus '
+    'tso500_dragen_pipeline '
+    'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t')
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
