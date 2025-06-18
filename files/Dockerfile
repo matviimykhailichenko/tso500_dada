@@ -13,6 +13,8 @@ RUN conda install -y \
     pandas \
     pytest
 
+RUN pip3 install discord.py
+
 # Ensure future commands use conda's base env
 SHELL ["/bin/bash", "-c"]
 
