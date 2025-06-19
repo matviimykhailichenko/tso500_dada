@@ -44,7 +44,7 @@ status_tags:
   - ARCHIVING.txt
 
 available_servers:
-  - 10.200.215.35
+  - 172.17.0.3
 
 pending_tag: PENDING.txt
 queued_tag: QUEUED.txt
