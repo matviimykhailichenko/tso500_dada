@@ -16,5 +16,6 @@ docker run -it --rm \
 	-v /usr/local:/usr/local \
 	-v /usr/libexec:/usr/libexec \
 	-v /opt:/opt \
+	-v /root:/root \
 	tso500_dragen_pipeline \
 	bash
