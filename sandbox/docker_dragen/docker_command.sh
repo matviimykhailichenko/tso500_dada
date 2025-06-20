@@ -16,5 +16,6 @@ docker run -it --rm \
 	-v /usr/local:/usr/local \
 	-v /usr/libexec:/usr/libexec \
 	-v /opt:/opt \
+	-v /root:/root \
 	tso500_dragen_pipeline \
 	/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh --runFolder /mnt/Novaseq/07_Oncoservice/Runs/250508_TSO500_Onco/250508_A01664_0504_AH32GTDMX2
