@@ -12,7 +12,8 @@ RUN conda install -y \
     filelock \
     pandas \
     pytest \
-    pytest-dependency
+    pytest-dependency \
+    rsync
 
 RUN pip3 install discord.py
 
