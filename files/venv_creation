@@ -1,0 +1,5 @@
+/opt/python-3.12.3/bin/python3.12 -m venv /staging/envs/tso500_dragen_pipeline && \
+source /staging/envs/tso500_dragen_pipeline/bin/activate && \
+pip install --upgrade pip && \
+pip install pyyaml requests filelock pandas pytest pytest-dependency discord.py && \
+sudo dnf install -y rsync
