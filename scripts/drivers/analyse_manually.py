@@ -64,14 +64,13 @@ def main():
         results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
 
     print(f"Staging the run {run_name}.")
-    input_staging_dir.mkdir(parents=True, exist_ok=True)
 
     if input_type == 'sample':
+        input_staging_dir.mkdir(parents=True, exist_ok=True)
         for sample_id in sample_list:
             for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
                 dst_file = input_staging_dir / fastq_file.name
                 sh_copy(fastq_file, dst_file)
-
     elif input_type == 'run':
         sh_copytree(str(run_dir), input_staging_dir)
     print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
