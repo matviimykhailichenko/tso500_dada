@@ -73,7 +73,7 @@ def main():
                 sh_copy(fastq_file, dst_file)
 
     elif input_type == 'run':
-        sh_copytree(str(run_dir), input_staging_dir/flowcell_name)
+        sh_copytree(str(run_dir), input_staging_dir)
     print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
     subp_run(dragen_call, check=True, shell=True)
