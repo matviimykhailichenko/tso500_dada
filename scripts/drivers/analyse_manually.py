@@ -57,7 +57,7 @@ def main():
         dragen_call = f'{str(dragen_script)} --fastqFolder {str(input_staging_dir)}  --sampleSheet {str(sample_sheet)} --sampleIDs {str(sample_ids)} --analysisFolder {str(analysis_dir)}'
     elif input_type == 'run':
         sample_sheet = run_dir / 'SampleSheet.csv'
-        dragen_call = f'{str(dragen_script)} --fastqFolder {str(input_staging_dir)}  --sampleSheet {str(sample_sheet)} --analysisFolder {str(analysis_dir)}'
+        dragen_call = f'{str(dragen_script)} --run_Folder {str(input_staging_dir)}  --sampleSheet {str(sample_sheet)} --analysisFolder {str(analysis_dir)}'
     if tag == 'CBM':
         results_dir = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen') / flowcell_name / flowcell_name
     elif tag == 'ONC':
