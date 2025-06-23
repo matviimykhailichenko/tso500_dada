@@ -46,8 +46,9 @@ def main():
     dragen_script = Path('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
     run_name = f"{datetime.today().strftime('%y%m%d')}_TSO500_Onco"
     flowcell_name = run_dir.name
-    input_staging_dir = Path('/staging/tmp') / flowcell_name
-    analysis_dir = input_staging_dir / run_name
+    staging_dir = Path('/staging/tmp')
+    input_staging_dir = staging_dir / flowcell_name
+    analysis_dir = staging_dir / run_name
     if input_type == 'sample':
         input_dir = run_dir / 'Analysis/1/Data/BCLConvert/fastq'
         sample_ids = str(args.sample_ids)
