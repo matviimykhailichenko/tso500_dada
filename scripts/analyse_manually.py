@@ -62,7 +62,7 @@ def main():
     elif tag == 'ONC':
         results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
 
-    notify_bot(f"Staging the run {run_name}.")
+    print(f"Staging the run {run_name}.")
 
     if input_type == 'sample':
         input_staging_dir.mkdir(parents=True, exist_ok=True)
@@ -74,16 +74,16 @@ def main():
     #     rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
     #     subp_run(rsync_call, check=True, shell=True)
     #     sh_copytree(str(run_dir), input_staging_dir)
-    notify_bot(f"Staging completed! Running the TSO500 script for the run {run_name}.")
+    print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
     subp_run(dragen_call, check=True, shell=True)
 
-    notify_bot(f"TSO500 script completed! Transferring results for the run {run_name}.")
+    print(f"TSO500 script completed! Transferring results for the run {run_name}.")
 
     rsync_call = f'rsync -av --exclude=".nextflow" --exclude "work" {analysis_dir} {results_dir}/'
     subp_run(rsync_call, check=True, shell=True)
 
-    notify_bot(f"Transfer completed! The run {run_name} was succesfully processed")
+    print(f"Transfer completed! The run {run_name} was succesfully processed")
 
 
 if __name__ == "__main__":
