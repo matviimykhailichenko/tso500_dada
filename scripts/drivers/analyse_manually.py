@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from shutil import copytree as sh_copytree, copy2 as sh_copy
 from subprocess import run as subp_run
+from scripts.logging_ops import notify_bot
 
 
 
@@ -62,7 +63,7 @@ def main():
     elif tag == 'ONC':
         results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
 
-    print(f"Staging the run {run_name}.")
+    notify_bot(f"Staging the run {run_name}.")
 
     if input_type == 'sample':
         input_staging_dir.mkdir(parents=True, exist_ok=True)
@@ -70,20 +71,20 @@ def main():
             for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
                 dst_file = input_staging_dir / fastq_file.name
                 sh_copy(fastq_file, dst_file)
-    elif input_type == 'run':
-        rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
-        subp_run(rsync_call, check=True, shell=True)
-        sh_copytree(str(run_dir), input_staging_dir)
-    print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
+    # elif input_type == 'run':
+    #     rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
+    #     subp_run(rsync_call, check=True, shell=True)
+    #     sh_copytree(str(run_dir), input_staging_dir)
+    notify_bot(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
     subp_run(dragen_call, check=True, shell=True)
 
-    print(f"TSO500 script completed! Transferring results for the run {run_name}.")
+    notify_bot(f"TSO500 script completed! Transferring results for the run {run_name}.")
 
     rsync_call = f'rsync -av --exclude=".nextflow" --exclude "work" {analysis_dir} {results_dir}/'
     subp_run(rsync_call, check=True, shell=True)
 
-    print(f"Transfer completed! The run {run_name} was succesfully processed")
+    notify_bot(f"Transfer completed! The run {run_name} was succesfully processed")
 
 
 if __name__ == "__main__":
