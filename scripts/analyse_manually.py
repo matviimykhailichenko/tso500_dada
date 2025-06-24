@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from datetime import datetime
-from shutil import copy2 as sh_copy
+from shutil import copy as sh_copy, copytree as sh_copytree, copy2 as sh_copy
 from subprocess import run as subp_run
 
 
@@ -44,13 +44,15 @@ def main():
     input_type = str(args.input_type)
     tag = str(args.tag)
     dragen_script = Path('/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh')
-    run_name = f"{datetime.today().strftime('%y%m%d')}_TSO500_Onco"
     flowcell_name = run_dir.name
     staging_dir = Path('/staging/tmp')
     input_staging_dir = staging_dir / flowcell_name
+    date = flowcell_name.split('_')[0]  # '20250613'
+    formatted_date = date[2:8]  # '250613'
+    run_name = f"{formatted_date}_TSO500Onco"
     analysis_dir = staging_dir / run_name
     if input_type == 'sample':
-        input_dir = run_dir / 'Analysis/1/Data/BCLConvert/fastq'
+        input_dir = run_dir / 'Analysis/2/Data/BCLConvert/fastq'
         sample_ids = str(args.sample_ids)
         sample_list = [s.strip() for s in sample_ids.split(',')]
         sample_sheet = run_dir / 'SampleSheet_Analysis.csv'
@@ -61,7 +63,7 @@ def main():
     if tag == 'CBM':
         results_dir = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen') / flowcell_name / flowcell_name
     elif tag == 'ONC':
-        results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
+        results_dir = Path('/mnt/NovaseqXplus/01_HuGe_Diagnostik/Analyseergebnisse') / run_name
 
     print(f"Staging the run {run_name}.")
 
@@ -71,10 +73,10 @@ def main():
             for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
                 dst_file = input_staging_dir / fastq_file.name
                 sh_copy(fastq_file, dst_file)
-    # elif input_type == 'run':
-    #     rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
-    #     subp_run(rsync_call, check=True, shell=True)
-    #     sh_copytree(str(run_dir), input_staging_dir)
+    elif input_type == 'run':
+        rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
+        subp_run(rsync_call, check=True, shell=True)
+        sh_copytree(str(run_dir), input_staging_dir)
     print(f"Staging completed! Running the TSO500 script for the run {run_name}.")
 
     subp_run(dragen_call, check=True, shell=True)
