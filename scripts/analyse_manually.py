@@ -63,7 +63,7 @@ def main():
     if tag == 'CBM':
         results_dir = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen') / flowcell_name / flowcell_name
     elif tag == 'ONC':
-        results_dir = Path('/mnt/NovaseqXplus/01_HuGe_Diagnostik/Analyseergebnisse') / run_name
+        results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice/Analyseergebnisse') / run_name
 
     print(f"Staging the run {run_name}.")
 
