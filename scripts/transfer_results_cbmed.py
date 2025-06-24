@@ -1,5 +1,7 @@
 from pathlib import Path
-from logging import getLogger, basicConfig, INFO
+from logging import getLogger, basicConfig, INFO, Logger
+from subprocess import run as subp_run, CalledProcessError
+
 
 # Assume this function is defined elsewhere or imported
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
@@ -47,7 +49,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         except CalledProcessError as e:
             message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
                        f"Error output: {e.stderr}")
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -60,7 +62,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        print(message)
         logger.error(message)
         raise RuntimeError(message)
 
@@ -75,7 +77,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(checksums_call, shell=True).check_returncode()
         except CalledProcessError as e:
             message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -94,7 +96,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True).check_returncode()
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -109,7 +111,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True).check_returncode()
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -124,7 +126,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True).check_returncode()
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -138,7 +140,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
         message = f"Transferring results had FAILED: {e}"
-        notify_bot(message)
+        print(message)
         logger.error(message)
         raise RuntimeError(message)
 
@@ -150,7 +152,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call,shell=True,check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            print(message)
             logger.error(message)
             raise RuntimeError(message)
 
@@ -165,7 +167,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     except CalledProcessError as e:
         message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
                    f"Error output: {e.stderr}")
-        notify_bot(message)
+        print(message)
         logger.error(message)
         raise RuntimeError(message)
 
@@ -178,7 +180,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        print(message)
         logger.error(message)
         raise RuntimeError(message)
 
