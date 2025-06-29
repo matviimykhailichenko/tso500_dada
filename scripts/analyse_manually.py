@@ -52,7 +52,7 @@ def main():
     run_name = f"{formatted_date}_TSO500Onco"
     analysis_dir = staging_dir / run_name
     if input_type == 'sample':
-        input_dir = run_dir / 'Analysis/2/Data/BCLConvert/fastq'
+        input_dir = run_dir / 'Analysis/1/Data/BCLConvert/fastq'
         sample_ids = str(args.sample_ids)
         sample_list = [s.strip() for s in sample_ids.split(',')]
         sample_sheet = run_dir / 'SampleSheet_Analysis.csv'
