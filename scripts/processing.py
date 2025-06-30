@@ -40,16 +40,6 @@ def main():
         queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
         sh_copy(queue_blank, pending_file)
 
-    last_sample_run = False
-    queues = []
-    for server in servers:
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        queues.append(pd.read_csv(queue_file, sep='\t'))
-    queue_merged = pd.concat(queues, ignore_index=True)
-    notify_bot(str(queue_merged))
-    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 1:
-        last_sample_run = True
-
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
     if queue is None:
@@ -60,6 +50,16 @@ def main():
     last_sample_queue = False
     if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
         last_sample_queue = True
+
+    last_sample_run = False
+    queues = []
+    for server in servers:
+        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        queues.append(pd.read_csv(queue_file, sep='\t'))
+    queue_merged = pd.concat(queues, ignore_index=True)
+    notify_bot(str(queue_merged))
+    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
+        last_sample_run = True
 
     config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
