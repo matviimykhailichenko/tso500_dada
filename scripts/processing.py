@@ -58,6 +58,7 @@ def main():
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         queues.append(get_queue(pending_file=pending_file, queue_file=queue_file))
     queue_merged = pd.concat(queues, ignore_index=True)
+    notify_bot(str(queue_merged))
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 1:
         last_sample_run = True
 
