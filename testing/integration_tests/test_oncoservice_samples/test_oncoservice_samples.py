@@ -5,8 +5,16 @@ from subprocess import run as subp_run
 import yaml
 
 
+
+def pytest_addoption(parser):
+    parser.addoption("--cleanup", action="store", default=False, help="Do the cleanup before runnin the test?")
+
+
+
 @pytest.fixture()
-def setup_environment():
+def setup_environment(request):
+    cleanup = request.config.getoption("--cleanup")
+
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
@@ -27,6 +35,13 @@ def setup_environment():
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
 
+    if cleanup:
+        for sample_dir in fastq_gen_dir.iterdir():
+            for fastq in sample_dir.iterdir():
+                if not fastq_analysis_dir.exists():
+                    fastq_analysis_dir.mkdir()
+                sh_move(str(fastq), fastq_analysis_dir)
+
     yield
 
     # if queued_tag.exists():
@@ -36,11 +51,6 @@ def setup_environment():
     # if pending_file_104.exists():
     #     pending_file_104.unlink()
     #
-    # for sample_dir in fastq_gen_dir.iterdir():
-    #     for fastq in sample_dir.iterdir():
-    #         if not fastq_analysis_dir.exists():
-    #             fastq_analysis_dir.mkdir()
-    #         sh_move(str(fastq),fastq_analysis_dir)
 
 
 @pytest.mark.dependency(name="scheduling")
