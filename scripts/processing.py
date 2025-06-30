@@ -56,7 +56,7 @@ def main():
     for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-        queues.append(get_queue(pending_file=pending_file, queue_file=queue_file))
+        queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
     notify_bot(str(queue_merged))
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 1:
