@@ -564,15 +564,14 @@ def get_queue(pending_file:Path,queue_file:Path):
     pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
     if not pending_file.stat().st_size < 38:
-        try:
-            queue = pd.read_csv(pending_file, sep='\t')
-            queue = queue.sort_values(by='Priority', ascending=True)
-            queue_no_processing = queue.iloc[1:, ]
-            queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        queue = pd.read_csv(pending_file, sep='\t')
+        queue = queue.sort_values(by='Priority', ascending=True)
+        queue_no_processing = queue.iloc[1:, ]
+        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-            pending_file.write_text('')
-        finally:
-            pending_lock.release()
+        pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        sh_copy(pending_blank, pending_file)
+        pending_lock.release()
 
     elif not queue_file.stat().st_size < 38:
         queue = pd.read_csv(queue_file, sep='\t')
@@ -580,7 +579,7 @@ def get_queue(pending_file:Path,queue_file:Path):
         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
     else:
-        return
+        return None
 
     return queue
 
