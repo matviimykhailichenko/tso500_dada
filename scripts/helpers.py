@@ -546,8 +546,8 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
         logger.error(str(e))
         raise
 
-    # delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
-    # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
+    delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
+    delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
     notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
