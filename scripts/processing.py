@@ -81,7 +81,7 @@ def main():
     #
     # transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
-    notify_bot(paths['sample_dir'])
+    notify_bot(str(paths['sample_dir']))
     if last_sample_run or input_type == 'run':
         paths['analyzed_tag'].touch()
         paths['analyzing_tag'].unlink()
