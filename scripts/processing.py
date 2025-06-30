@@ -42,7 +42,7 @@ def main():
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
-    if queue in [None]:
+    if queue is None:
         return
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
