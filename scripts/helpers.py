@@ -474,9 +474,9 @@ def check_tso500_script(paths: dict, logger: Logger):
     logger.info(f"TSO500 script found at {script_path}")
 
 
-def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
+def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger):
     notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
-                           is_last_sample=is_last_sample)
+                           last_sample_queue=last_sample_queue)
 
     rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
@@ -490,14 +490,14 @@ def stage_object(paths:dict,input_type:str,is_last_sample:bool,logger:Logger):
         raise RuntimeError(msg)
 
 
-def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
+def process_object(input_type:str,paths:dict,last_sample_queue:bool,logger:Logger):
     """
     Can be a run or a sample
     :param paths:
     :return:
     """
     notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
-                           is_last_sample=is_last_sample)
+                           last_sample_queue=last_sample_queue)
 
     if input_type == 'run':
         tso_script_call = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
@@ -526,12 +526,12 @@ def process_object(input_type:str,paths:dict,is_last_sample:bool,logger:Logger):
             raise RuntimeError(msg)
 
 
-def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing: bool = True, logger: Logger = None):
+def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, testing: bool = True, logger: Logger = None):
     tag = paths['tag']
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
-                           is_last_sample=is_last_sample)
+                           last_sample_queue=last_sample_queue)
 
     try:
         if tag == 'ONC':
@@ -550,7 +550,7 @@ def transfer_results(paths: dict, input_type: str, is_last_sample: bool, testing
     # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
     notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
-                           input_type=input_type, is_last_sample=is_last_sample)
+                           input_type=input_type, last_sample_queue=last_sample_queue)
 
 
     # TODO add done tag
