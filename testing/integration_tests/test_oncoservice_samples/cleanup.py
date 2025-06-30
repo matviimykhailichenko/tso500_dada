@@ -21,6 +21,7 @@ fastq_analysis_dir = test_onco_run_seq_dir / 'Analysis/1/Data/BCLConvert/fastq'
 fastq_gen_dir = test_onco_run_seq_dir / 'FastqGeneration'
 queued_tag = test_onco_run_seq_dir / config['queued_tag']
 analyzed_tag = test_onco_run_seq_dir / config['analyzed_tag']
+analyzing_tag = test_onco_run_seq_dir / config['analyzing_tag']
 
 
 
@@ -34,6 +35,8 @@ if queued_tag.exists():
         queued_tag.unlink()
 if analyzed_tag.exists():
     analyzed_tag.unlink()
+if analyzing_tag.exists():
+    analyzing_tag.unlink()
 if queue_file_104.exists():
     queue_file_104.unlink()
 if pending_file_104.exists():
