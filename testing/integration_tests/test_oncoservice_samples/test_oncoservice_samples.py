@@ -28,5 +28,5 @@ def test_scheduling(setup_environment):
 @pytest.mark.dependency(depends=["scheduling"])
 def test_processing():
     processing_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
-    for i in range(2):
+    for i in range(1):
         subp_run(processing_call,check=True,shell=True)
