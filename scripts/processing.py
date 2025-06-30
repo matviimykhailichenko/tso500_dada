@@ -57,7 +57,6 @@ def main():
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
-    notify_bot(str(queue_merged))
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
         last_sample_run = True
 
@@ -77,13 +76,12 @@ def main():
     if not paths['analyzing_tag'].exists():
         paths['analyzing_tag'].touch()
         paths['queued_tag'].unlink()
-    # stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
-    #
-    # process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
-    #
-    # transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
+    stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
-    notify_bot(str(paths['sample_dir']))
+    process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+
+    transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
+
     if last_sample_run or input_type == 'run':
         paths['analyzed_tag'].touch()
         paths['analyzing_tag'].unlink()
