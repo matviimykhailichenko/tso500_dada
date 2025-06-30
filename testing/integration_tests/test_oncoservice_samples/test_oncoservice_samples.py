@@ -6,11 +6,6 @@ import yaml
 
 
 
-def pytest_addoption(parser):
-    parser.addoption("--cleanup", action="store", default=False, help="Do the cleanup before runnin the test?")
-
-
-
 @pytest.fixture()
 def setup_environment(request):
     cleanup = request.config.getoption("--cleanup")
@@ -34,13 +29,6 @@ def setup_environment(request):
 
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
-
-    if cleanup:
-        for sample_dir in fastq_gen_dir.iterdir():
-            for fastq in sample_dir.iterdir():
-                if not fastq_analysis_dir.exists():
-                    fastq_analysis_dir.mkdir()
-                sh_move(str(fastq), fastq_analysis_dir)
 
     yield
 
