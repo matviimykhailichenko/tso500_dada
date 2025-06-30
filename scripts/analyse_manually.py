@@ -52,7 +52,7 @@ def main():
     run_name = f"{formatted_date}_TSO500Onco"
     analysis_dir = staging_dir / run_name
     if input_type == 'sample':
-        input_dir = run_dir / 'Analysis/2/Data/BCLConvert/fastq'
+        input_dir = run_dir / 'Analysis/1/Data/BCLConvert/fastq'
         sample_ids = str(args.sample_ids)
         sample_list = [s.strip() for s in sample_ids.split(',')]
         sample_sheet = run_dir / 'SampleSheet_Analysis.csv'
@@ -67,13 +67,13 @@ def main():
 
     print(f"Staging the run {run_name}.")
 
-    if input_type == 'sample':
-        input_staging_dir.mkdir(parents=True, exist_ok=True)
-        for sample_id in sample_list:
-            for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
-                dst_file = input_staging_dir / fastq_file.name
-                sh_copy(fastq_file, dst_file)
-    elif input_type == 'run':
+    # if input_type == 'sample':
+    #     input_staging_dir.mkdir(parents=True, exist_ok=True)
+    #     for sample_id in sample_list:
+    #         for fastq_file in input_dir.glob(f'{sample_id}_*.fastq.gz'):
+    #             dst_file = input_staging_dir / fastq_file.name
+    #             sh_copy(fastq_file, dst_file)
+    if input_type == 'run':
         rsync_call = f'rsync -ra "{run_dir}/" "{input_staging_dir}/"'
         subp_run(rsync_call, check=True, shell=True)
         sh_copytree(str(run_dir), input_staging_dir)
