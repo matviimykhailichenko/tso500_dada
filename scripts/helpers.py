@@ -668,8 +668,6 @@ def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
             if not analysis_complete_tag.exists():
                 continue
 
-            notify_bot(f'We have an analysis dir {analysis_dir}')
-
             fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
 
             if not fastq_dir.exists():
@@ -724,7 +722,6 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 
     entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
     new_samples = pd.DataFrame(entries)
-    notify_bot(str(new_samples))
     pedning_files = np.array_split(new_samples, len(available_servers))
 
     for server in available_servers:
