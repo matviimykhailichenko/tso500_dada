@@ -40,6 +40,7 @@ blocking_tags:
   - FAILED.txt
   - PENDING.txt
   - ANALYZING.txt
+  - QUEUED.txt
 
 status_tags:
   - Analyzing.txt
