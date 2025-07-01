@@ -37,17 +37,18 @@ def main():
                 if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$', obj.name):
                     flowcell_dir = obj
             if analysis_dir.exists() and data_dir.exists():
-                notify_bot(f'Found NSQX+ run {run_dir}')
                 input_type = 'sample'
                 input_path = scan_dir_nsqx(run_dir=run_dir)
-                sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
             elif myrun_dir.exists() and flowcell_dir is not None:
-                notify_bot(f'Found NSQ6000 run {run_dir}')
                 input_type = 'run'
                 input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir)
 
             if not input_path:
                 continue
+
+            if input_type == 'sample':
+                sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
+            notify_bot(f'Found run {run_dir}')
         else:
             RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
