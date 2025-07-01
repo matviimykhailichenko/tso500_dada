@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree
+from shutil import copytree as sh_copytree, copy as sh_copy
 from subprocess import run as subp_run
 import yaml
 
@@ -20,22 +20,20 @@ def setup_environment():
     test_onco_samples_seq_dir = onco_seq_dir / 'test_samples'
     test_cbmed_samples_seq_dir = cbmed_seq_dir / 'test_samples'
     test_mixed_samples_seq_dir = mixed_seq_dir / 'test_samples'
+    pending_blank: Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+    pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
 
+    sh_copy(str(pending_blank), str(pending_file))
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_run),str(test_onco_run_seq_dir))
-
     if not test_cbmed_run_seq_dir.exists():
         sh_copytree(str(test_run), str(test_cbmed_run_seq_dir))
-
     if not test_mixed_run_seq_dir.exists():
         sh_copytree(str(test_run), str(test_mixed_run_seq_dir))
-
     if not test_onco_samples_seq_dir.exists():
         sh_copytree(str(test_samples),str(test_onco_samples_seq_dir))
-
     if not test_cbmed_samples_seq_dir.exists():
         sh_copytree(str(test_samples), str(test_cbmed_samples_seq_dir))
-
     if not test_mixed_samples_seq_dir.exists():
         sh_copytree(str(test_samples), str(test_mixed_samples_seq_dir))
 
