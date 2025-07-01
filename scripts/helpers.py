@@ -597,7 +597,7 @@ def setup_paths_scheduler(testing:bool=True):
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir']+ '_TEST' if testing else '')
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
-        paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
+        paths['mixed_runs_dir'] = Path(config['mixed_runs_dir']+ '_TEST' if testing else '')
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
         return paths
