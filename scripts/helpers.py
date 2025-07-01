@@ -593,11 +593,9 @@ def setup_paths_scheduler(testing:bool=True):
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-        paths['onco_nsq6000_dir'] = Path(config['oncoservice_novaseq6000_dir']) / f'Runs{'_TEST' if testing else ''}'
-        paths['onco_nsqx_dir'] = Path(config['oncoservice_novaseqx_dir'] + '_TEST' if testing else '') / 'Runs'
-        paths['cbmed_nsq6000_dir'] = Path(config['cbmed_nsq6000_dir'] + '_TEST' if testing else '')
-        # TODO STUPID
-        paths['cbmed_nsqx_dir'] = Path(f'/mnt/NovaseqXplus/08_Projekte{'_TEST' if testing else ''}') / 'CBmed' / 'Runs'
+
+        paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Runs'
+        paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir']+ '_TEST' if testing else '')
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
@@ -605,73 +603,56 @@ def setup_paths_scheduler(testing:bool=True):
         return paths
 
 
-def scan_dir_nsq6000(seq_dir: Path):
+def scan_dir_nsq6000(flowcell_dir: Path):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
 
-    flowcell_dir = None
-    for run_dir in seq_dir.iterdir():
-        if not run_dir.is_dir():
-            continue
+    txt_files = list(Path(flowcell_dir).glob('*.txt'))
+    file_names = [path.name for path in txt_files]
 
-        for obj in run_dir.iterdir():
-            if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$',obj.name):
-                flowcell_dir = obj
+    if any(f in blocking_tags for f in file_names):
+        return None
 
-                txt_files = list(Path(flowcell_dir).glob('*.txt'))
-                file_names = [path.name for path in txt_files]
-
-                if any(f in blocking_tags for f in file_names):
-                    continue
-
-                if all(tag in file_names for tag in ready_tags):
-                    notify_bot(str(flowcell_dir))
-                    return flowcell_dir
-            else:
-                continue
-
-    return None
+    if all(tag in file_names for tag in ready_tags):
+        notify_bot(str(flowcell_dir))
+        return flowcell_dir
 
 
-def scan_dir_nsqx(seq_dir: Path, testing:bool = True):
+def scan_dir_nsqx(run_dir: Path, testing:bool = True):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
     fastq_dir = None
 
-    for run_dir in seq_dir.iterdir():
-        if not run_dir.is_dir():
+    txt_files = list(Path(run_dir).glob('*.txt'))
+    file_names = [path.name for path in txt_files]
+
+    if any(f in blocking_tags for f in file_names):
+        return None
+
+    if not all(tag in file_names for tag in ready_tags):
+        return None
+
+    analyses_dir = run_dir / 'Analysis'
+
+    if not analyses_dir.exists():
+        return None
+
+    for analysis_dir in analyses_dir.iterdir():
+        analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
+
+        if not analysis_complete_tag.exists():
             continue
 
-        txt_files = list(Path(run_dir).glob('*.txt'))
-        file_names = [path.name for path in txt_files]
+        fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
 
-        if any(f in blocking_tags for f in file_names):
-            continue
-
-        if not all(tag in file_names for tag in ready_tags):
-            continue
-
-        analyses_dir = run_dir / 'Analysis'
-
-        if not analyses_dir.exists():
-            continue
-
-        for analysis_dir in analyses_dir.iterdir():
-            analysis_complete_tag = analysis_dir / 'CopyComplete.txt'
-
-            if not analysis_complete_tag.exists():
-                continue
-
-            fastq_dir = analysis_dir / 'Data' / 'BCLConvert' / 'fastq'
-
-            if not fastq_dir.exists():
-                return None
-            else:
-                break
+        if not fastq_dir.exists():
+            return None
+        else:
+            break
 
     return fastq_dir
 
