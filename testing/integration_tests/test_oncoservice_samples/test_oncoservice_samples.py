@@ -10,11 +10,13 @@ import yaml
 def setup_environment(request):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_novaseqx_dir'] + '_TEST') / 'Runs'
-        test_onco_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
+        test_onco_samples:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_oncoservice')
     test_onco_run_seq_dir = onco_seq_dir / 'test_run_onco_nsqx'
+    pending_blank: Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+    pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
 
+    sh_copy(str(pending_blank), str(pending_file))
     if not test_onco_run_seq_dir.exists():
         sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
 
