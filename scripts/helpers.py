@@ -657,8 +657,8 @@ def scan_dir_nsqx(run_dir: Path, testing:bool = True):
     return fastq_dir
 
 def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
-    onco_nsq6000_dir = paths['onco_nsq6000_dir']
-    cbmed_nsq6000_dir = paths['cbmed_nsq6000_dir']
+    onco_seq_dir = paths['onco_seq_dir']
+    cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     pipeline_dir = paths['pipeline_dir']
 
@@ -667,7 +667,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
-    priority_map = {onco_nsq6000_dir:[1,'ONC'], cbmed_nsq6000_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
+    priority_map = {onco_seq_dir:[1,'ONC'], cbmed_seq_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
