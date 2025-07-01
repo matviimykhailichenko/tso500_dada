@@ -695,7 +695,7 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 
     paths = [fastq_gen_dir / id for id in sample_ids]
     priority_map = {'ONC':1, 'CBM':2}
-    tags = [s.split("-", 1)[1] for s in sample_ids]
+    tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
 
     priorities = (int(priority_map.get(t)) for t in tags)
 
