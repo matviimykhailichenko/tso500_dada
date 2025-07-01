@@ -10,7 +10,7 @@ def setup_environment():
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_seq_dir:Path = Path(config['oncoservice_sequencing_dir'] +'_TEST') / 'Runs'
-        cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] +'_TEST') / 'Runs'
+        cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] +'_TEST')
         mixed_seq_dir:Path = Path(config['mixed_runs_dir'] +'_TEST')
         test_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_oncoservice_1')
         test_samples:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_onco_nsqx')

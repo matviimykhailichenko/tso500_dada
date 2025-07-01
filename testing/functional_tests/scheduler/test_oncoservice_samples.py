@@ -1,8 +1,5 @@
 import pytest
 from pathlib import Path
-
-from setuptools.compat.py311 import shutil_rmtree
-
 from scripts.helpers import get_server_ip
 from shutil import copy as sh_copy, copytree as sh_copytree, rmtree as sh_rmtree
 from subprocess import run as subp_run
