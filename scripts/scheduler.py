@@ -46,14 +46,16 @@ def main():
             if not input_path:
                 continue
 
+            if input_path:
+                break
+            notify_bot(f'Found run {run_dir}')
+
             if input_type == 'sample':
                 sample_ids: list = rearrange_fastqs(fastq_dir=input_path)
-            notify_bot(f'Found run {run_dir}')
-        else:
-            RuntimeError(f'Unrecognised sequencing directory: {str(dir)}')
 
         if input_path:
             break
+
 
     if not input_path or not input_type:
         exit(0)
