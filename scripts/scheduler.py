@@ -25,8 +25,8 @@ def main():
     input_type = None
     sample_ids = None
     for seq_dir in seq_dirs:
-        notify_bot(str(seq_dir))
         for run_dir in seq_dir.iterdir():
+            notify_bot(str(seq_dir))
             if not run_dir.is_dir():
                 continue
             analysis_dir = run_dir / 'Analysis'
