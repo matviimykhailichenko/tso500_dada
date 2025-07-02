@@ -9,7 +9,7 @@ import yaml
 with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
     config = yaml.safe_load(file)
     pipeline_dir: Path = Path(config['pipeline_dir'])
-    cbmed_seq_dir: Path = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs'
+    cbmed_seq_dir: Path = Path(config['cbmed_sequencing_dir'] + '_TEST') / 'Runs'
 pending_file_samples = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/test_oncoservice_samples/PENDING_oncoservice_samples.txt'
 pending_file_35 = pipeline_dir.parent.parent / f'10.200.215.35_PENDING.txt'
 pending_file_104 = pipeline_dir.parent.parent / f'10.200.214.104_PENDING.txt'
