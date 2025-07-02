@@ -52,11 +52,8 @@ def main():
                 break
             notify_bot(f'Found run {run_dir}')
 
-
-
         if input_path:
             break
-
 
     if not input_path or not input_type:
         exit(0)
