@@ -14,7 +14,7 @@ def setup_environment(request):
         test_cbmed_samples: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_cbmed')
     test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_samples'
     pending_blank: Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-    pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
+    pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.215.35_PENDING.txt')
 
     sh_copy(str(pending_blank), str(pending_file))
     if not test_cbmed_run_seq_dir.exists():
