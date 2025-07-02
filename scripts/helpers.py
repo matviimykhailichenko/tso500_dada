@@ -584,7 +584,7 @@ def get_queue(pending_file:Path,queue_file:Path):
     return queue
 
 
-def setup_paths_scheduler(testing:bool=True):
+def setup_paths_scheduler(testing: bool = True):
     paths = {}
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -699,7 +699,7 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
 
     priorities = (int(priority_map.get(t)) for t in tags)
 
-    entries = {'Path':paths,'InputType':'sample','Priority':priorities,'Tag':tags,'Flowcell':input_dir.name}
+    entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': input_dir.name}
     new_samples = pd.DataFrame(entries)
     pedning_files = np.array_split(new_samples, len(available_servers))
 
