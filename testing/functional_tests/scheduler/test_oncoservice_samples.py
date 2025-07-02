@@ -1,14 +1,17 @@
 import pytest
 from pathlib import Path
+import sys
+sys.path.append('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/')
 from scripts.helpers import get_server_ip
 from shutil import copy as sh_copy, copytree as sh_copytree, rmtree as sh_rmtree
 from subprocess import run as subp_run
 import yaml
 
 
+
 @pytest.fixture()
 def setup_environment():
-    with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open('/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_novaseqx_dir'] + '_TEST') / 'Runs'
