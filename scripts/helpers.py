@@ -4,8 +4,6 @@ from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move
 from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
-import sys
-sys.path.append('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/')
 from scripts.logging_ops import notify_bot, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
