@@ -31,6 +31,6 @@ def setup_environment():
 
 
 def test_scheduler(setup_environment):
-    scheduler_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    scheduler_call = 'python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
     for i in range(1):
         subp_run(scheduler_call,check=True,shell=True)
