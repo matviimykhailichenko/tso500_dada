@@ -11,7 +11,7 @@ def setup_environment(request):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
-        test_cbmed_samples:Path = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice')
+        test_cbmed_samples:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_cbmed')
     test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_samples'
     pending_blank: Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
     pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
