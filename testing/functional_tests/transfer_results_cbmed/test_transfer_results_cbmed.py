@@ -71,21 +71,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    # TODO Supposed to append existing checksums
-    if input_type == 'sample':
-        checksums_raw_data = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
-        checksums_call = (r'find '
-                          f'{str(run_seq_dir)} '
-                          r'-type f -exec sha256sum {} \; | tee  '
-                          f'{str(checksums_raw_data)}')
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
-
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
         sh_move(flowcell_run_dir, data_cbmed_dir)
 
