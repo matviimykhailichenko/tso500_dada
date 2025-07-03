@@ -106,7 +106,20 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    # TODO Compare checksums
+    diff_call = (
+        f'diff {checksums_humgen} {checksums_results_cbmed}'
+    )
+    try:
+        stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True).stdout.strip()
+        if stdout is not None:
+            message = f"Checksums in a CBmed run are different"
+            raise RuntimeError(message)
+    except CalledProcessError as e:
+        message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
+
 
     return 0
 
