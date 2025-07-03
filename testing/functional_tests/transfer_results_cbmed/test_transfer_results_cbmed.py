@@ -43,20 +43,20 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     # TODO Compute checksums for data and results on /staging/
 
-    if not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0:
-        checksums_data_humgen = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
-        checksums_call = (r'find '
-                          f'{str(data_staging)} '
-                          r'-type f -exec sha256sum {} \; | tee  '
-                          f'{str(checksums_data_humgen)}')
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-                       f"Error output: {e.stderr}")
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
+    # if not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0:
+    #     checksums_data_humgen = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
+    #     checksums_call = (r'find '
+    #                       f'{str(data_staging)} '
+    #                       r'-type f -exec sha256sum {} \; | tee  '
+    #                       f'{str(checksums_data_humgen)}')
+    #     try:
+    #         subp_run(checksums_call, shell=True).check_returncode()
+    #     except CalledProcessError as e:
+    #         message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
+    #                    f"Error output: {e.stderr}")
+    #         notify_bot(message)
+    #         logger.error(message)
+    #         raise RuntimeError(message)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (r'find '
@@ -119,19 +119,19 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             raise RuntimeError(message)
 
     # TODO Make checksums for files data/results on CBmed NAS
-    checksums_data_cbmed = flowcell_cbmed_dir / f'{flowcell}.sha256'
-    checksums_call = (r'find '
-                      f'{str(data_cbmed_dir)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_data_cbmed)}')
-    try:
-        subp_run(checksums_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-                   f"Error output: {e.stderr}")
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+    # checksums_data_cbmed = flowcell_cbmed_dir / f'{flowcell}.sha256'
+    # checksums_call = (r'find '
+    #                   f'{str(data_cbmed_dir)} '
+    #                   r'-type f -exec sha256sum {} \; | tee  '
+    #                   f'{str(checksums_data_cbmed)}')
+    # try:
+    #     subp_run(checksums_call, shell=True).check_returncode()
+    # except CalledProcessError as e:
+    #     message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
+    #                f"Error output: {e.stderr}")
+    #     notify_bot(message)
+    #     logger.error(message)
+    #     raise RuntimeError(message)
 
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (r'find '
