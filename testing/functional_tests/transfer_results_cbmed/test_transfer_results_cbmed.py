@@ -19,7 +19,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     run_name: str = paths['run_name']
     cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
+    run_seq_dir: Path = cbmed_seq_dir / flowcell
     rsync_path: str = paths['rsync_path']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
