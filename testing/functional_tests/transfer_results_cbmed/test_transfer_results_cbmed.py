@@ -32,7 +32,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
     samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / 'SampleSheet.csv'
-    fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
+    fastq_gen_results_dir: Path = data_cbmed_dir / 'FastqGeneration'
     if input_type == 'sample':
         fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
     elif input_type == 'run':
