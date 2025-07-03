@@ -282,7 +282,8 @@ def test_transfer_results_cbmed(setup_environment):
                         input_type='sample',
                         tag='CBM',
                         flowcell=flowcell_name,
-                        config=config)
+                        config=config,
+                        testing=True)
     logger_runtime = setup_logger('transfer_results_cbmed',
                                   '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/transfer_results_cbmed/last_execution.log')
     transfer_results_cbmed(paths=paths,
