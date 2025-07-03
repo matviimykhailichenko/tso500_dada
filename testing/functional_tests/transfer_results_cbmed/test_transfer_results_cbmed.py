@@ -241,7 +241,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         cbmed_seq_dir: Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
         flowcell_name = '250123_A01664_0443_AH2J5YDMX2'
-        test_cbmed_samples: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_onco_nsqx')
+        test_cbmed_samples: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/transfer_results_cbmed/test_run')
     test_cbmed_run_seq_dir = cbmed_seq_dir / flowcell_name
     test_results = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_results')
     test_results_staging = Path('/staging/tmp/250123_TSO500_Onco')
