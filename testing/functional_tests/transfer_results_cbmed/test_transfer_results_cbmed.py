@@ -15,6 +15,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     cbmed_results_dir: Path = paths['cbmed_results_dir']
     flowcell: str = paths['flowcell']
     flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
+    bcl_cbmed_dir: Path = flowcell_cbmed_dir / 'Data'
     data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     run_name: str = paths['run_name']
@@ -43,21 +44,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     # TODO Compute checksums for data and results on /staging/
 
-    # if not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0:
-    #     checksums_data_humgen = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
-    #     checksums_call = (r'find '
-    #                       f'{str(data_staging)} '
-    #                       r'-type f -exec sha256sum {} \; | tee  '
-    #                       f'{str(checksums_data_humgen)}')
-    #     try:
-    #         subp_run(checksums_call, shell=True).check_returncode()
-    #     except CalledProcessError as e:
-    #         message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-    #                    f"Error output: {e.stderr}")
-    #         notify_bot(message)
-    #         logger.error(message)
-    #         raise RuntimeError(message)
-
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (r'find '
                       f'{str(results_staging)} '
@@ -71,14 +57,14 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
+    if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
+        sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
+
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
         sh_move(flowcell_run_dir, data_cbmed_dir)
 
     elif input_type == 'run':
         sh_move(paths['run_dir'], data_cbmed_dir)
-
-    if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
-        sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
@@ -105,21 +91,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             notify_bot(message)
             logger.error(message)
             raise RuntimeError(message)
-
-    # TODO Make checksums for files data/results on CBmed NAS
-    # checksums_data_cbmed = flowcell_cbmed_dir / f'{flowcell}.sha256'
-    # checksums_call = (r'find '
-    #                   f'{str(data_cbmed_dir)} '
-    #                   r'-type f -exec sha256sum {} \; | tee  '
-    #                   f'{str(checksums_data_cbmed)}')
-    # try:
-    #     subp_run(checksums_call, shell=True).check_returncode()
-    # except CalledProcessError as e:
-    #     message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-    #                f"Error output: {e.stderr}")
-    #     notify_bot(message)
-    #     logger.error(message)
-    #     raise RuntimeError(message)
 
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (r'find '
