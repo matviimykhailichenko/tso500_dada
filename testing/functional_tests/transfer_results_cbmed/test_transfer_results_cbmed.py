@@ -110,7 +110,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_results_cbmed)})'
     )
     try:
-        stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True).stdout.strip()
+        stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
         if stdout is not None:
             message = f"Checksums in a CBmed run are different"
             raise RuntimeError(message)
