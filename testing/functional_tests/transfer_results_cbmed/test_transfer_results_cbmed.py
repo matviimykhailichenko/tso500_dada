@@ -61,7 +61,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
-        sh_move(flowcell_run_dir, data_cbmed_dir)
+        sh_move(flowcell_run_dir, flowcell_cbmed_dir)
 
     elif input_type == 'run':
         sh_move(paths['run_dir'], data_cbmed_dir)
