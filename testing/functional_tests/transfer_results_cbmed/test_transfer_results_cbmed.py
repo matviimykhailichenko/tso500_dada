@@ -38,7 +38,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     elif input_type == 'run':
         fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
 
-    data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     # TODO Compute checksums for data and results on /staging/
@@ -72,7 +71,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         raise RuntimeError(message)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
-        sh_move(flowcell_run_dir, flowcell_cbmed_dir)
+        sh_move(flowcell_run_dir, data_cbmed_dir)
 
     elif input_type == 'run':
         sh_move(paths['run_dir'], data_cbmed_dir)
