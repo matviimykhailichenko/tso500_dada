@@ -44,10 +44,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     # TODO Compute checksums for data and results on /staging/
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
-    checksums_call = (r'find '
-                      f'{str(results_staging)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_humgen)}')
+    checksums_call = (
+        f'cd {str(results_staging)} && '
+        "find . -type f -print0 | xargs -0 sha256sum | tee "
+        f"{str(checksums_humgen)}"
+    )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -92,10 +93,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             raise RuntimeError(message)
 
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
-    checksums_call = (r'find '
-                      f'{str(results_cbmed_dir)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_results_cbmed)}')
+    checksums_call = (
+        f'cd {str(results_cbmed_dir)} && '
+        "find . -type f -print0 | xargs -0 sha256sum | tee "
+        f"{str(checksums_results_cbmed)}"
+    )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
