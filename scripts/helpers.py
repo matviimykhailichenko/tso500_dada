@@ -683,7 +683,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(paths: dict, input_dir: Path,  sample_ids:list, testing:bool = True):
+def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
