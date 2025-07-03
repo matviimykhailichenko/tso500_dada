@@ -244,16 +244,14 @@ def setup_environment():
         test_cbmed_samples: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_onco_nsqx')
     test_cbmed_run_seq_dir = cbmed_seq_dir / flowcell_name
     test_results = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_results')
-    test_results_staging = Path('/staging/tmp/test_results')
-    pending_blank: Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-    pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.215.35_PENDING.txt')
+    test_results_staging = Path('/staging/tmp/250123_TSO500_Onco')
     test_sample = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/transfer_results_cbmed/Sample_5-CBM')
     test_sample_staging = Path('/staging/tmp/Sample_5-CBM')
 
     if not test_cbmed_run_seq_dir.exists():
         sh_copytree(str(test_cbmed_samples),str(test_cbmed_run_seq_dir))
-    # if not test_results_staging.exists():
-    #     sh_copytree(str(test_results), str(test_results_staging))
+    if not test_results_staging.exists():
+        sh_copytree(str(test_results), str(test_results_staging))
     if not test_sample_staging.exists():
         sh_copytree(str(test_sample), str(test_sample_staging))
 
