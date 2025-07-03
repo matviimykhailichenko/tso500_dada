@@ -199,7 +199,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
-        paths['run_name'] = paths['sample_dir'].parent.parent.name
+        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
