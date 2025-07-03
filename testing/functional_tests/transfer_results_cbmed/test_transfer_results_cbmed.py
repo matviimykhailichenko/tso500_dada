@@ -222,7 +222,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir'))
+    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
 
@@ -267,8 +267,8 @@ def setup_environment():
 
     if not test_cbmed_run_seq_dir.exists():
         sh_copytree(str(test_cbmed_samples),str(test_cbmed_run_seq_dir))
-    if not test_results_staging.exists():
-        sh_copytree(str(test_results), str(test_results_staging))
+    # if not test_results_staging.exists():
+    #     sh_copytree(str(test_results), str(test_results_staging))
     if not test_sample_staging.exists():
         sh_copytree(str(test_sample), str(test_sample_staging))
 
