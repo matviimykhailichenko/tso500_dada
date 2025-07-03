@@ -107,7 +107,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         raise RuntimeError(message)
 
     diff_call = (
-        f'diff {checksums_humgen} {checksums_results_cbmed}'
+        f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_results_cbmed)})'
     )
     try:
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True).stdout.strip()
