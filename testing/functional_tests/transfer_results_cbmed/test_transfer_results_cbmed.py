@@ -275,7 +275,7 @@ def test_transfer_results_cbmed():
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     paths = setup_paths(input_path=Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid_TEST/{flowcell_name}'),
-                        input_type='samples',
+                        input_type='sample',
                         tag='CBM',
                         flowcell=flowcell_name,
                         config=config)
@@ -283,6 +283,6 @@ def test_transfer_results_cbmed():
                                   '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/transfer_results_cbmed/last_execution.log')
     transfer_results_cbmed(paths=paths,
                            flowcell='test_run_files_dir',
-                           input_type='samples',
+                           input_type='sample',
                            logger=logger_runtime,
                            testing=True)
