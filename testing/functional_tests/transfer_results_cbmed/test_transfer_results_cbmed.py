@@ -78,19 +78,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         sh_move(paths['run_dir'], data_cbmed_dir)
 
     if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
-        log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"{str(fastq_gen_seq_dir)}/ "
-                      f"{str(fastq_gen_results_dir)}")
-        try:
-            subp_run(rsync_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
+        sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
