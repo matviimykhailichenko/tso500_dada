@@ -72,7 +72,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         raise RuntimeError(message)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
-        sh_move(flowcell_run_dir, data_cbmed_dir)
+        sh_move(flowcell_run_dir, flowcell_cbmed_dir)
 
     elif input_type == 'run':
         sh_move(paths['run_dir'], data_cbmed_dir)
@@ -254,7 +254,6 @@ def setup_environment():
         sh_copytree(str(test_results), str(test_results_staging))
     if not test_sample_staging.exists():
         sh_copytree(str(test_sample), str(test_sample_staging))
-
 
 
 def test_transfer_results_cbmed(setup_environment):
