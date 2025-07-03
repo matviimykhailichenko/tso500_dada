@@ -270,7 +270,7 @@ def setup_environment():
     if not test_results_staging.exists():
         sh_copytree(str(test_results), str(test_results_staging))
     if not test_sample_staging.exists():
-        sh_copytree(str(test_results), str(test_results_staging))
+        sh_copytree(str(test_sample), str(test_sample_staging))
 
 
 
