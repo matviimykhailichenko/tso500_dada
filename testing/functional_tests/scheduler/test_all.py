@@ -41,4 +41,4 @@ def setup_environment():
 def test_scheduler(setup_environment):
     scheduler_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
     for i in range(6):
-        subp_run(scheduler_call,check=True,shell=True)
+        subp_run(scheduler_call, check=True, shell=True)
