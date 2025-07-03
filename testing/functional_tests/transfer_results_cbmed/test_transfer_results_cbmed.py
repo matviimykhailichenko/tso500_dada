@@ -274,7 +274,7 @@ def test_transfer_results_cbmed():
     flowcell_name = '250123_A01664_0443_AH2J5YDMX2'
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-    paths = setup_paths(input_path=f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid_TEST/{flowcell_name}',
+    paths = setup_paths(input_path=Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid_TEST/{flowcell_name}'),
                         input_type='samples',
                         tag='CBM',
                         flowcell=flowcell_name,
