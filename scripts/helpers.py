@@ -683,7 +683,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testing:bool = True):
+def append_pending_samples(paths: dict, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
@@ -694,12 +694,12 @@ def append_pending_samples(paths: dict, input_dir:Path,  sample_ids:list, testin
     queued_tag = run_dir / paths['queued_tag']
 
     paths = [fastq_gen_dir / id for id in sample_ids]
-    priority_map = {'ONC':1, 'CBM':2}
+    priority_map = {'ONC': 1, 'CBM': 2}
     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
 
     priorities = (int(priority_map.get(t)) for t in tags)
 
-    entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': input_dir.name}
+    entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
     new_samples = pd.DataFrame(entries)
     pedning_files = np.array_split(new_samples, len(available_servers))
 

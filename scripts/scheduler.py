@@ -39,6 +39,7 @@ def main():
             if analysis_dir.exists() and data_dir.exists():
                 input_type = 'sample'
                 input_path = scan_dir_nsqx(run_dir=run_dir)
+                flowcell_name = run_dir.name
             elif myrun_dir.exists() and flowcell_dir is not None:
                 input_type = 'run'
                 input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir)
@@ -62,7 +63,7 @@ def main():
     if input_type == 'run':
         append_pending_run(paths=paths, input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        append_pending_samples(paths=paths, input_dir=input_path, sample_ids=sample_ids, testing=testing)
+        append_pending_samples(paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
 
