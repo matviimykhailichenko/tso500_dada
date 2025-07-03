@@ -270,7 +270,7 @@ def setup_environment():
         sh_copytree(str(test_results), str(test_results_staging))
 
 
-def test_transfer_results_cbmed():
+def test_transfer_results_cbmed(setup_environment):
     flowcell_name = '250123_A01664_0443_AH2J5YDMX2'
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
