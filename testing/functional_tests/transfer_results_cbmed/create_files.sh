@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the target directory
-TARGET_DIR="/staging/test_results_dir"
+TARGET_DIR="/staging/tmp/test_sample"
 
 # Create the main work directory
 mkdir -p "$TARGET_DIR/work"
