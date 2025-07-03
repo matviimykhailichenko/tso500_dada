@@ -92,7 +92,7 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
     try:
-        subp_run(rsync_call,check=True,shell=True)
+        subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
         message = f"Transferring results had failed: {e}"
         notify_bot(message)
@@ -122,12 +122,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
     samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / 'SampleSheet.csv'
+    fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
     if input_type == 'sample':
         fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
-        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
     elif input_type == 'run':
         fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
-        fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
 
     data_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -177,39 +176,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             logger.error(message)
             raise RuntimeError(message)
 
-    # TODO Transfer results and data
-    # TODO Compare checksums
-
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
-        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"--exclude='FastqGeneration' "
-                      f"{str(flowcell_run_dir)}/ "
-                      f"{str(data_cbmed_dir)}")
-        try:
-            subp_run(rsync_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
+        sh_move(flowcell_run_dir, data_cbmed_dir)
 
     elif input_type == 'run':
-        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"{str(paths['run_dir'])}/ "
-                      f"{str(data_cbmed_dir)}")
-        try:
-            subp_run(rsync_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
+        sh_move(paths['run_dir'], data_cbmed_dir)
 
     if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
         log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
@@ -379,13 +350,8 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['cbmed_results_dir'] = Path(config.get('cbmed_results_dir'))
-
-    if testing:
-        paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir') + '_TEST')
-    elif not testing:
-        paths['cbmed_seq_dir'] = Path(config.get('cbmed_nsq6000_dir'))
-
+    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir'))
+    paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
 
     return paths
@@ -667,7 +633,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
-    priority_map = {onco_seq_dir:[1,'ONC'], cbmed_seq_dir:[2,'CMB'],patho_seq_dir:[3,'PAT']}
+    priority_map = {onco_seq_dir: [1,'ONC'], cbmed_seq_dir: [2,'CMB'],patho_seq_dir: [3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
