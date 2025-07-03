@@ -2,9 +2,11 @@ import logging
 from logging import Logger
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree, copy as sh_copy, move as sh_move
-from subprocess import run as subp_run
+from shutil import copytree as sh_copytree, copy as sh_copy, move as sh_move, which as sh_which
+from subprocess import run as subp_run, CalledProcessError
 import yaml
+from datetime import datetime
+from discord import SyncWebhook
 
 
 
@@ -238,6 +240,14 @@ def setup_logger(logger_name: str,
 
     return logger
 
+
+def notify_bot(msg: str,
+               url: str ='https://discord.com/api/webhooks/1334878015078793310/qENtDsst4aV31baSn9BJ8cf4mEhk75QTpC_rRF5HZ5V5Q_gKzHivFcs9IS5rTHNUVjLL'):
+    if len(msg) > 2000:
+        msg = f"{msg[:1993]} [...]"
+
+    webhook = SyncWebhook.from_url(url)
+    webhook.send(content=msg)
 
 
 @pytest.fixture()
