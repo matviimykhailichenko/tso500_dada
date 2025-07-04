@@ -671,9 +671,4 @@ def rearrange_fastqs(fastq_dir: Path) -> list:
         sh_move(str(fastq), str(sample_dir))
     samples = list(set(samples))
 
-    else:
-        message = f'Fastq dir is not empty after rearranging for dir {fastq_dir}'
-        notify_bot(message)
-        RuntimeError(message)
-
     return samples
