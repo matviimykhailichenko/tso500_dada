@@ -535,10 +535,10 @@ def setup_paths_scheduler(testing: bool = True):
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
 
-        paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Runs'
-        paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST' if testing else '')
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
-        paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST' if testing else '')
+        paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
+        paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
+        paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
         return paths
