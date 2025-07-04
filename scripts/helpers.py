@@ -662,14 +662,15 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
 def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
+        if 'Undetermined' in str(fastq):
+            continue
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / f"{str(fastq).split('-',1)[0]}-{str(fastq).split('-',1)[1].split('_',1)[0]}"
         samples.append(str(sample_dir))
         if not sample_dir.exists():
             sample_dir.mkdir(parents=True)
         sh_move(str(fastq), str(sample_dir))
     samples = list(set(samples))
-    if not any(fastq_dir.iterdir()):
-        sh_rmtree(fastq_dir)
+
     else:
         message = f'Fastq dir is not empty after rearranging for dir {fastq_dir}'
         notify_bot(message)
