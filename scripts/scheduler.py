@@ -24,6 +24,7 @@ def main():
     input_path = None
     input_type = None
     sample_ids = None
+    # TODO debugging
     notify_bot(str(seq_dirs))
     for seq_dir in seq_dirs:
         notify_bot(str(seq_dir))
