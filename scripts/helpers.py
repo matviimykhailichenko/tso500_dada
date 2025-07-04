@@ -233,7 +233,7 @@ def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    results_dir: Path = paths['research_results_dir']
+    results_dir: Path = paths['research_results_dir'] / paths['run_name']
 
     rsync_path: str = paths['rsync_path']
 
@@ -300,7 +300,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
-        paths['run_name'] = f"{flowcell.split('_')[0][0:8]}_TSO500_Onco"
+        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
