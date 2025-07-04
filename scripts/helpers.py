@@ -101,7 +101,6 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
-    data_staging: Path = paths[f'{input_type}_staging_temp_dir']
     cbmed_results_dir: Path = paths['cbmed_results_dir']
     flowcell: str = paths['flowcell']
     flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
@@ -109,7 +108,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     run_name: str = paths['run_name']
     cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    run_seq_dir: Path = cbmed_seq_dir / paths['run_name']
+    run_seq_dir: Path = cbmed_seq_dir / flowcell
     rsync_path: str = paths['rsync_path']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -122,37 +121,18 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
     samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / 'SampleSheet.csv'
-    fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
-    if input_type == 'sample':
-        fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
-    elif input_type == 'run':
-        fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
 
-    data_cbmed_dir.mkdir(parents=True, exist_ok=True)
+    flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     # TODO Compute checksums for data and results on /staging/
 
-    if not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0:
-        checksums_data_humgen = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
-        checksums_call = (r'find '
-                          f'{str(data_staging)} '
-                          r'-type f -exec sha256sum {} \; | tee  '
-                          f'{str(checksums_data_humgen)}')
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-                       f"Error output: {e.stderr}")
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
-
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
-    checksums_call = (r'find '
-                      f'{str(results_staging)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_humgen)}')
+    checksums_call = (
+        f'cd {str(results_staging)} && '
+        "find . -type f -print0 | xargs -0 sha256sum | tee "
+        f"{str(checksums_humgen)}"
+    )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -161,41 +141,14 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    # TODO Supposed to append existing checksums
-    if input_type == 'sample':
-        checksums_raw_data = flowcell_cbmed_dir / f'{flowcell}_HumGenNAS.sha256'
-        checksums_call = (r'find '
-                          f'{str(run_seq_dir)} '
-                          r'-type f -exec sha256sum {} \; | tee  '
-                          f'{str(checksums_raw_data)}')
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
+    if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0):
+        sh_move(flowcell_run_dir, flowcell_cbmed_dir)
 
-    if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size) == 0:
-        sh_move(flowcell_run_dir, data_cbmed_dir)
+    # if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
+    #     sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     elif input_type == 'run':
         sh_move(paths['run_dir'], data_cbmed_dir)
-
-    if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
-        log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"{str(fastq_gen_seq_dir)}/ "
-                      f"{str(fastq_gen_results_dir)}")
-        try:
-            subp_run(rsync_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            raise RuntimeError(message)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
@@ -223,26 +176,12 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             logger.error(message)
             raise RuntimeError(message)
 
-    # TODO Make checksums for files data/results on CBmed NAS
-    checksums_data_cbmed = flowcell_cbmed_dir / f'{flowcell}.sha256'
-    checksums_call = (r'find '
-                      f'{str(data_cbmed_dir)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_data_cbmed)}')
-    try:
-        subp_run(checksums_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = (f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. "
-                   f"Error output: {e.stderr}")
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
-
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
-    checksums_call = (r'find '
-                      f'{str(results_cbmed_dir)} '
-                      r'-type f -exec sha256sum {} \; | tee  '
-                      f'{str(checksums_results_cbmed)}')
+    checksums_call = (
+        f'cd {str(results_cbmed_dir)} && '
+        "find . -type f -print0 | xargs -0 sha256sum | tee "
+        f"{str(checksums_results_cbmed)}"
+    )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
@@ -251,7 +190,19 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         raise RuntimeError(message)
 
-    # TODO Compare checksums
+    diff_call = (
+        f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_results_cbmed)})'
+    )
+    try:
+        stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
+        if stdout is not None:
+            message = f"Checksums in a CBmed run are different"
+            raise RuntimeError(message)
+    except CalledProcessError as e:
+        message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
 
     return 0
 
@@ -296,7 +247,8 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict, testing: bool = False) -> dict:
+def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
+                testing: bool = False) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
@@ -306,12 +258,13 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
 
     if paths['testing_fast']:
-        paths['tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+        paths[
+            'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
-        
+
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
 
@@ -327,7 +280,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
-        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
+        paths['run_name'] = f"{flowcell.split('_')[0][0:8]}_TSO500_Onco"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
@@ -350,12 +303,11 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir'))
+    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
 
     return paths
-
 
 def check_mountpoint(paths: dict, logger: Logger):
     sx182_mountpoint = Path(paths['sx182_mountpoint'])

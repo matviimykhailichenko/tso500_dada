@@ -11,7 +11,6 @@ from discord import SyncWebhook
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
-    data_staging: Path = paths[f'{input_type}_staging_temp_dir']
     cbmed_results_dir: Path = paths['cbmed_results_dir']
     flowcell: str = paths['flowcell']
     flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
@@ -32,11 +31,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
     samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / 'SampleSheet.csv'
-    fastq_gen_results_dir: Path = data_cbmed_dir / 'FastqGeneration'
-    if input_type == 'sample':
-        fastq_gen_seq_dir: Path = run_seq_dir / 'FastqGeneration'
-    elif input_type == 'run':
-        fastq_gen_seq_dir: Path = results_staging / 'Logs_Intermediates' / 'FastqGeneration'
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -119,7 +113,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         notify_bot(message)
         logger.error(message)
         raise RuntimeError(message)
-
 
     return 0
 
