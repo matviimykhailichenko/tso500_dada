@@ -24,6 +24,7 @@ sx182_mountpoint: '/mnt/Novaseq/'
 sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
 logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
+research_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung'
 
 
 ready_tags:

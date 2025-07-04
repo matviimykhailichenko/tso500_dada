@@ -229,6 +229,26 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
         raise RuntimeError(message)
 
 
+def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+    run_name: str = paths['run_name']
+    staging_temp_dir: Path = paths['staging_temp_dir']
+
+    results_dir: Path = paths['research_results_dir']
+
+    rsync_path: str = paths['rsync_path']
+
+    analysis_dir = staging_temp_dir / run_name
+
+    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
+    try:
+        subp_run(rsync_call, check=True, shell=True)
+    except CalledProcessError as e:
+        message = f"Transferring results had failed: {e}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
+
+
 def get_server_ip() -> str:
     try:
         call = "hostname -I"
@@ -306,6 +326,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
+    paths['research_results_dir'] = Path(config.get('research_dir')) / f'Analyseergebnisse{'_TEST' if testing else ''}'
 
     return paths
 
@@ -458,6 +479,8 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
             transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger, testing=testing)
         elif tag == 'PAT':
             transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
+        elif tag == 'TSO':
+            transfer_results_research(paths=paths, input_type=input_type, logger=logger, testing=testing)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")
     except Exception as e:
@@ -612,7 +635,7 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
     queued_tag = run_dir / paths['queued_tag']
 
     paths = [fastq_gen_dir / id for id in sample_ids]
-    priority_map = {'ONC': 1, 'CBM': 2}
+    priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
 
     priorities = (int(priority_map.get(t)) for t in tags)
