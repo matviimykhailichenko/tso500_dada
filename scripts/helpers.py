@@ -662,7 +662,7 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
 def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = []
     for fastq in fastq_dir.iterdir():
-        sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / "_".join(fastq.name.split("_")[:2])
+        sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / f"{fastq.split('-',1)[0]}-{fastq.split('-',1)[1].split('_',1)[0]}"
 
         samples.append(str(sample_dir))
 
