@@ -119,8 +119,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     results_staging: Path = staging_temp_dir / run_name
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
-    samplesheet_results_dir: Path = results_staging / 'SampleSheet.csv'
-    samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / 'SampleSheet.csv'
+    samplesheet_results_dir: Path = results_staging / paths['sample_sheet']
+    samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / paths['sample_sheet']
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -289,6 +289,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['input_dir'] = input_path
 
     if input_type == 'run':
+        paths['sample_sheet'] = 'SampleSheet.csv'
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
@@ -298,6 +299,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
 
     elif input_type == 'sample':
+        paths['sample_sheet'] = 'SampleSheet_Analysis.csv'
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
