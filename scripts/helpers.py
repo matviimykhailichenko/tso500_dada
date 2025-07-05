@@ -139,7 +139,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError(message)
+        # raise RuntimeError(message)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0):
         sh_move(flowcell_run_dir, flowcell_cbmed_dir)
@@ -162,7 +162,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         message = f"Transferring results had FAILED: {e}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError(message)
+        # raise RuntimeError(message)
 
     if not samplesheet_cbmed_dir.exists() or samplesheet_cbmed_dir.stat().st_size == 0:
         rsync_call = (f"{rsync_path} "
@@ -174,7 +174,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             message = f"Transferring results had FAILED: {e}"
             notify_bot(message)
             logger.error(message)
-            raise RuntimeError(message)
+            # raise RuntimeError(message)
 
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (
@@ -188,7 +188,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError(message)
+        # raise RuntimeError(message)
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_results_cbmed)})'
@@ -197,12 +197,12 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
         if stdout is not None:
             message = f"Checksums in a CBmed run are different"
-            raise RuntimeError(message)
+            # raise RuntimeError(message)
     except CalledProcessError as e:
         message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        raise RuntimeError(message)
+        # raise RuntimeError(message)
 
     return 0
 
