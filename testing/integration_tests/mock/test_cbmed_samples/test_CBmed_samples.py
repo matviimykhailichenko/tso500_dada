@@ -34,15 +34,14 @@ def setup_environment():
     # pending_file.unlink()
 
 
-@pytest.mark.dependency(depends=['scheduler'])
+@pytest.mark.dependency(name='scheduler')
 def test_scheduler(setup_environment):
     scheduler_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
 
-    for i in range(1):
-        subp_run(scheduler_call, check=True, shell=True)
+    subp_run(scheduler_call, check=True, shell=True)
 
 
-@pytest.mark.dependency(name='scheduler')
+@pytest.mark.dependency(depends=['scheduler'])
 def test_processing():
     processing_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t -tf'
 
