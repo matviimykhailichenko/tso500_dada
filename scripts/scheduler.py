@@ -1,8 +1,12 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler, get_server_ip
+from shutil import copy as sh_copy
 from logging_ops import notify_bot
 import re
+import yaml
+from pathlib import Path
+
 
 
 def create_parser():
@@ -17,15 +21,28 @@ def main():
     args = parser.parse_args()
     testing = args.testing
 
+    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+        pipeline_dir: Path = Path(config['pipeline_dir'])
+        servers: list = config['available_servers']
+        queue_blank: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+
     paths = setup_paths_scheduler(testing=testing)
     seq_dirs = [paths['onco_seq_dir'], paths['cbmed_seq_dir'], paths['mixed_runs_dir']]
     if get_server_ip() == '10.200.215.35':
         seq_dirs.append(paths['patho_seq_dir'])
+
+    for server in servers:
+        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        if not queue_file.exists():
+            sh_copy(queue_blank, queue_file)
+        if not pending_file.exists():
+            sh_copy(queue_blank, pending_file)
+
     input_path = None
     input_type = None
     sample_ids = None
-    # TODO debugging
-    notify_bot(str(seq_dirs))
     for seq_dir in seq_dirs:
         notify_bot(str(seq_dir))
         for run_dir in seq_dir.iterdir():

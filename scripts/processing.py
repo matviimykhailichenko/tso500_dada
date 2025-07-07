@@ -31,14 +31,6 @@ def main():
     if not is_server_available():
         return
 
-    for server in servers:
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-        if not queue_file.exists():
-            sh_copy(queue_blank, queue_file)
-        if not pending_file.exists():
-            sh_copy(queue_blank, pending_file)
-
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
