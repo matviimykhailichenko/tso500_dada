@@ -27,9 +27,8 @@ def main():
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
 
-    # TODO change in prod
-    # if not is_server_available():
-    #     return
+    if not is_server_available():
+        return
 
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
