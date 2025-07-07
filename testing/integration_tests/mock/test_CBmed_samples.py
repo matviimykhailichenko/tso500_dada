@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-from scripts.helpers import get_server_ip
 from shutil import copy as sh_copy, copytree as sh_copytree
 from subprocess import run as subp_run
 import yaml
@@ -15,7 +14,7 @@ def setup_environment():
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_CBmed_samples.txt')
         test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_CBmed_nsqx')
 
-    server_ip = get_server_ip()
+    server_ip = '10.200.214.104'
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_cbmed_run_seq_dir = cbmed_seq_dir / '20250707_LH00803_0012_B232KMCLT3'
