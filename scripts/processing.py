@@ -12,12 +12,15 @@ from logging_ops import setup_logger, notify_bot
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
+    parser.add_argument('-tf', '--testing',action='store_true', help='Fast testing mode')
+
     return parser
 
 
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
+    testing_fast: bool = args.testing_fast
 
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -62,7 +65,8 @@ def main():
 
     config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
-    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config, testing=testing)
+    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+                              testing=testing, testing_fast=testing_fast)
 
     logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 

@@ -272,12 +272,12 @@ def load_config(configfile: str) -> dict:
 
 
 def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
-                testing: bool = False) -> dict:
+                testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
-    paths['testing_fast'] = config.get('testing_fast', False)
+    paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
 
