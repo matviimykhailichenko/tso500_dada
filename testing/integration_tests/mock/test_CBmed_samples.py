@@ -36,10 +36,10 @@ def setup_environment():
 
 @pytest.mark.dependency(depends=['scheduler'])
 def test_scheduler(setup_environment):
-    scheduer_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduer.py -t'
+    scheduler_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
 
     for i in range(1):
-        subp_run(scheduer_call, check=True, shell=True)
+        subp_run(scheduler_call, check=True, shell=True)
 
 
 @pytest.mark.dependency(name='scheduler')
