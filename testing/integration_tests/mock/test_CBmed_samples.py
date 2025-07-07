@@ -12,18 +12,18 @@ def setup_environment():
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_CBmed_samples.txt')
-        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_CBmed_nsqx')
+        test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3')
 
     server_ip = '10.200.214.104'
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_cbmed_run_seq_dir = cbmed_seq_dir / '20250707_LH00803_0012_B232KMCLT3'
 
-    if not queue_file.exists():
-        queue_file.touch()
+    if queue_file.exists():
+        queue_file.unlink()
 
-    if not pending_file.exists():
-        sh_copy(str(test_pending_file),str(pending_file))
+    if pending_file.exists():
+        pending_file.unlink()
 
     if not test_cbmed_run_seq_dir.exists():
         sh_copytree(str(test_cbmed_run),str(test_cbmed_run_seq_dir))
@@ -34,6 +34,15 @@ def setup_environment():
     pending_file.unlink()
 
 
+@pytest.mark.dependency(depends=['scheduler'])
+def test_scheduler(setup_environment):
+    scheduer_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduer.py -t'
+
+    for i in range(8):
+        subp_run(scheduer_call, check=True, shell=True)
+
+
+@pytest.mark.dependency(name='scheduler')
 def test_processing(setup_environment):
     processing_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t -tf'
 
