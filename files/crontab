@@ -34,7 +34,7 @@ BASH_ENV=~/.bashrc
 # 42 22 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/analyses_results_cleaner.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/analyses_results_cleaner/latest_analyses_results_cleaner_execution-crontab.log 2>&1
 #
 # ->| DEL-OPS: RECYCLE BIN Skimmer (ultimately deletes files and folders residing longer than 3 months in hte recycle bin [total age: >9 months])
-24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
+# 24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
 #
 #
 # ->| TSO500 SCHEDULING:
