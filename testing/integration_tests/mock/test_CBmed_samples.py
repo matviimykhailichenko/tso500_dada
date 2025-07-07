@@ -30,8 +30,8 @@ def setup_environment():
 
     yield
 
-    queue_file.unlink()
-    pending_file.unlink()
+    # queue_file.unlink()
+    # pending_file.unlink()
 
 
 @pytest.mark.dependency(depends=['scheduler'])
