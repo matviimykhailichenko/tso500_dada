@@ -127,7 +127,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
-    fastq_gen_results_dir.mkdir(parents=True, exist_ok=True)
 
     # TODO Compute checksums for data and results on /staging/
 
