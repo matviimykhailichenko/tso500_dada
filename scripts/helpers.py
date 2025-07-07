@@ -145,7 +145,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         # raise RuntimeError(message)
 
     if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
-        sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
+        sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0):
         sh_copytree(flowcell_run_dir, flowcell_cbmed_dir / flowcell)
