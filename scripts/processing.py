@@ -72,9 +72,8 @@ def main():
     check_rsync(paths=paths, logger=logger)
     check_tso500_script(paths=paths, logger=logger)
 
-
-    if not paths['analyzing_tag'].exists():
-        # TODO uncomment in prod
+    # TODO uncomment in prod
+    # if not paths['analyzing_tag'].exists():
         # paths['analyzing_tag'].touch()
         # paths['queued_tag'].unlink()
     stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
@@ -83,8 +82,8 @@ def main():
 
     transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
-    if last_sample_run or input_type == 'run':
-        # TODO uncomment in prod
+    # TODO uncomment in prod
+    # if last_sample_run or input_type == 'run':
         # paths['analyzed_tag'].touch()
         # paths['analyzing_tag'].unlink()
 
