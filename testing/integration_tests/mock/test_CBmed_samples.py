@@ -11,14 +11,14 @@ def setup_environment():
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        cbmed_seq_dir:Path = Path(config['cbmed_nsq6000_dir'])
+        cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'])
         test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_CBmed_samples.txt')
         test_cbmed_run:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_CBmed_nsqx')
 
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir = cbmed_seq_dir / 'test_run_CBmed_nsqx'
+    test_cbmed_run_seq_dir = cbmed_seq_dir / '20250707_LH00803_0012_B232KMCLT3'
 
     if not queue_file.exists():
         queue_file.touch()

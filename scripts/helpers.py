@@ -1,6 +1,6 @@
 from pathlib import Path
 from logging import Logger
-from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move
+from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move, copytree as sh_copytree
 from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
 from typing import Optional
 import yaml
@@ -114,16 +114,20 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     if input_type == 'sample':
         flowcell_run_dir: Path = cbmed_seq_dir / flowcell
+        fastq_gen_seq_dir: Path = flowcell_run_dir / 'FastqGeneration'
     elif input_type == 'run':
         flowcell_run_dir: Path = cbmed_seq_dir / flowcell
+        fastq_gen_seq_dir: Path = flowcell_run_dir / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging: Path = staging_temp_dir / run_name
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
+    fastq_gen_results_dir: Path = results_cbmed_dir / 'FastqGeneration'
     samplesheet_results_dir: Path = results_staging / paths['sample_sheet']
     samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / paths['sample_sheet']
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
+    fastq_gen_results_dir.mkdir(parents=True, exist_ok=True)
 
     # TODO Compute checksums for data and results on /staging/
 
@@ -142,13 +146,13 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         # raise RuntimeError(message)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or data_cbmed_dir.stat().st_size == 0):
-        sh_move(flowcell_run_dir, flowcell_cbmed_dir)
+        sh_copytree(flowcell_run_dir, flowcell_cbmed_dir)
 
-    # if not fastq_gen_results_dir.exists() or fastq_gen_results_dir.stat().st_size == 0:
-    #     sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
+    if fastq_gen_results_dir.stat().st_size == 0:
+        sh_move(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     elif input_type == 'run':
-        sh_move(paths['run_dir'], data_cbmed_dir)
+        sh_copytree(paths['run_dir'], data_cbmed_dir)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
