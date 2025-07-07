@@ -49,6 +49,7 @@ status_tags:
 
 available_servers:
   - 10.200.215.35
+  - 10.200.214.104
 
 pending_tag: PENDING.txt
 queued_tag: QUEUED.txt
