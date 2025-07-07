@@ -74,8 +74,9 @@ def main():
 
 
     if not paths['analyzing_tag'].exists():
-        paths['analyzing_tag'].touch()
-        paths['queued_tag'].unlink()
+        # TODO uncomment in prod
+        # paths['analyzing_tag'].touch()
+        # paths['queued_tag'].unlink()
     stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
     process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
@@ -83,8 +84,9 @@ def main():
     transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
     if last_sample_run or input_type == 'run':
-        paths['analyzed_tag'].touch()
-        paths['analyzing_tag'].unlink()
+        # TODO uncomment in prod
+        # paths['analyzed_tag'].touch()
+        # paths['analyzing_tag'].unlink()
 
 
 if __name__ == "__main__":
