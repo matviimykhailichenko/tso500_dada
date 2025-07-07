@@ -26,12 +26,17 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
-        queue_blank: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        server_availability_dir: Path = Path(config['server_availability_dir'])
+        server = get_server_ip()
+        idle_tag = server_availability_dir / server / config['server_idle_tag']
+        busy_tag = server_availability_dir / server / config['server_busy_tag']
 
     if not is_server_available():
         return
 
-    server = get_server_ip()
+    busy_tag.touch()
+    idle_tag.unlink()
+
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
@@ -50,8 +55,6 @@ def main():
     queues = []
     for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        if not queue_file.exists():
-            sh_copy(queue_file_blank, queue_file)
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
@@ -70,20 +73,20 @@ def main():
     check_rsync(paths=paths, logger=logger)
     check_tso500_script(paths=paths, logger=logger)
 
-    # TODO uncomment in prod
-    # if not paths['analyzing_tag'].exists():
-        # paths['analyzing_tag'].touch()
-        # paths['queued_tag'].unlink()
+    if not paths['analyzing_tag'].exists():
+        paths['analyzing_tag'].touch()
+        paths['queued_tag'].unlink()
     stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
     process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
     transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
-    # TODO uncomment in prod
-    # if last_sample_run or input_type == 'run':
-        # paths['analyzed_tag'].touch()
-        # paths['analyzing_tag'].unlink()
+    if last_sample_run or input_type == 'run':
+        paths['analyzed_tag'].touch()
+        paths['analyzing_tag'].unlink()
+    idle_tag.touch()
+    busy_tag.unlink()
 
 
 if __name__ == "__main__":
