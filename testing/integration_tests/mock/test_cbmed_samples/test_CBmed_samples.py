@@ -35,7 +35,7 @@ def setup_environment():
 
 
 @pytest.mark.dependency(depends=['scheduler'])
-def test_scheduler():
+def test_scheduler(setup_environment):
     scheduler_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
 
     for i in range(1):
@@ -43,7 +43,7 @@ def test_scheduler():
 
 
 @pytest.mark.dependency(name='scheduler')
-def test_processing(setup_environment):
+def test_processing():
     processing_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t -tf'
 
     for i in range(8):
