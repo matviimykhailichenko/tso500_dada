@@ -31,14 +31,14 @@ BASH_ENV=~/.bashrc
 # 39 4 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream bash /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/DRAGENnuArchiving/automatically_CRAM_convert_BAM_files.sh > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/archiving/last_Diagnostics_CRAM_conversion-crontab.log 2>&1
 #
 # ->| DEL-OPS: ANALYSEERGEBNISSE Cleaner (deletes files and folders >6 months in Analyseergebnisse [get moved to #recycle])
-42 22 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/analyses_results_cleaner.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/analyses_results_cleaner/latest_analyses_results_cleaner_execution-crontab.log 2>&1
+# 42 22 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/analyses_results_cleaner.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/analyses_results_cleaner/latest_analyses_results_cleaner_execution-crontab.log 2>&1
 #
 # ->| DEL-OPS: RECYCLE BIN Skimmer (ultimately deletes files and folders residing longer than 3 months in hte recycle bin [total age: >9 months])
 24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
 #
 #
 # ->| TSO500 SCHEDULING:
-* * * * * source /staging/envs/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
 #
 # ->| TSO500 PROCESSING:
-* * * * * source /staging/envs/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
