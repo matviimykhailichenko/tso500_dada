@@ -26,21 +26,22 @@ def main():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
+        queue_blank: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     if not is_server_available():
         return
 
+    for server in servers:
+        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        if not queue_file.exists():
+            sh_copy(queue_blank, queue_file)
+        if not pending_file.exists():
+            sh_copy(queue_blank, pending_file)
+
     server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-
-    if not queue_file.exists() or queue_file.stat().st_size < 38:
-        queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        sh_copy(queue_blank, queue_file)
-
-    if not pending_file.exists() or pending_file.stat().st_size < 38:
-        queue_blank = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        sh_copy(queue_blank, pending_file)
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
@@ -58,7 +59,7 @@ def main():
     for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         if not queue_file.exists():
-            queue_file.touch()
+            sh_copy(queue_file_blank, queue_file)
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
