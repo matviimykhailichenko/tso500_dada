@@ -38,7 +38,7 @@ BASH_ENV=~/.bashrc
 #
 #
 # ->| TSO500 SCHEDULING:
-* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1
 #
 # ->| TSO500 PROCESSING:
-* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1 && deactivate
+* * * * * source /staging/env/tso500_dragen_pipeline/bin/activate && python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py > /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log 2>&1
