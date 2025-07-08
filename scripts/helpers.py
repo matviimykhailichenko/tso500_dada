@@ -279,7 +279,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
-
     if paths['testing_fast']:
         paths[
             'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
@@ -290,7 +289,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
-
     if input_type == 'run':
         paths['sample_sheet'] = 'SampleSheet.csv'
         paths['run_files_dir'] = input_path
@@ -300,7 +298,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
-
     elif input_type == 'sample':
         paths['sample_sheet'] = 'SampleSheet_Analysis.csv'
         paths['sample_dir'] = input_path
@@ -312,15 +309,12 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing else '')
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
-
     paths['flowcell_dir'] = paths['run_dir'] / flowcell
     paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
     paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
     paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
-
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
-
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
@@ -334,6 +328,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['research_results_dir'] = Path(config.get('research_dir')) / f'Analyseergebnisse{'_TEST' if testing else ''}'
 
     return paths
+
 
 def check_mountpoint(paths: dict, logger: Logger):
     sx182_mountpoint = Path(paths['sx182_mountpoint'])
