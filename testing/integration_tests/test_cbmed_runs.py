@@ -16,7 +16,7 @@ def setup_environment():
     server_ip = '10.200.215.35'
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir = cbmed_seq_dir / '250620_BI_739_batch1'
+    test_cbmed_run_seq_dir = cbmed_seq_dir / '250708_BI'
 
     if queue_file.exists():
         sh_copy(str(pending_blank), str(pending_file))
