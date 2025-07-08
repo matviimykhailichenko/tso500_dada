@@ -557,7 +557,6 @@ def scan_dir_nsq6000(flowcell_dir: Path):
         return None
 
     if all(tag in file_names for tag in ready_tags):
-        notify_bot(str(flowcell_dir))
         return flowcell_dir
 
 
@@ -608,7 +607,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
-    priority_map = {onco_seq_dir: [1,'ONC'], cbmed_seq_dir: [2,'CMB'],patho_seq_dir: [3,'PAT']}
+    priority_map = {onco_seq_dir: [1,'ONC'], cbmed_seq_dir: [2,'CBM'],patho_seq_dir: [3,'PAT']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
