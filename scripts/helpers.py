@@ -195,7 +195,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_results_cbmed = flowcell_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+    checksums_results_cbmed = flowcell_cbmed_dir / flowcell / f'{flowcell}.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
         "find . -type f -print0 | xargs -0 sha256sum | tee "

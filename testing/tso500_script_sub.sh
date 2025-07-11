@@ -78,6 +78,11 @@ elif [ -n "$RUN_FOLDER" ]; then
   mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample1"
   mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample2"
   mkdir -p "$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/Sample3"
+  for SAMPLE in Sample1 Sample2 Sample3; do
+  OUTDIR="$ANALYSIS_FOLDER/Logs_Intermediates/FastqGeneration/$SAMPLE"
+  echo -e "@SEQ_ID\nACGTACGTACGT\n+\nFFFFFFFFFFFF" > "$OUTDIR/${SAMPLE}_R1.fastq"
+  echo -e "@SEQ_ID\nTGCATGCATGCA\n+\nFFFFFFFFFFFF" > "$OUTDIR/${SAMPLE}_R2.fastq"
+done
 fi
 
 # Create files with content
