@@ -32,11 +32,6 @@ def setup_environment():
     if not test_cbmed_run_seq_dir_2.exists():
         sh_copytree(str(test_cbmed_run_2), str(test_cbmed_run_seq_dir_2))
 
-    yield
-
-    queue_file.unlink()
-    pending_file.unlink()
-
 
 @pytest.mark.dependency(name='scheduler')
 def test_scheduler(setup_environment):
