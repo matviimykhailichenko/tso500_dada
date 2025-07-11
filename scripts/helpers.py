@@ -129,7 +129,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     if input_type == 'run':
-        checksums_humgen = flowcell_cbmed_dir / flowcell / f'{flowcell}_HumGenNAS.sha256'
+        checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
         checksums_call = (
             f'cd {str(fastq_gen_seq_dir)} && '
             "find . -type f -print0 | xargs -0 sha256sum | tee "
@@ -187,7 +187,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             # raise RuntimeError(message)
 
     if input_type == 'run':
-        log_file_path = flowcell_cbmed_dir / flowcell / 'CBmed_copylog.log'
+        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
         rsync_call = (f"{rsync_path} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
@@ -215,7 +215,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_results_cbmed = flowcell_cbmed_dir / flowcell / f'{flowcell}.sha256'
+    checksums_results_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
         "find . -type f -print0 | xargs -0 sha256sum | tee "
