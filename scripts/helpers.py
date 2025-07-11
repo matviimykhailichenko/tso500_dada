@@ -302,6 +302,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
         paths['analyzed_tag'] = paths['flowcell_dir'] / config.get('analyzed_tag')
+        paths['failed_tag'] = paths['flowcell_dir'] / config.get('failed_tag')
     elif input_type == 'sample':
         paths['sample_sheet'] = 'SampleSheet_Analysis.csv'
         paths['sample_dir'] = input_path
@@ -316,6 +317,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
+        paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file

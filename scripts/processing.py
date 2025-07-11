@@ -36,57 +36,61 @@ def main():
 
     busy_tag.touch()
     idle_tag.unlink()
-
-    queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-
-    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
-
-    if queue is None:
-        return
-
-    path, input_type, _, tag, flowcell = queue.iloc[0]
-
-    last_sample_queue = False
-    if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
-        last_sample_queue = True
-
-    last_sample_run = False
-    queues = []
-    for server in servers:
+    try:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        queues.append(pd.read_csv(queue_file, sep='\t'))
-    queue_merged = pd.concat(queues, ignore_index=True)
-    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
-        last_sample_run = True
+        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
+        queue = get_queue(pending_file=pending_file, queue_file=queue_file)
 
-    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
-                              testing=testing, testing_fast=testing_fast)
+        if queue is None:
+            return
 
-    logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
+        path, input_type, _, tag, flowcell = queue.iloc[0]
 
-    check_mountpoint(paths=paths, logger=logger)
-    check_structure(paths=paths, logger=logger)
-    check_docker_image(logger=logger)
-    check_rsync(paths=paths, logger=logger)
-    check_tso500_script(paths=paths, logger=logger)
+        last_sample_queue = False
+        if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
+            last_sample_queue = True
 
-    if not paths['analyzing_tag'].exists():
-        paths['analyzing_tag'].touch()
-        paths['queued_tag'].unlink()
-    stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+        last_sample_run = False
+        queues = []
+        for server in servers:
+            queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+            queues.append(pd.read_csv(queue_file, sep='\t'))
+        queue_merged = pd.concat(queues, ignore_index=True)
+        if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
+            last_sample_run = True
 
-    process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+        config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
-    transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
+        paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+                                  testing=testing, testing_fast=testing_fast)
 
-    if last_sample_run or input_type == 'run':
-        paths['analyzed_tag'].touch()
+        logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
+
+        check_mountpoint(paths=paths, logger=logger)
+        check_structure(paths=paths, logger=logger)
+        check_docker_image(logger=logger)
+        check_rsync(paths=paths, logger=logger)
+        check_tso500_script(paths=paths, logger=logger)
+
+        if not paths['analyzing_tag'].exists():
+            paths['analyzing_tag'].touch()
+            paths['queued_tag'].unlink()
+        stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+
+        process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+
+        transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
+
+        if last_sample_run or input_type == 'run':
+            paths['analyzed_tag'].touch()
+            paths['analyzing_tag'].unlink()
+    except Exception:
+        paths['failed_tag'].touch()
         paths['analyzing_tag'].unlink()
-    idle_tag.touch()
-    busy_tag.unlink()
+    finally:
+        idle_tag.touch()
+        busy_tag.unlink()
 
 
 if __name__ == "__main__":
