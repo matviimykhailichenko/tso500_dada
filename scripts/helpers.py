@@ -176,7 +176,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     elif input_type == 'run':
         rsync_call = (f"{rsync_path} -r "
                       f"exclude='MyRun' "
-                      f"{str(paths['run_dir'])}/ "
+                      f"{str(paths['run_dir'] / flowcell)}/ "
                       f"{str(data_cbmed_dir)}")
         try:
             subp_run(rsync_call, shell=True, check=True)
