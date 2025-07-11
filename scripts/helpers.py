@@ -162,7 +162,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
         rsync_call = (f"{rsync_path} -r "
-                      f"exclude=MyRun "
                       f"{str(flowcell_run_dir)}/ "
                       f"{str(flowcell_cbmed_dir / flowcell)}")
         try:
@@ -175,7 +174,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     elif input_type == 'run':
         rsync_call = (f"{rsync_path} -r "
-                      f"exclude='MyRun' "
                       f"{str(paths['run_dir'] / flowcell)}/ "
                       f"{str(data_cbmed_dir)}")
         try:
