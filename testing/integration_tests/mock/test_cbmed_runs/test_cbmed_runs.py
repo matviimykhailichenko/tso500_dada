@@ -17,8 +17,8 @@ def setup_environment():
     server_ip = '10.200.214.104'
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir_1 = cbmed_seq_dir / 'Runs_TEST' / 'test_run_cbmed_1'
-    test_cbmed_run_seq_dir_2 = cbmed_seq_dir / 'Runs_TEST' / 'test_run_cbmed_2'
+    test_cbmed_run_seq_dir_1 = cbmed_seq_dir / 'test_run_cbmed_1'
+    test_cbmed_run_seq_dir_2 = cbmed_seq_dir / 'test_run_cbmed_2'
 
     if queue_file.exists():
         queue_file.unlink()
