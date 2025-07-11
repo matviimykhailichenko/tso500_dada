@@ -88,6 +88,7 @@ def main():
     except Exception:
         paths['failed_tag'].touch()
         paths['analyzing_tag'].unlink()
+        raise RuntimeError
     finally:
         idle_tag.touch()
         busy_tag.unlink()
