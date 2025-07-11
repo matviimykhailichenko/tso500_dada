@@ -117,7 +117,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         fastq_gen_seq_dir: Path = flowcell_run_dir / 'FastqGeneration'
     elif input_type == 'run':
         flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = flowcell_run_dir / 'Logs_Intermediates' / 'FastqGeneration'
+        fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging: Path = staging_temp_dir / run_name
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
@@ -128,7 +128,20 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    # TODO Compute checksums for data and results on /staging/
+    if input_type == 'run':
+        checksums_humgen = flowcell_cbmed_dir / flowcell / f'{flowcell}_HumGenNAS.sha256'
+        checksums_call = (
+            f'cd {str(fastq_gen_seq_dir)} && '
+            "find . -type f -print0 | xargs -0 sha256sum | tee "
+            f"{str(checksums_humgen)}"
+        )
+        try:
+            subp_run(checksums_call, shell=True).check_returncode()
+        except CalledProcessError as e:
+            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            # raise RuntimeError(message)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (
@@ -153,6 +166,21 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     elif input_type == 'run':
         sh_copytree(paths['run_dir'], data_cbmed_dir)
 
+    if input_type == 'run':
+        log_file_path = flowcell_cbmed_dir / flowcell / 'CBmed_copylog.log'
+        rsync_call = (f"{rsync_path} -r "
+                      f"--out-format=\"%C %n\" "
+                      f"--log-file {str(log_file_path)} "
+                      f"{str(fastq_gen_seq_dir)}/ "
+                      f"{str(fastq_gen_results_dir)}")
+        try:
+            subp_run(rsync_call, shell=True, check=True)
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            # raise RuntimeError(message)
+
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
@@ -167,17 +195,19 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    if not samplesheet_cbmed_dir.exists() or samplesheet_cbmed_dir.stat().st_size == 0:
-        rsync_call = (f"{rsync_path} "
-                      f"{str(samplesheet_results_dir)} "
-                      f"{str(samplesheet_cbmed_dir)}")
-        try:
-            subp_run(rsync_call,shell=True,check=True)
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            # raise RuntimeError(message)
+    checksums_results_cbmed = flowcell_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+    checksums_call = (
+        f'cd {str(fastq_gen_results_dir)} && '
+        "find . -type f -print0 | xargs -0 sha256sum | tee "
+        f"{str(checksums_results_cbmed)}"
+    )
+    try:
+        subp_run(checksums_call, shell=True).check_returncode()
+    except CalledProcessError as e:
+        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        # raise RuntimeError(message)
 
     checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (
@@ -206,6 +236,23 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
+
+
+    if input_type == 'run':
+        diff_call = (
+            f'diff <(sort {str(fastq_gen_seq_dir)}) <(sort {str(fastq_gen_results_dir)})'
+        )
+        try:
+            stdout = subp_run(diff_call, shell=True, capture_output=True, text=True, check=True,
+                              executable='/bin/bash').stdout.strip()
+            if stdout is not None:
+                message = f"Checksums in a CBmed run are different"
+                # raise RuntimeError(message)
+        except CalledProcessError as e:
+            message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(message)
+            logger.error(message)
+            # raise RuntimeError(message)
 
     return 0
 
