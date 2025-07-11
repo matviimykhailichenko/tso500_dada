@@ -161,10 +161,30 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
-        sh_copytree(flowcell_run_dir, flowcell_cbmed_dir / flowcell)
+        rsync_call = (f"{rsync_path} -r "
+                      f"exclude='MyRun' "
+                      f"{str(flowcell_run_dir)}/ "
+                      f"{str(flowcell_cbmed_dir / flowcell)}")
+        try:
+            subp_run(rsync_call, shell=True, check=True)
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            # raise RuntimeError(message)
 
     elif input_type == 'run':
-        sh_copytree(paths['run_dir'], data_cbmed_dir)
+        rsync_call = (f"{rsync_path} -r "
+                      f"exclude='MyRun' "
+                      f"{str(paths['run_dir'])}/ "
+                      f"{str(data_cbmed_dir)}")
+        try:
+            subp_run(rsync_call, shell=True, check=True)
+        except CalledProcessError as e:
+            message = f"Transferring results had FAILED: {e}"
+            notify_bot(message)
+            logger.error(message)
+            # raise RuntimeError(message)
 
     if input_type == 'run':
         log_file_path = flowcell_cbmed_dir / flowcell / 'CBmed_copylog.log'
