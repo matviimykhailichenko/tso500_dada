@@ -11,12 +11,9 @@ def setup_environment():
     with open('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        cbmed_seq_dir:Path = Path(config['cbmed_novaseq_dir'])
-    test_pending_file = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/PENDING_cbmed_runs.txt')
+        cbmed_seq_dir:Path = Path(config['cbmed_seqeuncing_dir'])
     test_cbmed_run_1:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_cbmed_1')
     test_cbmed_run_2:Path = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/test_run_cbmed_2')
-    output_dirs = ['/mnt/CBmed/Genomics/TSO500_liquid/flowcells',
-                   '/mnt/CBmed/Genomics/TSO500_liquid/dragen']
 
 
     server_ip = get_server_ip()
@@ -25,11 +22,11 @@ def setup_environment():
     test_cbmed_run_seq_dir_1 = cbmed_seq_dir / 'Runs_TEST' / 'test_run_cbmed_1'
     test_cbmed_run_seq_dir_2 = cbmed_seq_dir / 'Runs_TEST' / 'test_run_cbmed_2'
 
-    if not queue_file.exists():
-        queue_file.touch()
+    if queue_file.exists():
+        queue_file.unlink()
 
-    if not pending_file.exists():
-        sh_copy(str(test_pending_file), str(pending_file))
+    if pending_file.exists():
+        pending_file.unlink()
 
     if not test_cbmed_run_seq_dir_1.exists():
         sh_copytree(str(test_cbmed_run_1), str(test_cbmed_run_seq_dir_1))
@@ -42,15 +39,17 @@ def setup_environment():
     queue_file.unlink()
     pending_file.unlink()
 
-    # for dir in output_dirs:
-    #     sh_rmtree(dir)
+
+@pytest.mark.dependency(name='scheduler')
+def test_scheduler(setup_environment):
+    scheduler_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+
+    subp_run(scheduler_call, check=True, shell=True)
 
 
+@pytest.mark.dependency(depends=['scheduler'])
+def test_processing():
+    processing_call = 'python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t -tf'
 
-
-
-def test_processing(setup_environment):
-    processing_call = 'conda run -n tso500_dragen_pipeline python3 /mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
-
