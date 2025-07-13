@@ -344,8 +344,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
-    # TODO change in prod to search for it
-    paths['pipeline_dir'] = Path('/mnt/NovaseqXplus/TSO_pipeline')
     if paths['testing_fast']:
         paths[
             'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
@@ -385,7 +383,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
         paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(paths['pipeline_dir']) / 'logs' / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
