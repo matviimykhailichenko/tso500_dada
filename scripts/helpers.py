@@ -344,6 +344,8 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
+    # TODO change in prod to search for it
+    paths['pipeline_dir'] = Path('/mnt/NovaseqXplus/TSO_pipeline')
     if paths['testing_fast']:
         paths[
             'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
