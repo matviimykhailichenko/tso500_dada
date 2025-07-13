@@ -338,7 +338,6 @@ def load_config(configfile: str) -> dict:
 def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
-    paths['tags'] = config.get('tags', [])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
@@ -600,6 +599,7 @@ def setup_paths_scheduler(testing: bool = True):
     paths = {}
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
+        paths['tags'] = config['tags']
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
         paths['queued_tag'] = config['queued_tag']
