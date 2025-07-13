@@ -733,7 +733,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
     tags = paths['tags']
     samples = []
     for fastq in fastq_dir.iterdir():
-        if 'Undetermined' in str(fastq) or not any(tag in fastq for tag in tags):
+        if 'Undetermined' in str(fastq) or not any(tag in str(fastq) for tag in tags):
             continue
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / f"{fastq.name.split('-',1)[0]}-{fastq.name.split('-',1)[1].split('_',1)[0]}"
         samples.append(str(sample_dir))
