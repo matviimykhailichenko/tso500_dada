@@ -36,34 +36,37 @@ def main():
 
     busy_tag.touch()
     idle_tag.unlink()
-    try:
+    queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+
+    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
+
+    if queue is None:
+        return
+
+    path, input_type, _, tag, flowcell = queue.iloc[0]
+
+    last_sample_queue = False
+    if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
+        last_sample_queue = True
+
+    last_sample_run = False
+    queues = []
+    for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        queues.append(pd.read_csv(queue_file, sep='\t'))
+    queue_merged = pd.concat(queues, ignore_index=True)
+    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
+        last_sample_run = True
 
-        queue = get_queue(pending_file=pending_file, queue_file=queue_file)
+    config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
-        if queue is None:
-            return
+    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+                              testing=testing, testing_fast=testing_fast)
+    failed_tag = paths['failed_tag']
+    analyzing_tag = paths['analyzing_tag']
+    try:
 
-        path, input_type, _, tag, flowcell = queue.iloc[0]
-
-        last_sample_queue = False
-        if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
-            last_sample_queue = True
-
-        last_sample_run = False
-        queues = []
-        for server in servers:
-            queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-            queues.append(pd.read_csv(queue_file, sep='\t'))
-        queue_merged = pd.concat(queues, ignore_index=True)
-        if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
-            last_sample_run = True
-
-        config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
-
-        paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
-                                  testing=testing, testing_fast=testing_fast)
 
         logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 
@@ -86,8 +89,8 @@ def main():
             paths['analyzed_tag'].touch()
             paths['analyzing_tag'].unlink()
     except Exception:
-        paths['failed_tag'].touch()
-        paths['analyzing_tag'].unlink()
+        failed_tag.touch()
+        analyzing_tag.unlink()
         raise RuntimeError
     finally:
         idle_tag.touch()
