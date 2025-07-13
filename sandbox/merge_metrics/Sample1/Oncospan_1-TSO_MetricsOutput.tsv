@@ -1,0 +1,65 @@
+DRAGEN TruSight Oncology 500 ctDNA v2.6.2 Analysis Software - Metrics Output			
+For Research Use Only. Not for use in diagnostic procedures.			
+			
+[Header]			
+Output Date	2025-07-07		
+Output Time	15:51:31		
+Pipeline Version	2.6.2.0		
+			
+[Run QC Metrics]			
+Metric (UOM)	LSL Guideline	USL Guideline	Value
+PCT_Q30_R1 (%)	NA	NA	NA
+PCT_Q30_R2 (%)	NA	NA	NA
+			
+[Analysis Status]			
+	Oncospan_1-TSO		
+COMPLETED_ALL_STEPS	TRUE		
+FAILED_STEPS	NA		
+STEPS_NOT_EXECUTED	NA		
+			
+[DNA Library QC Metrics]			
+Metric (UOM)	LSL Guideline	USL Guideline	Oncospan_1-TSO
+CONTAMINATION_SCORE (NA)	0	1227	14020
+			
+[DNA Library QC Metrics for Small Variant Calling and TMB]			
+Metric (UOM)	LSL Guideline	USL Guideline	Oncospan_1-TSO
+MEDIAN_EXON_COVERAGE (count)	1300	NA	1957
+PCT_EXON_1000X (%)	80.0	NA	97.8
+			
+[DNA Library QC Metrics for MSI and Fusions]			
+Metric (UOM)	LSL Guideline	USL Guideline	Oncospan_1-TSO
+MEDIAN_EXON_COVERAGE (count)	1300	NA	1957
+			
+[DNA Library QC Metrics for CNV Calling]			
+Metric (UOM)	LSL Guideline	USL Guideline	Oncospan_1-TSO
+GENE_SCALED_MAD (count)	0.000	0.059	0.041
+MEDIAN_BIN_COUNT_CNV_TARGET (count)	6.0	NA	20.5
+			
+[DNA Expanded Metrics]			
+Metric (UOM)	LSL Guideline	USL Guideline	Oncospan_1-TSO
+TOTAL_PF_READS (count)	NA	NA	1237230590
+MEAN_FAMILY_SIZE (count)	NA	NA	11.4
+MEDIAN_TARGET_COVERAGE (count)	NA	NA	1965
+PCT_CHIMERIC_READS (%)	NA	NA	0.56
+PCT_EXON_500X (%)	NA	NA	99.5
+PCT_EXON_1500X (%)	NA	NA	85.1
+PCT_READ_ENRICHMENT (%)	NA	NA	67.4
+PCT_USABLE_UMI_READS (%)	NA	NA	99.9
+MEAN_TARGET_COVERAGE (count)	NA	NA	1883
+PCT_ALIGNED_READS (%)	NA	NA	99.6
+PCT_CONTAMINATION_EST (%)	NA	NA	20.21
+PCT_TARGET_0.4X_MEAN (%)	NA	NA	98.7
+PCT_TARGET_500X (%)	NA	NA	99.2
+PCT_TARGET_1000X (%)	NA	NA	97.2
+PCT_TARGET_1500X (%)	NA	NA	84.2
+PCT_DUPLEXFAMILIES (%)	NA	NA	40.1
+MEDIAN_INSERT_SIZE (bp)	NA	NA	136
+MAX_SOMATIC_AF (NA)	NA	NA	0.0433
+PCT_SOFT_CLIPPED_BASES (%)	NA	NA	4.35
+PCT_Q30_BASES (%)	NA	NA	95.45
+			
+[Notes]			
+Run Metrics	Run Metrics are not generated and values are reported as NA when starting analysis from FASTQ files.		
+DNA Library QC Metrics	DNA library QC Metrics are evaluated using contamination score		
+DNA Library QC Metrics for CNV Calling	GENE_SCALED_MAD LSL guideline only applies to real cell free DNA.		
+DNA Library QC Metrics for Small Variant Calling and TMB	MEDIAN_EXON_COVERAGE is a Fusion QC Metric.		

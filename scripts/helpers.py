@@ -338,6 +338,7 @@ def load_config(configfile: str) -> dict:
 def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
+    paths['tags'] = config.get('tags', [])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
@@ -728,10 +729,11 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
     queued_tag.touch()
 
 
-def rearrange_fastqs(fastq_dir: Path) -> list:
+def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
+    tags = paths['tags']
     samples = []
     for fastq in fastq_dir.iterdir():
-        if 'Undetermined' in str(fastq):
+        if 'Undetermined' in str(fastq) or not any(tag in fastq for tag in tags):
             continue
         sample_dir = fastq_dir.parents[4] / 'FastqGeneration' / f"{fastq.name.split('-',1)[0]}-{fastq.name.split('-',1)[1].split('_',1)[0]}"
         samples.append(str(sample_dir))
@@ -741,3 +743,66 @@ def rearrange_fastqs(fastq_dir: Path) -> list:
     samples = list(set(samples))
 
     return samples
+
+
+import pandas as pd
+from pathlib import Path
+from io import StringIO
+from collections import defaultdict
+
+def merge_metrics(paths: dict):
+    results_dir: Path = paths['results_dir']
+    all_sections = defaultdict(list)
+
+    for sample_dir in results_dir.iterdir():
+        if not sample_dir.is_dir():
+            continue
+
+        tentative_metrics_files = list(sample_dir.glob('*_MetricsOutput.tsv'))
+        if len(tentative_metrics_files) == 0:
+            raise RuntimeError(f'No metrics file in: {sample_dir}')
+        metrics_file = tentative_metrics_files[0]
+
+        sections = {}
+        with open(metrics_file, 'r') as f:
+            lines = f.readlines()
+
+        current_section = None
+        section_lines = []
+
+        for line in lines:
+            line = line.strip()
+            if line.startswith('[') and line.endswith(']'):
+                if current_section and section_lines:
+                    df = pd.read_csv(StringIO('\n'.join(section_lines)), sep='\t')
+                    sections[current_section] = df
+                current_section = line.strip('[]')
+                section_lines = []
+            elif current_section:
+                if line:
+                    section_lines.append(line)
+
+        if current_section and section_lines and current_section != 'Header':
+                print(df)
+                df = pd.read_csv(StringIO('\n'.join(section_lines)), sep='\t')
+                sections[current_section] = df
+
+        for section, df in sections.items():
+            all_sections[section].append(df)
+
+    merged = {}
+    for section, dfs in all_sections.items():
+        combined = dfs[0]
+        for df in dfs[1:]:
+            print(f"\nColumns in this DF: {df.columns.tolist()}")
+            print(f"Columns in combined: {combined.columns.tolist()}")
+            combined = combined.merge(
+                df,
+                on=['Metric (UOM)', 'LSL Guideline', 'USL Guideline'],
+                how='outer'
+            )
+        merged[section] = combined
+        out_path = results_dir / f'merged_{section.replace(" ", "_")}.tsv'
+        combined.to_csv(out_path, sep='\t', index=False)
+
+    return merged

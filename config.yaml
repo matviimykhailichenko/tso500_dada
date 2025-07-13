@@ -50,6 +50,11 @@ status_tags:
 available_servers:
   - 10.200.214.104
 
+tags:
+  - TSO
+  - CBM
+  - ONC
+
 pending_tag: PENDING.txt
 queued_tag: QUEUED.txt
 analyzed_tag: ANALYZED.txt
