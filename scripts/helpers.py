@@ -86,9 +86,9 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
     run_name: str = paths['run_name']
 
     if input_type == 'run':
-        results_dir:Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Runs'/ run_name
+        results_dir: Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Runs'/ run_name
     elif input_type == 'sample':
-        results_dir:Path = paths['onco_results_dir'] / run_name
+        results_dir: Path = paths['onco_results_dir'] / run_name
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
     try:
@@ -362,7 +362,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
+        paths['onco_results_dir'] = paths['oncoservice_sequencing_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
         paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
@@ -378,7 +378,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing else '')
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
+        paths['onco_results_dir'] = paths['oncoservice_sequencing_dir'] / 'Analyseergebnisse'
         paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
