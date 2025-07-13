@@ -354,6 +354,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
 
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
+    paths['oncoservice_dir'] = Path(config.get('oncoservice_sequencing_dir'))
     if input_type == 'run':
         paths['sample_sheet'] = 'SampleSheet.csv'
         paths['run_files_dir'] = input_path
@@ -361,8 +362,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseq6000_dir'))
-        paths['onco_results_dir'] = paths['oncoservice_sequencing_dir'] / 'Analyseergebnisse'
+        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
         paths['analyzing_tag'] = paths['flowcell_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['flowcell_dir'] / config.get('queued_tag')
@@ -378,7 +378,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['oncoservice_dir'] = Path(config.get('oncoservice_novaseqx_dir') + '_TEST' if testing else '')
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
-        paths['onco_results_dir'] = paths['oncoservice_sequencing_dir'] / 'Analyseergebnisse'
+        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
