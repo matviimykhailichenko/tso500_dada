@@ -4,7 +4,8 @@ import argparse
 from shutil import copy as sh_copy
 import pandas as pd
 from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
-    check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, get_queue
+    check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
+    get_queue, merge_metrics
 from logging_ops import setup_logger, notify_bot
 
 
@@ -85,9 +86,12 @@ def main():
 
         transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
+        if last_sample_queue:
+            merge_metrics(paths=paths)
         if last_sample_run or input_type == 'run':
             paths['analyzed_tag'].touch()
             paths['analyzing_tag'].unlink()
+
     except Exception:
         failed_tag.touch()
         analyzing_tag.unlink()

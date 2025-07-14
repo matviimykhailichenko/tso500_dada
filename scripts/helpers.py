@@ -8,8 +8,8 @@ from logging_ops import notify_bot, notify_pipeline_status
 from datetime import datetime
 import pandas as pd
 from filelock import FileLock
-import re
 import numpy as np
+from io import StringIO
 
 
 
@@ -108,7 +108,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
     run_name: str = paths['run_name']
     cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    run_seq_dir: Path = cbmed_seq_dir / flowcell
     rsync_path: str = paths['rsync_path']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -122,8 +121,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     results_staging: Path = staging_temp_dir / run_name
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
-    samplesheet_results_dir: Path = results_staging / paths['sample_sheet']
-    samplesheet_cbmed_dir: Path = dragen_cbmed_dir/ flowcell / paths['sample_sheet']
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -395,6 +392,11 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else '')
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['research_results_dir'] = Path(config.get('research_dir')) / f'Analyseergebnisse{'_TEST' if testing else ''}'
+    results_dirs_map = {
+        'ONC': paths['onco_results_dir'] / paths['run_name'],
+        'CBM':paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell
+    }
+    paths['results_dir'] = results_dirs_map[tag]
 
     return paths
 
@@ -744,16 +746,10 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
     return samples
 
 
-import pandas as pd
-from pathlib import Path
-from io import StringIO
-from collections import defaultdict
-
 def merge_metrics(paths: dict):
-    results_dir: Path = paths['results_dir']
-    all_sections = defaultdict(list)
-
-    for sample_dir in results_dir.iterdir():
+    metrics_dir: Path = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
+    combined_dfs = []
+    for sample_dir in metrics_dir.iterdir():
         if not sample_dir.is_dir():
             continue
 
@@ -762,46 +758,28 @@ def merge_metrics(paths: dict):
             raise RuntimeError(f'No metrics file in: {sample_dir}')
         metrics_file = tentative_metrics_files[0]
 
-        sections = {}
         with open(metrics_file, 'r') as f:
             lines = f.readlines()
 
         current_section = None
-        section_lines = []
+        section_lines = {}
+        for current_line in lines:
+            current_line = current_line.strip()
+            if current_line.startswith('[') and current_line.endswith(']') and not current_line.startswith('\t'):
+                current_section = current_line.strip('[]').replace(' ', '_')
 
-        for line in lines:
-            line = line.strip()
-            if line.startswith('[') and line.endswith(']'):
-                if current_section and section_lines:
-                    df = pd.read_csv(StringIO('\n'.join(section_lines)), sep='\t')
-                    sections[current_section] = df
-                current_section = line.strip('[]')
-                section_lines = []
             elif current_section:
-                if line:
-                    section_lines.append(line)
+                section_lines.setdefault(current_section, []).append(current_line)
 
-        if current_section and section_lines and current_section != 'Header':
-                print(df)
-                df = pd.read_csv(StringIO('\n'.join(section_lines)), sep='\t')
-                sections[current_section] = df
+        dfs = []
+        for section in section_lines:
+            if section not in ['Header','Notes','Analysis_Status','Run_QC_Metrics']:
+                df = pd.read_csv(StringIO('\n'.join([line for line in section_lines.get(section) if line.strip()])), sep='\t')
+                dfs.append(df)
 
-        for section, df in sections.items():
-            all_sections[section].append(df)
+        combined_dfs.append(pd.concat(dfs, ignore_index=True))
 
-    merged = {}
-    for section, dfs in all_sections.items():
-        combined = dfs[0]
-        for df in dfs[1:]:
-            print(f"\nColumns in this DF: {df.columns.tolist()}")
-            print(f"Columns in combined: {combined.columns.tolist()}")
-            combined = combined.merge(
-                df,
-                on=['Metric (UOM)', 'LSL Guideline', 'USL Guideline'],
-                how='outer'
-            )
-        merged[section] = combined
-        out_path = results_dir / f'merged_{section.replace(" ", "_")}.tsv'
-        combined.to_csv(out_path, sep='\t', index=False)
-
-    return merged
+    merged_df = pd.concat(combined_dfs, axis=1)
+    merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
+    out_path = metrics_dir / f'merged_MetricsOutput.tsv'
+    merged_df.to_csv(out_path, sep='\t', index=False)
