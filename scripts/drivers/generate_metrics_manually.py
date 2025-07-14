@@ -1,5 +1,5 @@
 from pathlib import Path
-from ..helpers import merge_metrics
+from scripts.helpers import merge_metrics
 
 
 
