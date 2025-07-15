@@ -2,12 +2,7 @@ from pathlib import Path
 
 
 
-for sample_dir in Path('/mnt/NovaseqXplus/07_Oncoservice_TEST/Analyseergebnisse/250710_TSO500_Onco/Logs_Intermediates/DragenCaller').iterdir():
-    next(sample_dir.glob('*.cram').unlink())
-
 base_dir = Path('/mnt/NovaseqXplus/07_Oncoservice_TEST/Analyseergebnisse/250710_TSO500_Onco')
-
-
 
 if (base_dir / 'ARCHIVED.txt').exists():
     (base_dir / 'ARCHIVED.txt').unlink()
