@@ -77,12 +77,12 @@ def main():
                 notify_bot(msg)
                 raise RuntimeError(msg)
 
-        archived_tag.touch()
-        archiving_tag.unlink()
+        (results_dir / archived_tag).touch()
+        (results_dir / archiving_tag).unlink()
 
     except Exception:
-        archiving_failed_tag.touch()
-        archiving_tag.unlink()
+        (results_dir / archiving_failed_tag).touch()
+        (results_dir / archiving_tag).unlink()
         raise RuntimeError
     finally:
         idle_tag.touch()
