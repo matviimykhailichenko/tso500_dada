@@ -63,6 +63,9 @@ def main():
         run_archive = archive_dir / run_name
         run_archive.mkdir(exist_ok=True)
 
+        (results_dir / archiving_tag).touch()
+        (results_dir / analyzed_tag).unlink()
+
         for bam_file in bam_files:
             cram_file = run_archive / bam_file.with_suffix('.cram').name
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
