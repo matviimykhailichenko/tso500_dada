@@ -81,9 +81,9 @@ def main():
         (results_dir / archiving_tag).unlink()
 
     except Exception:
-        if (results_dir / archiving_tag).exists():
-            (results_dir / archiving_tag).touch()
-        (results_dir / archiving_failed_tag).unlink()
+        if not (results_dir / archiving_failed_tag).exists():
+            (results_dir / archiving_failed_tag).unlink()
+        (results_dir / archiving_failed_tag).touch()
         raise RuntimeError
     finally:
         idle_tag.touch()
