@@ -8,7 +8,7 @@ if (base_dir / 'ARCHIVED.txt').exists():
     (base_dir / 'ARCHIVED.txt').unlink()
 
 if not (base_dir / 'ANALYZED.txt').exists():
-    (base_dir / 'ANALYZED.txt').unlink()
+    (base_dir / 'ANALYZED.txt').touch()
 
 if (base_dir / 'ARCHIVING_FAILED.txt').exists():
     (base_dir / 'ARCHIVING_FAILED.txt').unlink()
