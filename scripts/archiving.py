@@ -81,7 +81,7 @@ def main():
         (results_dir / archiving_tag).unlink()
 
     except Exception:
-        if not (results_dir / archiving_tag).exists():
+        if (results_dir / archiving_tag).exists():
             (results_dir / archiving_tag).unlink()
         (results_dir / archiving_failed_tag).touch()
         raise RuntimeError
