@@ -48,7 +48,7 @@ def main():
         bam_files = []
         run_name = None
         for results_dir in onco_results_dir.iterdir():
-            run_name = results_dir
+            run_name = results_dir.name
             if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
                 continue
             bam_files = [
