@@ -25,6 +25,7 @@ sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
 logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
 research_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung'
+archive_dir: '/mnt/NovaseqXplus/HuGe_Diagnostik-ARCHIV'
 
 
 ready_tags:
@@ -59,6 +60,9 @@ pending_tag: PENDING.txt
 queued_tag: QUEUED.txt
 analyzed_tag: ANALYZED.txt
 analyzing_tag: ANALYZING.txt
+archiving_tag: ARCHIVING.txt
+archived_tag: ARCHIVED.txt
+archiving_failed_tag: ARCHIVING_FAILED.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt
 server_busy_tag: BUSY.txt

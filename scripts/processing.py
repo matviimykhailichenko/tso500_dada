@@ -1,7 +1,6 @@
 from pathlib import Path
 import yaml
 import argparse
-from shutil import copy as sh_copy
 import pandas as pd
 from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
