@@ -49,7 +49,7 @@ def main():
         run_name = None
         for results_dir in onco_results_dir.iterdir():
             run_name = results_dir
-            if not (results_dir / analyzed_tag).exists():
+            if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
                 continue
             bam_files = [
                 f for f in (results_dir / 'Logs_Intermediates/DragenCaller').rglob("*.bam")
@@ -60,16 +60,16 @@ def main():
         if not bam_files or not run_name:
             return
 
-        archive_dir = archive_dir / run_name
-        archive_dir.mkdir(exist_ok=True)
+        run_archive = archive_dir / run_name
+        run_archive.mkdir(exist_ok=True)
 
         for bam_file in bam_files:
-
-            cram_file = archive_dir / bam_file.with_suffix('.cram').name
+            cram_file = run_archive / bam_file.with_suffix('.cram').name
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
             try:
-                subp_run(cmd, check=True, shell=True)
+                # subp_run(cmd, check=True, shell=True)
+                print(f'I will put file in {cram_file}')
             except CalledProcessError as e:
                 err = e.stderr.decode() if e.stderr else str(e)
                 msg = f"CRAM onversion had failed: {err}"
