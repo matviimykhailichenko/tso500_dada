@@ -35,7 +35,7 @@ def main():
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
-        reference = Path('/staging/references').rglob(f"{reference_version}.fna")
+        reference = Path('/staging/references').rglob(f"{reference_version}.fna")[0]
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
