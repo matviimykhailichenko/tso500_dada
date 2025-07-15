@@ -61,7 +61,7 @@ def main():
             return
 
         run_archive = archive_dir / run_name
-        run_archive.mkdir(exist_ok=True, parent=True)
+        run_archive.mkdir(exist_ok=True, parents=True)
 
         (results_dir / archiving_tag).touch()
         (results_dir / analyzed_tag).unlink()
