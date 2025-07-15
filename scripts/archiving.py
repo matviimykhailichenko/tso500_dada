@@ -5,6 +5,7 @@ from datetime import datetime
 from subprocess import run as subp_run, CalledProcessError
 from helpers import is_server_available, get_server_ip
 from logging_ops import notify_bot
+from shutil import copy as sh_copy
 
 
 
@@ -36,6 +37,7 @@ def main():
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
         reference = next(Path('/staging/references').rglob(f"{reference_version}.fna"))
+        reference_hash = Path(str(reference) + '.md5')
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
@@ -66,7 +68,14 @@ def main():
         (results_dir / archiving_tag).touch()
         (results_dir / analyzed_tag).unlink()
 
+        reference_path = run_archive / 'reference_path.txt'
+        sh_copy(reference, reference_path)
+
+        reference_hash_archive = run_archive / reference_hash.name
+        sh_copy(reference_hash, reference_hash_archive)
+
         for bam_file in bam_files:
+
             cram_file = run_archive / bam_file.with_suffix('.cram').name
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
