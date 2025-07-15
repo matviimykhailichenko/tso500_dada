@@ -66,7 +66,7 @@ def main():
         for bam_file in bam_files:
 
             cram_file = archive_dir / bam_file.with_suffix('.cram').name
-            cmd = (f"docker run -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
+            cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
             try:
                 subp_run(cmd, check=True, shell=True)
