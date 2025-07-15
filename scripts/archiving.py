@@ -2,12 +2,9 @@ from pathlib import Path
 import yaml
 import argparse
 from datetime import datetime
-from shutil import which as sh_which
 from subprocess import run as subp_run, CalledProcessError
-from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
-    check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
-    get_queue, merge_metrics
-from logging_ops import setup_logger, notify_bot
+from helpers import is_server_available, get_server_ip
+from logging_ops import notify_bot
 
 
 
@@ -22,7 +19,6 @@ def create_parser():
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
-    testing_fast: bool = args.testing_fast
 
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -35,7 +31,7 @@ def main():
         archiving_tag = config['archiving_tag']
         archived_tag = config['archived_tag']
         archiving_failed_tag = config['archiving_failed_tag']
-        onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Analyseergebnisse'
+        onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Analyseergebnisse'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
