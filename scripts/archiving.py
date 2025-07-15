@@ -27,7 +27,6 @@ def main():
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
-        servers: list = config['available_servers']
         server_availability_dir: Path = Path(config['server_availability_dir'])
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
@@ -36,12 +35,11 @@ def main():
         archiving_tag = config['archiving_tag']
         archived_tag = config['archived_tag']
         archiving_failed_tag = config['archiving_failed_tag']
-        onco_results_dir = config['oncoservice_sequencing_dir'] / 'Analyseergebnisse'
+        onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Analyseergebnisse'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-        samtools_path = sh_which('samtools')
         reference_version = 'hg19'
-        reference = Path('/staging/references').rglob(f"{reference_version}*")
+        reference = Path('/staging/references').rglob(f"{reference_version}.fna")
         archive_dir = config['archive_dir'] / str(datetime.now().year) / 'TSO500'
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
@@ -51,9 +49,6 @@ def main():
     idle_tag.unlink()
 
     try:
-        archiving_tag.touch()
-        analyzed_tag.unlink()
-
         bam_files = []
         run_name = None
         for results_dir in onco_results_dir.iterdir():
@@ -69,9 +64,15 @@ def main():
         if not bam_files or not run_name:
             return
 
+        archive_dir = archive_dir / run_name
+        archive_dir.mkdir(exist_ok=True)
+
         for bam_file in bam_files:
-            cram_file = archive_dir / run_name / bam_file.with_suffix('.cram').name
-            cmd = f"{samtools_path} view -@ 40 -T {reference} -C -o {cram_file} {bam_file}"
+
+            cram_file = archive_dir / bam_file.with_suffix('.cram').name
+            cmd = (f"docker run -it tso500_archiving "
+                  f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging "
+                  f"samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
