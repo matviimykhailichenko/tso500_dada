@@ -69,7 +69,8 @@ def main():
         (results_dir / analyzed_tag).unlink()
 
         reference_path = run_archive / 'reference_path.txt'
-        sh_copy(reference, reference_path)
+        with open(reference_path, 'w') as f:
+            f.write(str(reference))
 
         reference_hash_archive = run_archive / reference_hash.name
         sh_copy(reference_hash, reference_hash_archive)
