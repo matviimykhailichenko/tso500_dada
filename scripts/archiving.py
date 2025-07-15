@@ -61,7 +61,7 @@ def main():
             return
 
         run_archive = archive_dir / run_name
-        run_archive.mkdir(exist_ok=True)
+        run_archive.mkdir(exist_ok=True, parent=True)
 
         (results_dir / archiving_tag).touch()
         (results_dir / analyzed_tag).unlink()
@@ -71,8 +71,7 @@ def main():
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
             try:
-                # subp_run(cmd, check=True, shell=True)
-                print(f'I will put file in {cram_file}')
+                subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
                 err = e.stderr.decode() if e.stderr else str(e)
                 msg = f"CRAM onversion had failed: {err}"
