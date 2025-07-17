@@ -37,10 +37,13 @@ def main():
         mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST' if testing else config['mixed_runs_dir'] ) / 'Runs'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-        reference_version = 'hg19'
-        reference = next(Path('/staging/references').rglob(f"{reference_version}.fna"))
-        reference_hash = Path(str(reference) + '.md5')
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
+        server = get_server_ip()
+        if server == '10.200.214.104':
+            reference = Path('/staging/illumina/DRAGEN_TSO500_2.6.1/resources/hg19_decoy/genome.fa')
+        elif server == '10.200.215.35':
+            reference = Path('/staging/illumina/DRAGEN_TruSight_Oncology_500_ctDNA/resources/hg19_decoy/genome.fa')
+        reference_hash = Path(str(reference) + '.md5')
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
         return
