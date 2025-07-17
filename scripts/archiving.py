@@ -32,8 +32,8 @@ def main():
         archiving_tag = config['archiving_tag']
         archived_tag = config['archived_tag']
         archiving_failed_tag = config['archiving_failed_tag']
-        onco_results_dir = Path(config.get('oncoservice_sequencing_dir') + '_TEST' if testing else '') / 'Analyseergebnisse'
-        onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Runs'
+        onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir']) / 'Analyseergebnisse'
+        onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir'] ) / 'Runs'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
