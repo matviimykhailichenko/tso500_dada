@@ -34,6 +34,7 @@ def main():
         archiving_failed_tag = config['archiving_failed_tag']
         onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir']) / 'Analyseergebnisse'
         onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir'] ) / 'Runs'
+        mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST' if testing else config['mixed_runs_dir'] ) / 'Runs'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
@@ -98,7 +99,12 @@ def main():
 
         assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
 
-        run_seq_dir = next(onco_seq_dir.glob(f'*{run_name.split("_")[0]}*'))
+        run_prefix = run_name.split("_")[0]
+        try:
+            run_seq_dir = next(onco_seq_dir.glob(f'*{run_prefix}*'))
+        except StopIteration:
+            run_seq_dir = next(mixed_runs_dir.glob(f'*{run_prefix}*'))
+
         fastq_gen_dir = run_seq_dir / 'FastqGeneration'
         data_dir = run_seq_dir / 'Data'
 
