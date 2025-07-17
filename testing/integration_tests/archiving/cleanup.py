@@ -13,9 +13,6 @@ results_dir = Path('/mnt/NovaseqXplus/07_Oncoservice_TEST/Analyseergebnisse/2507
 if (base_dir / 'ARCHIVED.txt').exists():
     (base_dir / 'ARCHIVED.txt').unlink()
 
-if not (base_dir / 'ANALYZED.txt').exists():
-    (base_dir / 'ANALYZED.txt').touch()
-
 if (base_dir / 'ARCHIVING_FAILED.txt').exists():
     (base_dir / 'ARCHIVING_FAILED.txt').unlink()
 
@@ -24,6 +21,9 @@ if not run_seq_dir.exists():
 
 if not results_dir.exists():
     sh_copytree(test_results, results_dir)
+
+if not (base_dir / 'ANALYZED.txt').exists():
+    (base_dir / 'ANALYZED.txt').touch()
 
 if archived_dir.exists():
     sh_rmtree(archived_dir)
