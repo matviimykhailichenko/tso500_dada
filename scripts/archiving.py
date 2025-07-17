@@ -40,7 +40,6 @@ def main():
         reference = next(Path('/staging/references').rglob(f"{reference_version}.fna"))
         reference_hash = Path(str(reference) + '.md5')
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
-        print(onco_results_dir)
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
         return
@@ -109,12 +108,13 @@ def main():
         sh_move(run_seq_dir, run_archive / 'run_files')
         sh_move(results_dir, run_archive / 'pipeline_output')
 
-        (results_dir / archived_tag).touch()
+        (run_archive / archived_tag).touch()
 
     except Exception:
         if (results_dir / archiving_tag).exists():
             (results_dir / archiving_tag).unlink()
-        (results_dir / archiving_failed_tag).touch()
+        if results_dir.exists():
+            (results_dir / archiving_failed_tag).touch()
         raise RuntimeError
     finally:
         idle_tag.touch()
