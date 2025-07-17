@@ -96,7 +96,7 @@ def main():
 
         assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
 
-        run_seq_dir = next(onco_seq_dir.glob(run_name.split('_')[0]))
+        run_seq_dir = next(f'*{onco_seq_dir.glob(run_name.split('_')[0])}*')
         fastq_gen_dir = run_seq_dir / 'FastqGeneration'
         data_dir = run_seq_dir / 'Data'
 
