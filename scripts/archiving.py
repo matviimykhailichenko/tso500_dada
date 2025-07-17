@@ -91,6 +91,9 @@ def main():
                 notify_bot(msg)
                 raise RuntimeError(msg)
 
+        for bam_file in bam_files:
+            bam_file.unlink()
+
         (results_dir / archived_tag).touch()
         (results_dir / archiving_tag).unlink()
 
@@ -104,6 +107,9 @@ def main():
         sh_rmtree(data_dir)
 
         sh_move(run_seq_dir, run_archive / 'run_files')
+        sh_move(results_dir, run_archive / 'pipeline_output')
+
+        (results_dir / archived_tag).touch()
 
     except Exception:
         if (results_dir / archiving_tag).exists():
