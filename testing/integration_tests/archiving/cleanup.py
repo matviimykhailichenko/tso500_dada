@@ -20,5 +20,5 @@ if (base_dir / 'ARCHIVING_FAILED.txt').exists():
 if not run_seq_dir.exists():
     sh_copytree(test_run, run_seq_dir)
 
-if archived_dir.exists()
+if archived_dir.exists():
     sh_rmtree(archived_dir)
