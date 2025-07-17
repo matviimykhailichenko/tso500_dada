@@ -5,7 +5,7 @@ from datetime import datetime
 from subprocess import run as subp_run, CalledProcessError
 from helpers import is_server_available, get_server_ip
 from logging_ops import notify_bot
-from shutil import copy as sh_copy
+from shutil import copy as sh_copy, move as sh_move, rmtree as sh_rmtree
 
 
 
@@ -33,6 +33,7 @@ def main():
         archived_tag = config['archived_tag']
         archiving_failed_tag = config['archiving_failed_tag']
         onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Analyseergebnisse'
+        onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else '') / 'Runs'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         reference_version = 'hg19'
@@ -48,9 +49,10 @@ def main():
 
     try:
         bam_files = []
+        cram_files = []
         run_name = None
         for results_dir in onco_results_dir.iterdir():
-            run_name = results_dir.name
+            run_name: str = results_dir.name
             if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
                 continue
             bam_files = [
@@ -76,8 +78,8 @@ def main():
         sh_copy(reference_hash, reference_hash_archive)
 
         for bam_file in bam_files:
-
             cram_file = run_archive / bam_file.with_suffix('.cram').name
+            cram_files.append(cram_file)
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
             try:
@@ -90,6 +92,17 @@ def main():
 
         (results_dir / archived_tag).touch()
         (results_dir / archiving_tag).unlink()
+
+        assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
+
+        run_seq_dir = next(onco_seq_dir.glob(run_name.split('_')[0]))
+        fastq_gen_dir = run_seq_dir / 'FastqGeneration'
+        data_dir = run_seq_dir / 'Data'
+
+        sh_rmtree(fastq_gen_dir)
+        sh_rmtree(data_dir)
+
+        sh_move(run_seq_dir, run_archive / 'run_files')
 
     except Exception:
         if (results_dir / archiving_tag).exists():
