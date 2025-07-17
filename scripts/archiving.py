@@ -81,20 +81,20 @@ def main():
         for bam_file in bam_files:
             cram_file = run_archive / bam_file.with_suffix('.cram').name
             cram_files.append(cram_file)
-            # cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
-            #       f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
-            # try:
-            #     subp_run(cmd, check=True, shell=True)
-            # except CalledProcessError as e:
-            #     err = e.stderr.decode() if e.stderr else str(e)
-            #     msg = f"CRAM onversion had failed: {err}"
-            #     notify_bot(msg)
-            #     raise RuntimeError(msg)
+            cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
+                  f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
+            try:
+                subp_run(cmd, check=True, shell=True)
+            except CalledProcessError as e:
+                err = e.stderr.decode() if e.stderr else str(e)
+                msg = f"CRAM onversion had failed: {err}"
+                notify_bot(msg)
+                raise RuntimeError(msg)
 
         (results_dir / archived_tag).touch()
         (results_dir / archiving_tag).unlink()
 
-        # assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
+        assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
 
         run_seq_dir = next(onco_seq_dir.glob(f'*{run_name.split("_")[0]}*'))
         fastq_gen_dir = run_seq_dir / 'FastqGeneration'
