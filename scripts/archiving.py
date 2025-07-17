@@ -40,6 +40,7 @@ def main():
         reference = next(Path('/staging/references').rglob(f"{reference_version}.fna"))
         reference_hash = Path(str(reference) + '.md5')
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
+        print(onco_results_dir)
 
     if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
         return
