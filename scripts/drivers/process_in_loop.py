@@ -7,7 +7,7 @@ import signal
 import sys
 
 # === CONFIG ===
-ENV_ACTIVATE = "/staging/envs/tso500_dragen_pipeline/bin/activate"
+ENV_ACTIVATE = "/staging/env/tso500_dragen_pipeline/bin/activate"
 SCRIPT = "/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py"
 LOGFILE = "/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/logs/crontab_last_execution.log"
 PIDFILE = "/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/loop.pid"
