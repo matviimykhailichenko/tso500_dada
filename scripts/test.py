@@ -30,10 +30,14 @@ with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config
     server_idle_tag = server_availability_dir / server / config['server_idle_tag']
     server_busy_tag = server_availability_dir / server / config['server_busy_tag']
 
-    print("Idle tag path:", server_idle_tag)
-    print("Busy tag path:", server_busy_tag)
-    print("Idle exists:", server_idle_tag.exists())
-    print("Busy exists:", server_busy_tag.exists())
+    import os
+
+    print("os.path.exists (busy):", os.path.exists(server_busy_tag))
+    try:
+        os.stat(server_busy_tag)
+        print("os.stat (busy): exists")
+    except FileNotFoundError:
+        print("os.stat (busy): does NOT exist")
 
     if server_idle_tag.exists() and not server_busy_tag.exists():
         print(True)
