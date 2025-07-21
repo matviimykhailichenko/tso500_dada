@@ -32,9 +32,9 @@ with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config
 
 
     if server_idle_tag.exists():
-        print('server_idle_tag exists')
+        print(server_idle_tag)
     elif server_busy_tag.exists():
-        print('server_busy_tag exists')
+        print(server_busy_tag)
     else:
         message = f"There is a problem with busy/idle tags for the {server} server"
         notify_bot(message)
