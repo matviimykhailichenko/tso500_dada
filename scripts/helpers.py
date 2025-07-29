@@ -210,11 +210,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_results_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
+    checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
         "find . -type f -print0 | xargs -0 sha256sum | tee "
-        f"{str(checksums_results_cbmed)}"
+        f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
@@ -224,11 +224,11 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_results_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (
         f'cd {str(results_cbmed_dir)} && '
         "find . -type f -print0 | xargs -0 sha256sum | tee "
-        f"{str(checksums_results_cbmed)}"
+        f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
@@ -239,7 +239,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         # raise RuntimeError(message)
 
     diff_call = (
-        f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_results_cbmed)})'
+        f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
     )
     try:
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
