@@ -1,6 +1,7 @@
 from pathlib import Path
 from logging import getLogger, basicConfig, INFO, Logger
 from subprocess import run as subp_run, CalledProcessError
+from shutil import copytree as sh_copytree
 
 
 # Assume this function is defined elsewhere or imported
