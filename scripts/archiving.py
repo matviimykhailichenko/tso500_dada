@@ -82,7 +82,7 @@ def main():
         sh_copy(reference_hash, reference_hash_archive)
 
         for bam_file in bam_files:
-            cram_file = run_archive / bam_file.with_suffix('.cram').name
+            cram_file = bam_file.with_suffix('.cram')
             cram_files.append(cram_file)
             cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                   f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
