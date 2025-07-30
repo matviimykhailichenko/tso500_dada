@@ -94,7 +94,12 @@ def main():
                 notify_bot(msg)
                 raise RuntimeError(msg)
 
-            cmd = f'samtools index {cram_file}'
+            cmd = (
+                f"docker run --rm -it "
+                f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus "
+                f"tso500_archiving "
+                f"/opt/conda/envs/tso500_archiving/bin/samtools index {cram_file}"
+            )
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
