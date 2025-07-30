@@ -90,17 +90,29 @@ def main():
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
                 err = e.stderr.decode() if e.stderr else str(e)
-                msg = f"CRAM onversion had failed: {err}"
+                msg = f"CRAM conversion had failed: {err}"
                 notify_bot(msg)
                 raise RuntimeError(msg)
+
+            cmd = f'samtools index {cram_file}'
+            try:
+                subp_run(cmd, check=True, shell=True)
+            except CalledProcessError as e:
+                err = e.stderr.decode() if e.stderr else str(e)
+                msg = f"CRAM indexing had failed: {err}"
+                notify_bot(msg)
+                raise RuntimeError(msg)
+
+        expected_cram_files = []
+        [expected_cram_files.append(f.with_suffix('.cram')) for f in bam_files]
+        for f in expected_cram_files:
+            assert f.exists() and f.stat().st_size > 1, f"{f} does not exist or is too small"
 
         for bam_file in bam_files:
             bam_file.unlink()
 
         (results_dir / archived_tag).touch()
         (results_dir / archiving_tag).unlink()
-
-        assert [f.exists() and f.stat().st_size > 1 for f in cram_files]
 
         run_prefix = run_name.split("_")[0]
         try:
