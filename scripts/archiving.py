@@ -126,23 +126,9 @@ def main():
         sh_rmtree(fastq_gen_dir)
         sh_rmtree(data_dir)
 
-        cmd = f'rsync --checksum -a --remove-source-files {run_seq_dir}/ {run_archive}/run_files/'
-        try:
-            subp_run(cmd, check=True, shell=True)
-        except CalledProcessError as e:
-            err = e.stderr.decode() if e.stderr else str(e)
-            msg = f"Transfer of run files had failed: {err}"
-            notify_bot(msg)
-            raise RuntimeError(msg)
+        sh_move(run_seq_dir, run_archive / 'run_files')
+        sh_move(results_dir, run_archive / 'pipeline_output')
 
-        cmd = f'rsync --checksum -a --remove-source-files {results_dir}/ {run_archive}/pipeline_output/'
-        try:
-            subp_run(cmd, check=True, shell=True)
-        except CalledProcessError as e:
-            err = e.stderr.decode() if e.stderr else str(e)
-            msg = f"Transfer of results had failed: {err}"
-            notify_bot(msg)
-            raise RuntimeError(msg)
         (run_archive / archived_tag).touch()
 
     except Exception:
