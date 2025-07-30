@@ -126,7 +126,7 @@ def main():
         sh_rmtree(fastq_gen_dir)
         sh_rmtree(data_dir)
 
-        cmd = f'rsync - a - -remove - source - files {run_seq_dir}/ {run_archive}/run_files/'
+        cmd = f'rsync --checksum -a --remove-source-files {run_seq_dir}/ {run_archive}/run_files/'
         try:
             subp_run(cmd, check=True, shell=True)
         except CalledProcessError as e:
@@ -135,7 +135,7 @@ def main():
             notify_bot(msg)
             raise RuntimeError(msg)
 
-        cmd = f'rsync - a - -remove - source - files {results_dir}/ {run_archive}/pipeline_output/'
+        cmd = f'rsync --checksum -a --remove-source-files {results_dir}/ {run_archive}/pipeline_output/'
         try:
             subp_run(cmd, check=True, shell=True)
         except CalledProcessError as e:
