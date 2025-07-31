@@ -77,13 +77,9 @@ def main():
             bam_file = f"/staging/tmp/{sample_id}.bam"
             cmd = (
                 f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging "
-                f"tso500_archiving bash -c \""
-                f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -h -T {reference} -o {bam_file} {cram_file} && "
-                f"/opt/conda/envs/tso500_archiving/bin/samtools fastq -@ 40 -N "
+                f"tso500_archiving /opt/conda/envs/tso500_archiving/bin/samtools fastq -@ 40 -N "
                 f"-1 {str(fastq_dir)}/{sample_id}_S0_R1_001.fastq.gz -2 {str(fastq_dir)}/{sample_id}_S0_R2_001.fastq.gz "
-                f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz -n "
-                f"-t -F 0x900 -f 0x1 -O -o /dev/null {bam_file} "
-                f"-T {reference}\""
+                f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz {bam_file}"
             )
             try:
                 subp_run(cmd, check=True, shell=True)
