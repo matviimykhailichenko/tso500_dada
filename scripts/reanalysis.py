@@ -38,7 +38,7 @@ def main():
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
-        reanalysis_dir = Path(config['reanalysis_dir'] + '_TEST' if testing)
+        reanalysis_dir = Path(config['reanalysis_dir'] + '_TEST' if testing else config['reanalysis_dir'])
         server = get_server_ip()
         if server == '10.200.214.104':
             reference = Path('/staging/illumina/DRAGEN_TSO500_2.6.1/resources/hg19_decoy/genome.fa')
