@@ -69,7 +69,7 @@ def main():
             raise
 
         fastq_dir = run_dir / 'FastqGeneration'
-        fastq_dir.mkdir()
+        fastq_dir.mkdir(exist_ok=True)
 
         for sample_dir in caller_dir.iterdir():
             sample_id = sample_dir.name
