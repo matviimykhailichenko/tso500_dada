@@ -26,7 +26,7 @@ sy176_mountpoint: '/mnt/NovaseqXplus'
 logging_dir: '/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/logs'
 research_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung'
 archive_dir: '/mnt/NovaseqXplus/HuGe_Diagnostik-ARCHIV'
-reanalysis_dir: '/mnt/NovaseqXplus/06_Reanalyse/TSO500'
+reanalysis_dir: '/mnt/NovaseqXplus/06_Reanalyse'
 
 
 ready_tags:
