@@ -68,7 +68,7 @@ def main():
             print(f"Hashes are different for archived and current reference: {e}")
             raise
 
-        fastq_dir = 'run_dir / FastqGeneration'
+        fastq_dir = run_dir / 'FastqGeneration'
 
         for sample_dir in caller_dir.iterdir():
             sample_id = sample_dir.name
