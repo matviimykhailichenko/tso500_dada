@@ -31,7 +31,7 @@ def main():
         analyzed_tag = config['analyzed_tag']
         archiving_tag = config['archiving_tag']
         archived_tag = config['archived_tag']
-        archiving_failed_tag = config['archiving_failed_tag']
+        reanalysis_failed_tag = config['reanalysis_failed_tag']
         onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir']) / 'Analyseergebnisse'
         onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir'] ) / 'Runs'
         mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST' if testing else config['mixed_runs_dir'] ) / 'Runs'
@@ -93,7 +93,8 @@ def main():
 
 
     except Exception:
-
+        if caller_dir.exists():
+            (run_dir / reanalysis_failed_tag).touch()
         raise RuntimeError
     finally:
         idle_tag.touch()

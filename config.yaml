@@ -64,6 +64,7 @@ analyzing_tag: ANALYZING.txt
 archiving_tag: ARCHIVING.txt
 archived_tag: ARCHIVED.txt
 archiving_failed_tag: ARCHIVING_FAILED.txt
+reanalysis_failed_tag: REANALYSIS_FAILED.txt
 server_idle_tag: IDLE.txt
 failed_tag: FAILED.txt
 server_busy_tag: BUSY.txt
