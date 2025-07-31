@@ -74,12 +74,11 @@ def main():
         for sample_dir in caller_dir.iterdir():
             sample_id = sample_dir.name
             cram_file = next(sample_dir.glob('*.cram'))
-            bam_file = f"/staging/tmp/{sample_id}.bam"
             cmd = (
                 f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging "
                 f"tso500_archiving /opt/conda/envs/tso500_archiving/bin/samtools fastq -@ 40 -N "
                 f"-1 {str(fastq_dir)}/{sample_id}_S0_R1_001.fastq.gz -2 {str(fastq_dir)}/{sample_id}_S0_R2_001.fastq.gz "
-                f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz {bam_file}"
+                f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz {cram_file}"
             )
             try:
                 subp_run(cmd, check=True, shell=True)
