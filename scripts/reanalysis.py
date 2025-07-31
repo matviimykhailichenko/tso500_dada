@@ -75,8 +75,8 @@ def main():
             sample_id = sample_dir.name
             cram_file = next(sample_dir.glob('*.cram'))
             cmd = (
-                f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus tso500_archiving "
-                f"/opt/conda/envs/tso500_archiving/bin/samtools "
+                f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging "
+                f"tso500_archiving /opt/conda/envs/tso500_archiving/bin/samtools "
                 f"fastq -@ 40 -N "
                 f"-1 {str(fastq_dir)}/{sample_id}_S0_R1_001.fastq.gz -2 {str(fastq_dir)}/{sample_id}_S0_R2_001.fastq.gz "
                 f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz -n "
