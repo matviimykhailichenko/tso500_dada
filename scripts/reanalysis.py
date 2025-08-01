@@ -13,6 +13,7 @@ def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     parser.add_argument('-tf', '--testing_fast',action='store_true', help='Fast testing mode')
+    parser.add_argument('-v', '--verbosity', action='store_true', help='Verbose mode')
 
     return parser
 
@@ -20,6 +21,7 @@ def create_parser():
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
+    verbose: bool = args.verbosity
 
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -28,16 +30,9 @@ def main():
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
         busy_tag = server_availability_dir / server / config['server_busy_tag']
-        analyzed_tag = config['analyzed_tag']
-        archiving_tag = config['archiving_tag']
-        archived_tag = config['archived_tag']
         reanalysis_failed_tag = config['reanalysis_failed_tag']
-        onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir']) / 'Analyseergebnisse'
-        onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir'] ) / 'Runs'
-        mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST' if testing else config['mixed_runs_dir'] ) / 'Runs'
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
-        archive_dir = Path(config['archive_dir'] + '_TEST') / str(datetime.now().year) / 'TSO500'
         reanalysis_dir = Path(config['reanalysis_dir'] + '_TEST' if testing else config['reanalysis_dir']) / 'TSO500'
         server = get_server_ip()
         if server == '10.200.214.104':
@@ -80,6 +75,9 @@ def main():
                 f"-1 {str(fastq_dir)}/{sample_id}_S0_R1_001.fastq.gz -2 {str(fastq_dir)}/{sample_id}_S0_R2_001.fastq.gz "
                 f"-0 {str(fastq_dir)}/unpaired.fastq.gz -s {str(fastq_dir)}/unpaired.fastq.gz {cram_file}"
             )
+            msg = f'INFO: FASTQ converting {sample_id} now...'
+            if verbose:
+                notify_bot(msg)
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
