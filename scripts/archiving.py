@@ -13,7 +13,7 @@ def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     parser.add_argument('-tf', '--testing_fast',action='store_true', help='Fast testing mode')
-    parser.add_argument('-v', '-verbosity', action='store_true', help='Verbose mode')
+    parser.add_argument('-v', '--verbosity', action='store_true', help='Verbose mode')
 
     return parser
 
