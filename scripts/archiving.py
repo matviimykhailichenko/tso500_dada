@@ -84,8 +84,13 @@ def main():
         for bam_file in bam_files:
             cram_file = bam_file.with_suffix('.cram')
             cram_files.append(cram_file)
-            cmd = (f"docker run --rm -it -v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
-                  f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} {bam_file}")
+            cmd = (
+                f"docker run --rm -it "
+                f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
+                f"bash -c \""
+                f"/opt/conda/envs/tso500_archiving/bin/samtools sort -n -@ 40 {bam_file} -O BAM | "
+                f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} -\""
+            )
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
