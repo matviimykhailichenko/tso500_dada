@@ -63,6 +63,7 @@ def main():
                 f for f in (results_dir / 'Logs_Intermediates/DragenCaller').rglob("*.bam")
                 if not f.name.startswith("evidence")
             ]
+            notify_bot(f'Archiving of run {run_name} failed. In run directory there are no .BAM files')
             break
 
         if not bam_files or not run_name:
