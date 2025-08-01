@@ -65,10 +65,10 @@ def main():
                 f for f in (results_dir / 'Logs_Intermediates/DragenCaller').rglob("*.bam")
                 if not f.name.startswith("evidence")
             ]
-            notify_bot(f'Archiving of run {run_name} failed. In run directory there are no .BAM files')
             break
 
         if not bam_files or not run_name:
+            notify_bot(f'Archiving of run {run_name} failed. In run directory there are no .BAM files')
             return
 
         run_archive = archive_dir / run_name
@@ -90,7 +90,6 @@ def main():
                 f"docker run --rm -it "
                 f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                 f"/opt/conda/envs/tso500_archiving/bin/samtools sort -n -@ 40 {bam_file} -O BAM -o {sorted_bam_file}"
-
             )
             msg = f'INFO: sorting {bam_file.name} now'
             if verbose:
