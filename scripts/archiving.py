@@ -122,23 +122,6 @@ def main():
                 notify_bot(msg)
                 raise RuntimeError(msg)
 
-            cmd = (
-                f"docker run --rm -it "
-                f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus "
-                f"tso500_archiving "
-                f"/opt/conda/envs/tso500_archiving/bin/samtools index {cram_file}"
-            )
-            msg = f'INFO: indexing {cram_file.name} now'
-            if verbose:
-                print(msg)
-            try:
-                subp_run(cmd, check=True, shell=True)
-            except CalledProcessError as e:
-                err = e.stderr.decode() if e.stderr else str(e)
-                msg = f"CRAM indexing had failed: {err}"
-                notify_bot(msg)
-                raise RuntimeError(msg)
-
         expected_cram_files = []
         [expected_cram_files.append(f.with_suffix('.cram')) for f in bam_files]
         for f in expected_cram_files:
