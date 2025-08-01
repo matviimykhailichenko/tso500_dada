@@ -85,7 +85,8 @@ def main():
         sh_copy(reference_hash, reference_hash_archive)
 
         for bam_file in bam_files:
-            sorted_bam_file = str(bam_file).strip('.')[0] + '_sorted' + '.bam'
+
+            sorted_bam_file = bam_file.with_suffix('').as_posix() + '_sorted.bam'
             cmd = (
                 f"docker run --rm -it "
                 f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
