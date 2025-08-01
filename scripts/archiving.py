@@ -13,6 +13,7 @@ def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     parser.add_argument('-tf', '--testing_fast',action='store_true', help='Fast testing mode')
+    parser.add_argument('-v', '-verbosity', action='store_true', help='Verbose mode')
 
     return parser
 
@@ -20,6 +21,7 @@ def create_parser():
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
+    verbose: bool = args.verbosity
 
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -83,15 +85,34 @@ def main():
         sh_copy(reference_hash, reference_hash_archive)
 
         for bam_file in bam_files:
+            sorted_bam_file = str(bam_file).strip('.')[0] + '_sorted' + '.bam'
+            cmd = (
+                f"docker run --rm -it "
+                f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
+                f"/opt/conda/envs/tso500_archiving/bin/samtools sort -n -@ 40 {bam_file} -O BAM -o {sorted_bam_file}"
+
+            )
+            msg = f'INFO: sorting {bam_file.name} now'
+            if verbose:
+                print(msg)
+            try:
+                subp_run(cmd, check=True, shell=True)
+            except CalledProcessError as e:
+                err = e.stderr.decode() if e.stderr else str(e)
+                msg = f"CRAM conversion had failed: {err}"
+                notify_bot(msg)
+                raise RuntimeError(msg)
+
             cram_file = bam_file.with_suffix('.cram')
             cram_files.append(cram_file)
             cmd = (
                 f"docker run --rm -it "
                 f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
-                f"bash -c \""
-                f"/opt/conda/envs/tso500_archiving/bin/samtools sort -n -@ 40 {bam_file} -O BAM | "
                 f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} -\""
             )
+            msg = f'INFO: CRAM converting {bam_file.name} now'
+            if verbose:
+                print(msg)
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
@@ -106,6 +127,9 @@ def main():
                 f"tso500_archiving "
                 f"/opt/conda/envs/tso500_archiving/bin/samtools index {cram_file}"
             )
+            msg = f'INFO: indexing {cram_file.name} now'
+            if verbose:
+                print(msg)
             try:
                 subp_run(cmd, check=True, shell=True)
             except CalledProcessError as e:
@@ -117,7 +141,7 @@ def main():
         expected_cram_files = []
         [expected_cram_files.append(f.with_suffix('.cram')) for f in bam_files]
         for f in expected_cram_files:
-            assert f.exists() and f.stat().st_size > 1, f"{f} does not exist or is too small"
+            assert f.exists() and f.stat().st_size > 1, f"Archiving of run {run_name} failed. {f} does not exist or is too small"
 
         # TODO uncomment in prod
         # for bam_file in bam_files:
