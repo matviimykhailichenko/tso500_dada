@@ -108,7 +108,7 @@ def main():
                 f"docker run --rm -it "
                 f"-v /mnt/NovaseqXplus:/mnt/NovaseqXplus -v /staging:/staging tso500_archiving "
                 f"/opt/conda/envs/tso500_archiving/bin/samtools view -@ 40 -T {reference} -C -o {cram_file} "
-                f"{bam_file}"
+                f"{sorted_bam_file}"
             )
             msg = f'INFO: CRAM converting {bam_file.name} now'
             if verbose:
