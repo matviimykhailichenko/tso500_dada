@@ -57,8 +57,8 @@ def main():
         run_name = None
         for results_dir in onco_results_dir.iterdir():
             run_name: str = results_dir.name
-            # if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
-            #     continue
+            if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
+                continue
             bam_files = [
                 f for f in (results_dir / 'Logs_Intermediates/DragenCaller').rglob("*.bam")
                 if not f.name.startswith("evidence")
