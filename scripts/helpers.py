@@ -353,7 +353,6 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['input_dir'] = input_path
     paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
     if input_type == 'run':
-        paths['sample_sheet'] = 'SampleSheet.csv'
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
@@ -366,14 +365,13 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
         paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     elif input_type == 'sample':
-        paths['sample_sheet'] = 'SampleSheet_Analysis.csv'
+        paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
