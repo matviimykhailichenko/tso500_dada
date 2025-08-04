@@ -365,9 +365,9 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
         paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     elif input_type == 'sample':
-        paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
+        paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
