@@ -29,8 +29,8 @@ def main():
 
     paths = setup_paths_scheduler(testing=testing)
     seq_dirs = [paths['onco_seq_dir'], paths['cbmed_seq_dir'], paths['mixed_runs_dir']]
-    # if get_server_ip() == '10.200.215.35':
-    #     seq_dirs.append(paths['patho_seq_dir'])
+    if get_server_ip() == '10.200.215.35':
+        seq_dirs.append(paths['patho_seq_dir'])
 
     for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
