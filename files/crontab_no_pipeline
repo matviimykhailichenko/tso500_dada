@@ -35,3 +35,6 @@ BASH_ENV=~/.bashrc
 #
 # ->| DEL-OPS: RECYCLE BIN Skimmer (ultimately deletes files and folders residing longer than 3 months in hte recycle bin [total age: >9 months])
 24 23 * * * conda run -n DRAGEN_pipeline_fix-Innsbruck --live-stream python3 /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/NASDeletionOps/recycle_bin_skimmer.py > /mnt/Novaseq/DRAGEN_intermediate_pipeline_fix_before_snakemake/pipeline_external/crontab_logs/recycle_bin_skimmer/latest_recycle_bin_skimmer_execution-crontab.log 2>&1
+#
+# quota usage surveilance (this is now uploaded everyday to the Illumina license server which will then issue a new quota based on the remaining quota - the usage is reset to zero everyday around 18:20; time might vary between 17:30 and 18:30)
+55 17 * * * bash /mnt/NovaseqXplus/WXS_pipeline/03_Production/code/quota_surveilance/quota_surveilance.sh
