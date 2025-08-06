@@ -18,6 +18,7 @@ cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
 mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
 patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
+patho_sequencing_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
 sx182_mountpoint: '/mnt/Novaseq/'
@@ -44,6 +45,15 @@ blocking_tags:
   - PENDING.txt
   - ANALYZING.txt
   - QUEUED.txt
+
+blocking_tags_validator:
+  - ANALYZED.txt
+  - FAILED.txt
+  - PENDING.txt
+  - ANALYZING.txt
+  - QUEUED.txt
+  - ARCHIVING.txt
+  - ARCHIVED.txt
 
 status_tags:
   - Analyzing.txt
