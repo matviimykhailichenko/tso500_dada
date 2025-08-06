@@ -34,8 +34,6 @@ def main():
     if not is_server_available():
         return
 
-    busy_tag.touch()
-    idle_tag.unlink()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
@@ -43,6 +41,9 @@ def main():
 
     if queue is None:
         return
+
+    busy_tag.touch()
+    idle_tag.unlink()
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
