@@ -1,10 +1,10 @@
 from pathlib import Path
 from logging import getLogger, basicConfig, INFO, Logger
+from logging_ops import notify_bot
 from subprocess import run as subp_run, CalledProcessError
 from shutil import copytree as sh_copytree
 
 
-# Assume this function is defined elsewhere or imported
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
     cbmed_results_dir: Path = paths['cbmed_results_dir']
     flowcell: str = paths['flowcell']
@@ -34,28 +34,28 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
         checksums_call = (
             f'cd {str(fastq_gen_seq_dir)} && '
-            "find . -type f -print0 | parallel -0 -j 40 sha256sum > "
+            "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
             f"{str(checksums_humgen)}"
         )
         try:
             subp_run(checksums_call, shell=True).check_returncode()
         except CalledProcessError as e:
             message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            print(message)
+            notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (
         f'cd {str(results_staging)} && '
-        "find . -type f -print0 | parallel -0 -j 40 sha256sum > "
+        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
         f"{str(checksums_humgen)}"
     )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        print(message)
+        notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -70,7 +70,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            print(message)
+            notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -82,7 +82,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            print(message)
+            notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -97,7 +97,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            print(message)
+            notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -111,35 +111,35 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
         message = f"Transferring results had FAILED: {e}"
-        print(message)
+        notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
 
     checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
-        "find . -type f -print0 | parallel -0 -j 40 sha256sum > "
+        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
         f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        print(message)
+        notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
 
     checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (
         f'cd {str(results_cbmed_dir)} && '
-        "find . -type f -print0 | parallel -0 -j 40 sha256sum > "
+        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
         f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        print(message)
+        notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -153,7 +153,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             # raise RuntimeError(message)
     except CalledProcessError as e:
         message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        print(message)
+        notify_bot(message)
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -170,7 +170,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
                 # raise RuntimeError(message)
         except CalledProcessError as e:
             message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            print(message)
+            notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -183,11 +183,11 @@ logger = getLogger("''cbmed_transfer''")
 input_type = 'run'
 
 paths = {
-    'run_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/250718_BI_735_batch3'),
+    'run_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/250801_BI_735_batch4'),
     'staging_temp_dir': Path('/staging/tmp'),
     'cbmed_results_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid'),
-    'flowcell': '250718_A01664_0532_BHHMK5DSXF',
-    'run_name': '250718_BI_735_batch3',
+    'flowcell': '250801_A01664_0539_AHHNFLDSXF',
+    'run_name': '250801_BI_735_batch4',
     'cbmed_seq_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid'),
     'rsync_path': '/usr/bin/rsync'}
 
