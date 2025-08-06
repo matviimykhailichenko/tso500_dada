@@ -34,7 +34,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
         checksums_call = (
             f'cd {str(fastq_gen_seq_dir)} && '
-            "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
+            "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee"
             f"{str(checksums_humgen)}"
         )
         try:
@@ -48,7 +48,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (
         f'cd {str(results_staging)} && '
-        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
+        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee"
         f"{str(checksums_humgen)}"
     )
     try:
@@ -118,7 +118,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
-        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
+        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee"
         f"{str(checksums_cbmed)}"
     )
     try:
@@ -132,7 +132,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
     checksums_call = (
         f'cd {str(results_cbmed_dir)} && '
-        "find . -type f -print0 | parallel xargs -0 sha256sum | tee "
+        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee"
         f"{str(checksums_cbmed)}"
     )
     try:
