@@ -298,7 +298,7 @@ def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    results_dir: Path = paths['research_results_dir'] / paths['run_name']
+    results_dir: Path = paths['results_dir'] / paths['run_name']
 
     rsync_path: str = paths['rsync_path']
 
@@ -389,7 +389,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
-    paths['research_results_dir'] = Path(config.get('research_dir')) / f'Analyseergebnisse{'_TEST' if testing else config.get('research_dir')}'
+    paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
