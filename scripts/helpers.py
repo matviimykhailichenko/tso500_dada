@@ -392,7 +392,8 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['research_results_dir'] = Path(config.get('research_dir')) / f'Analyseergebnisse{'_TEST' if testing else config.get('research_dir')}'
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM':paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell
+        'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
+        'TSO': paths['research_results_dir']
     }
     paths['results_dir'] = results_dirs_map[tag]
 
