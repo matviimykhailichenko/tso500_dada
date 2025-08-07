@@ -170,13 +170,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             # raise RuntimeError(message)
 
     elif input_type == 'run':
-        rsync_call = (f"{rsync_path} -r "
-                      f"{str(paths['run_dir'] / flowcell)}/ "
-                      f"{str(data_cbmed_dir)}")
         try:
-            subp_run(rsync_call, shell=True, check=True)
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
+            sh_move(paths['run_dir'] / flowcell, data_cbmed_dir)
+        except Exception as e:
+            message = f"Moving results had FAILED: {e}"
             notify_bot(message)
             logger.error(message)
             # raise RuntimeError(message)
