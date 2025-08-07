@@ -28,9 +28,11 @@ def main():
         queue_blank: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing)
-    seq_dirs = [paths['onco_seq_dir'], paths['cbmed_seq_dir'], paths['mixed_runs_dir']]
+    # TODO assumption: CBmed are only on NS6000 and version 2.1.
+    seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir']]
     if get_server_ip() == '10.200.215.35':
         seq_dirs.append(paths['patho_seq_dir'])
+        seq_dirs.append(paths['cbmed_seq_dir'])
 
     for server in servers:
         queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
