@@ -61,7 +61,6 @@ status_tags:
 
 available_servers:
   - 10.200.214.104
-  - 10.200.215.35
 
 tags:
   - TSO
