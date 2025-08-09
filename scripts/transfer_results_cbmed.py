@@ -183,11 +183,11 @@ logger = getLogger("''cbmed_transfer''")
 input_type = 'run'
 
 paths = {
-    'run_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/250801_BI_735_batch4'),
+    'run_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/250801_BI_735_batch5'),
     'staging_temp_dir': Path('/staging/tmp'),
     'cbmed_results_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid'),
-    'flowcell': '250801_A01664_0539_AHHNFLDSXF',
-    'run_name': '250801_BI_735_batch4',
+    'flowcell': '250801_A01664_0538_BHHVHLDSXF',
+    'run_name': '250801_BI_735_batch5',
     'cbmed_seq_dir': Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid'),
     'rsync_path': '/usr/bin/rsync'}
 
