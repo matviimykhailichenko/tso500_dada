@@ -22,7 +22,7 @@
 #
 # m h  dom mon dow   command
 SHELL=/bin/bash
-BASH_ENV=~/.bashrc
+BASH_ENV=~/.cron_env
 #
 * * * * * echo "Cron test run " > /staging/tmp/crontab_test.txt
 
