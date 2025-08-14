@@ -1,0 +1,16 @@
+# ~/.cron_env
+# Minimal environment for cron jobs — no pyenv, no conda
+
+# Basic paths (adjust if you need more)
+export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+
+# Locale to avoid cron's default C locale issues
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# Python virtualenv (if needed for your job)
+# Uncomment and change path to your venv
+# source /path/to/venv/bin/activate
+
+# Any other needed variables for scripts
+# export VAR_NAME="value"
