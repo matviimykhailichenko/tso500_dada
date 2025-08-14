@@ -25,4 +25,4 @@ SHELL=/bin/bash
 BASH_ENV=~/.cron_env
 #
 # ->| TSO500 software test:
-* * * * * /usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh -h || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/crontab_failed.py
+* * * * * /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/crontab/test_script.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/crontab_failed.py
