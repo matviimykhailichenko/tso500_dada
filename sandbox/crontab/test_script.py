@@ -10,8 +10,7 @@ try:
         shell=True,
         check=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+        stderr=subprocess.PIPE
     )
     # Append successful output too if needed
     with open(log_file, "a") as f:
