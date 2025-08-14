@@ -1,7 +1,7 @@
 import subprocess
 from datetime import datetime
 
-log_file = "/path/to/error_log.txt"  # change to your desired location
+log_file = "/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/crontab/log.txt"  # change to your desired location
 
 cmd = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh -h'
 
