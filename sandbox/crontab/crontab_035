@@ -25,4 +25,4 @@ SHELL=/bin/bash
 BASH_ENV=~/.cron_env
 #
 # ->| TSO500 software test:
-* * * * * /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/crontab/test_script.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/crontab_failed.py
+* * * * * python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/sandbox/crontab/test_script.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/crontab_failed.py
