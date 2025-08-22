@@ -29,7 +29,7 @@ def main():
 
     paths = setup_paths_scheduler(testing=testing)
     # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
-    seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir']]
+    seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir'], paths['research_seq_dir']]
     if get_server_ip() == '10.200.215.35':
         seq_dirs.append(paths['patho_seq_dir'])
         seq_dirs.append(paths['cbmed_seq_dir'])
