@@ -21,6 +21,7 @@ patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 patho_sequencing_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
+patho_results_dir: '/mnt/Patho/TSO500_DRAGEN'
 sx182_mountpoint: '/mnt/Novaseq/'
 sy176_mountpoint: '/mnt/NovaseqXplus'
 # TODO Change in prod
