@@ -386,8 +386,12 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
+<<<<<<< HEAD
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
     paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
+=======
+    paths['research_seq_dir'] = Path(config.get('research_dir')) / ('Runs_TEST' if testing else 'Analyseergebnisse')
+>>>>>>> 6f6d950 (fixing the error with research)
     paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
@@ -672,6 +676,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     onco_seq_dir = paths['onco_seq_dir']
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
+    research_seq_dir = paths['research_seq_dir']
     pipeline_dir = paths['pipeline_dir']
 
     server = get_server_ip()
@@ -679,7 +684,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
-    priority_map = {onco_seq_dir: [1,'ONC'], cbmed_seq_dir: [2,'CBM'],patho_seq_dir: [3,'PAT']}
+    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
