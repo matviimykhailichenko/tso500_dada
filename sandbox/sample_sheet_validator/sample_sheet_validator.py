@@ -69,7 +69,42 @@ def main():
         "[Sequencing_Settings]\n",
         "[BCLConvert_Settings]\n",
         "[TSO500L_Settings]\n",
-        "[TSO500L_Data]\n"]
+        "[TSO500L_Data]\n"
+        ]
+
+        # Run name is variable
+        expected_header_section = [
+            "FileFormatVersion,2\n",
+            "InstrumentPlatform,NovaSeqXSeries\n",
+            "IndexOrientation,Forward\n"
+        ]
+
+        expected_read_section = [
+            "Read1Cycles,151\n",
+            "Read2Cycles,151\n",
+            "Index1Cycles,10\n",
+            "Index2Cycles,10\n"
+        ]
+
+        expected_seq_settings_section = [
+            'LibraryPrepKits,TSO500ctDNA_v2\n'
+        ]
+
+        expected_bcl_settings_section = [
+            "SoftwareVersion,2.1.1\n",
+            "AdapterRead1,CTGTCTCTTATACACATCT\n",
+            "AdapterRead2,CTGTCTCTTATACACATCT\n",
+            "OverrideCycles,U7N1Y143;I10;I10;U7N1Y143\n",
+            "MaskShortReads,35\n",
+            "AdapterBehavior,trim\n",
+            "MinimumTrimmedReadLength,35\n",
+            "FastqCompressionFormat,gzip\n"
+        ]
+
+        expected_tso500_settings_section = [
+            'SoftwareVersion,2.1.1\n',
+            'StartsFromFastq,false\n'
+        ]
 
     elif input_type == 'run':
         expected_headers = [
@@ -103,6 +138,8 @@ def main():
 
     print(df_indexes)
     print(df_expected_indexes)
+    print(sections_dict)
+
 
     assert set(df_indexes["Index_ID"]) <= set(df_expected_indexes["Index_ID"])
 
