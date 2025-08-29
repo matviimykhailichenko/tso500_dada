@@ -1,8 +1,7 @@
 import yaml
 from pathlib import Path
-import re
 import pandas as pd
-
+from io import StringIO
 
 
 def main():
@@ -34,8 +33,10 @@ def main():
     #
     #         sample_sheet = flowcell_dir / 'SampleSheet.csv'
 
+    input_type = 'samples'
+
     # TODO sandboxing the script, delete after putting to prod
-    sample_sheet = 'SampleSheet250620_BI_739_batch1.csv'
+    sample_sheet = 'SampleSheet_Analysis.csv'
 
     if sample_sheet is None:
         return
@@ -61,30 +62,51 @@ def main():
     # parced_sample_sheet = 'SampleSheet_parced.csv'
     # with open(parced_sample_sheet, 'w') as f:
     #     f.write(str(sections_dict))
-    expected_headers = [
-        "[Header],,,,\n",
-        "[Reads],,,,\n",
-        "[Sequencing_Settings],,,,\n",
-        "[BCLConvert_Settings],,,,\n",
-        "[BCLConvert_Data],,,,\n",
-        "[TSO500L_Settings],,,,\n",
-        "[TSO500L_Data],,,,\n",
-    ]
+    if input_type == 'samples':
+        expected_headers = [
+        "[Header],\n",
+        "[Reads]\n",
+        "[Sequencing_Settings]\n",
+        "[BCLConvert_Settings]\n",
+        "[TSO500L_Settings]\n",
+        "[TSO500L_Data]\n"]
 
-    assert list(sections_dict.keys()) == expected_headers
+    elif input_type == 'run':
+        expected_headers = [
+            "[Header],\n",
+            "[Reads]\n",
+            "[Sequencing_Settings]\n",
+            "[BCLConvert_Settings]\n",
+            "[BCLConvert_Data\n",
+            "[TSO500L_Settings]\n",
+            "[TSO500L_Data]\n"]
+    else:
+        raise RuntimeError('Unexpected input type')
+    #
+    # print(list(sections_dict.keys()))
+    # print(expected_headers)
+    extra = set(sections_dict.keys()) - set(expected_headers)
+    missing = set(expected_headers) - set(sections_dict.keys())
+    assert not extra and not missing, (
+        f"ERROR: Headers of sections are not as expected.\n"
+        f"Extra: {extra}\n"
+        f"Missing: {missing}")
 
     df_expected_indexes = pd.read_csv(expected_indexes)
 
-    indexes = sections_dict.get('[TSO500L_Data],,,,\n')
+    indexes = sections_dict.get('[TSO500L_Data]\n')
+
     csv_string = "".join(indexes)
-    from io import StringIO
+
     df_indexes = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
+    df_indexes.to_csv('sample_sheet_indexes',index=False)
+
     print(df_indexes)
     print(df_expected_indexes)
 
-    df_indexes.to_csv('sample_sheet_indexes',index=False)
+    assert set(df_indexes["Index_ID"]) <= set(df_expected_indexes["Index_ID"])
 
-    assert (df_indexes.merge(df_expected_indexes.drop_duplicates()).shape[0]  == df_indexes.shape[0])
+    print('Samplesheet is valid')
 
 
 if __name__ == '__main__':
