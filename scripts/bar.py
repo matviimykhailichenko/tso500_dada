@@ -12,4 +12,4 @@ with open(f'{repo_root}/config.yaml', 'r') as file:
 validate_samplesheet(repo_root=Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor'),
                      input_type='samples',
                      config = config,
-                     sample_sheet = Path('/mnt/NovaseqXplus/10_MixedRuns/20250827_LH00803_0022_A235MT5LT3'))
+                     sample_sheet = Path('/mnt/NovaseqXplus/10_MixedRuns/20250827_LH00803_0022_A235MT5LT3/SampleSheet_Analysis.csv'))
