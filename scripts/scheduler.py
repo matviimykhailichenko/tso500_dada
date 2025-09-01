@@ -23,11 +23,11 @@ def main():
 
     repo_root = get_repo_root()
 
-    with open(f'{repo_root}/pure-python-refactor/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
-        queue_blank: Path = Path(f'{repo_root}/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing)
     # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
