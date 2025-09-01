@@ -1,7 +1,7 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move, copytree as sh_copytree
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError
+from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
 from typing import Optional
 import yaml
 from logging_ops import notify_bot, notify_pipeline_status
@@ -785,3 +785,13 @@ def merge_metrics(paths: dict):
     merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
     out_path = metrics_dir / f'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
+
+def get_repo_root() -> Path:
+    try:
+        root = subp_check_output(
+            ["git", "rev-parse", "--show-toplevel"],
+            text=True
+        ).strip()
+        return Path(root)
+    except CalledProcessError:
+        raise RuntimeError("Not inside a git repository")

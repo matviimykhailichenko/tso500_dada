@@ -1,6 +1,6 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
-    rearrange_fastqs, setup_paths_scheduler, get_server_ip
+    rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root
 from shutil import copy as sh_copy
 from logging_ops import notify_bot
 import re
@@ -21,11 +21,13 @@ def main():
     args = parser.parse_args()
     testing = args.testing
 
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    repo_root = get_repo_root
+
+    with open(f'{repo_root}/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
-        queue_blank: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
+        queue_blank: Path = Path(f'{repo_root}/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing)
     # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
