@@ -803,7 +803,7 @@ def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet:
         expected_sections = config.get("expected_sections_nsqx")
     else:
         raise RuntimeError("input_type must be 'run' or 'samples'")
-    expected_headers = expected_sections["expected_headers"]
+    expected_headers = expected_sections[f"expected_headers_{"nsq6000" if input_type == "run" else "nsqx"}"]
     expected_indexes = f"{repo_root}/files/expected_indexes.csv"
 
     with open(sample_sheet, 'r') as f:
