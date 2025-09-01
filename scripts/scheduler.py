@@ -7,7 +7,6 @@ import re
 import yaml
 from pathlib import Path
 
-from scripts.helpers import validate_samplesheet
 
 
 def create_parser():
