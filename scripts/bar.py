@@ -5,7 +5,7 @@ import yaml
 
 repo_root = get_repo_root()
 
-with open(f'{repo_root}/pure-python-refactor/config.yaml', 'r') as file:
+with open(f'{repo_root}/config.yaml', 'r') as file:
     config = yaml.safe_load(file)
     pipeline_dir: Path = Path(config['pipeline_dir'])
 
