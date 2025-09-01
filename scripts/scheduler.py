@@ -21,7 +21,7 @@ def main():
     args = parser.parse_args()
     testing = args.testing
 
-    repo_root = get_repo_root
+    repo_root = get_repo_root()
 
     with open(f'{repo_root}/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
