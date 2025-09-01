@@ -151,7 +151,6 @@ expected_sections_nsqx:
   "[BCLConvert_Settings]\n": expected_bcl_settings
   "[TSO500L_Settings]\n": expected_tso500_settings_section
   
----
 expected_headers_nsq6000:
   - "[Header],,,,\n"
   - "[Reads],,,,\n"
