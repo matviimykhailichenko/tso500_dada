@@ -7,6 +7,7 @@ import re
 import yaml
 from pathlib import Path
 
+from scripts.helpers import validate_samplesheet
 
 
 def create_parser():
@@ -81,6 +82,9 @@ def main():
 
     if not input_path or not input_type:
         exit(0)
+
+    if validate_samplesheet(repo_root=repo_root,
+                            config=config)
 
     if input_type == 'run':
         append_pending_run(paths=paths, input_dir=input_path, testing=testing)

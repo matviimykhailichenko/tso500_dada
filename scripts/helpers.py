@@ -10,6 +10,7 @@ import pandas as pd
 from filelock import FileLock
 import numpy as np
 from io import StringIO
+import re
 
 
 
@@ -747,7 +748,6 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
 
     return samples
 
-
 def merge_metrics(paths: dict):
     metrics_dir: Path = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
     combined_dfs = []
@@ -795,3 +795,88 @@ def get_repo_root() -> Path:
         return Path(root)
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
+
+def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet: Path) -> bool:
+    if input_type == "run":
+        expected_sections = config.get("expected_sections_nsq6000")
+    elif input_type == "samples":
+        expected_sections = config.get("expected_sections_nsqx")
+    else:
+        raise RuntimeError("input_type must be 'run' or 'samples'")
+    expected_headers = expected_sections["expected_headers"]
+    expected_indexes = f"{repo_root}/files/expected_indexes.csv"
+
+    with open(sample_sheet, 'r') as f:
+        lines = f.readlines()
+        section_header = None
+        sections_dict = {}
+        current_sections = []
+        for line in lines:
+            if line.startswith('['):
+                if current_sections:
+                    sections_dict[section_header] = current_sections
+                    current_sections = []
+                section_header = line
+            elif line.startswith(','):
+                continue
+            else:
+                current_sections.append(line)
+
+    sections_dict[section_header] = current_sections
+
+    extra = set(sections_dict.keys()) - set(expected_headers)
+    missing = set(expected_headers) - set(sections_dict.keys())
+    assert not extra and not missing, (
+        f"ERROR: Headers of sections are not as expected.\n"
+        f"Extra: {extra}\n"
+        f"Missing: {missing}")
+
+    # df_expected_indexes = pd.read_csv(expected_indexes)
+    df_expected_indexes = (pd.read_csv(expected_indexes, usecols=lambda col: col not in [
+        "Index2nsqx" if input_type == "run" else "Index2nsq6000"])
+                           .rename(columns={"Index2nsq6000" if input_type == "run" else "Index2nsqx": "Index2"}))
+
+    indexes = sections_dict.pop(f"[TSO500L_Data]{",,,," if input_type == 'run' else ''}\n")
+
+    sections_dict[f'[Header]{",,,," if input_type == 'run' else ','}\n'] = [
+        e for e in sections_dict.get(f'[Header]{",,,," if input_type == 'run' else ','}\n', [])
+        if not e.startswith("RunName")
+    ]
+
+    if input_type == "run":
+        bcl_convert = sections_dict.pop(f"[BCLConvert_Data],,,,\n")
+
+    for section_header in sections_dict:
+        extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
+        missing = set(expected_sections.get(section_header)) - set(sections_dict.get(section_header))
+        assert not extra and not missing, (
+            f"ERROR: Section {section_header}  not as expected.\n"
+            f"Extra: {extra}\n"
+            f"Missing: {missing}")
+
+    csv_string = "".join(indexes)
+
+    df_indexes_no_sample_ids = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
+    df_sample_ids = pd.read_csv(StringIO(csv_string))['Sample_ID']
+    df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
+
+    for sample_id in df_sample_ids:
+        assert re.fullmatch(r"[A-Za-z0-9_-]+", sample_id), f"Invalid ID: {sample_id}"
+
+    for row in df_indexes_no_sample_ids.itertuples(index=False, name=None):
+        assert row in set(df_expected_indexes.itertuples(index=False, name=None)), \
+            f"Row {row} not found in expected dataframe"
+
+    if input_type == 'run':
+        rename_dict = {"index": "Index", "index2": "Index2"}
+        df_indexes_for_bclconvert = (pd.read_csv(StringIO(csv_string))
+                                     .drop(columns=['Sample_Type', 'Index_ID'])
+                                     .rename(columns=rename_dict))
+
+        df_bclconvert = pd.read_csv(StringIO("".join(bcl_convert))).dropna(axis=1)
+
+        for row in df_bclconvert.itertuples(index=False, name=None):
+            assert row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)), \
+                f"Row {row} not found in expected dataframe"
+
+    print('Samplesheet is valid')
