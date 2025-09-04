@@ -21,8 +21,9 @@ def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
     testing_fast: bool = args.testing_fast
+    repo_root = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor'
 
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
@@ -59,8 +60,6 @@ def main():
     queue_merged = pd.concat(queues, ignore_index=True)
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
         last_sample_run = True
-
-    config = load_config('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml')
 
     paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
                               testing=testing, testing_fast=testing_fast)
