@@ -2,7 +2,6 @@ from logging_ops import notify_bot
 import sys
 
 def main():
-    # Read full stderr message from stdin
     error_message = sys.stdin.read().strip()
 
     if not error_message:

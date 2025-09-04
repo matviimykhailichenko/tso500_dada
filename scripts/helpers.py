@@ -787,10 +787,11 @@ def merge_metrics(paths: dict):
     merged_df.to_csv(out_path, sep='\t', index=False)
 
 def get_repo_root() -> Path:
+    script_path = Path(__file__)
     try:
         root = subp_check_output(
-            ["git", "rev-parse", "--show-toplevel"],
-            text=True
+            f"cd {script_path} && git rev-parse --show-toplevel",
+            text=True, shell=True
         ).strip()
         return Path(root)
     except CalledProcessError:
