@@ -1,13 +1,13 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
-    rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root
+    rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root, validate_samplesheet
 from shutil import copy as sh_copy
 from logging_ops import notify_bot
 import re
 import yaml
 from pathlib import Path
 
-from scripts.helpers import validate_samplesheet
+
 
 
 def create_parser():
