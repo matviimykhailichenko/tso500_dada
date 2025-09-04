@@ -797,7 +797,7 @@ def get_repo_root() -> str:
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
-def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet: Path) -> bool:
+def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> bool:
     if input_type == "run":
         expected_sections = config.get("expected_sections_nsq6000")
     elif input_type == "samples":
