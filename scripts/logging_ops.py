@@ -25,8 +25,8 @@ def setup_logger(logger_name: str,
     return logger
 
 
-def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",is_last_sample:bool=False):
-    prefix = f"the last {tag} sample in" if input_type == "sample" and is_last_sample else ""
+def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
+    prefix = f"the last {tag} sample in" if input_type == "sample" and last_sample_queue else ""
 
     if step == "staging":
         msg = f"Staging {prefix} the run {run_name}"
@@ -43,7 +43,7 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
     else:
         raise RuntimeError(f'Unknown step:{step}')
 
-    if (input_type == 'sample' and is_last_sample) or input_type == 'run':
+    if (input_type == 'sample' and last_sample_queue) or input_type == 'run':
         notify_bot(msg)
     logger.info(msg)
 

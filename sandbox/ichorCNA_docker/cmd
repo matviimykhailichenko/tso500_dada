@@ -1,0 +1,9 @@
+bash /tmp/tso500offtarget_ichorcna/TSO500_ichorCNA_from_offtarget_reads_PARALLEL.sh \
+    -idir /tmp/test/bams \
+    -phmm /usr/bin \
+    -gref /tmp/test/reference/hg19.fa \
+    -pichor /tmp/test/ichorCNA/
+
+conda init
+
+conda activate ichorCNA
