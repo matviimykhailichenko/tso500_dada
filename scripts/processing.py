@@ -1,71 +1,103 @@
 from pathlib import Path
 import yaml
 import argparse
-from shutil import copy as sh_copy
+import pandas as pd
 from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
-    check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, get_queue
-from logging_ops import setup_logger
+    check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
+    get_queue, merge_metrics
+from logging_ops import setup_logger, notify_bot
 
 
 
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script process incoming runs')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
+    parser.add_argument('-tf', '--testing_fast',action='store_true', help='Fast testing mode')
+
     return parser
 
 
 def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
+    testing_fast: bool = args.testing_fast
+    repo_root = '/mnt/NovaseqXplus/TSO_pipeline/03_Production/pure-python-refactor'
 
-    with open('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
+        servers: list = config['available_servers']
+        server_availability_dir: Path = Path(config['server_availability_dir'])
+        server = get_server_ip()
+        idle_tag = server_availability_dir / server / config['server_idle_tag']
+        busy_tag = server_availability_dir / server / config['server_busy_tag']
 
     if not is_server_available():
         return
 
-    server = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
 
-    if not queue_file.exists() or queue_file.stat().st_size < 38:
-        queue_blank = Path('/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt')
-        sh_copy(queue_blank,queue_file)
-
     queue = get_queue(pending_file=pending_file, queue_file=queue_file)
+
+    if queue is None:
+        return
+
+    busy_tag.touch()
+    idle_tag.unlink()
 
     path, input_type, _, tag, flowcell = queue.iloc[0]
 
-    is_last_sample = False
+    last_sample_queue = False
     if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
-        is_last_sample = True
+        last_sample_queue = True
 
-    config = load_config('/mnt/Novaseq/TSO_pipeline/03_Production/config.yaml')
+    last_sample_run = False
+    queues = []
+    for server in servers:
+        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        queues.append(pd.read_csv(queue_file, sep='\t'))
+    queue_merged = pd.concat(queues, ignore_index=True)
+    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
+        last_sample_run = True
 
-    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config, testing=testing)
+    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+                              testing=testing, testing_fast=testing_fast)
+    failed_tag = paths['failed_tag']
+    analyzing_tag = paths['analyzing_tag']
+    try:
 
-    logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 
-    check_mountpoint(paths=paths, logger=logger)
+        logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
 
-    check_structure(paths=paths, logger=logger)
+        check_mountpoint(paths=paths, logger=logger)
+        check_structure(paths=paths, logger=logger)
+        check_docker_image(logger=logger)
+        check_rsync(paths=paths, logger=logger)
+        check_tso500_script(paths=paths, logger=logger)
 
-    check_docker_image(logger=logger)
+        if not paths['analyzing_tag'].exists():
+            paths['analyzing_tag'].touch()
+            paths['queued_tag'].unlink()
+        stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
-    check_rsync(paths=paths, logger=logger)
+        process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
-    check_tso500_script(paths=paths, logger=logger)
+        transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
-    paths['analyzing_tag'].touch()
-    paths['queued_tag'].unlink()
-    stage_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
+        if last_sample_queue:
+            merge_metrics(paths=paths)
+        if last_sample_run or input_type == 'run':
+            paths['analyzed_tag'].touch()
+            paths['analyzing_tag'].unlink()
 
-    process_object(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger)
-
-    transfer_results(paths=paths, input_type=input_type, is_last_sample=is_last_sample, logger=logger, testing=testing)
-    paths['analysed_tag'].touch()
-    paths['analyzing_tag'].unlink()
+    except Exception:
+        failed_tag.touch()
+        analyzing_tag.unlink()
+        raise RuntimeError
+    finally:
+        idle_tag.touch()
+        busy_tag.unlink()
 
 
 if __name__ == "__main__":
