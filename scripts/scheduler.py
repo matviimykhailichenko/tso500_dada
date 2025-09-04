@@ -21,7 +21,7 @@ def main():
     args = parser.parse_args()
     testing = args.testing
 
-    repo_root = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor'
+    repo_root = '/mnt/NovaseqXplus/TSO_pipeline/03_Production/pure-python-refactor'
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
