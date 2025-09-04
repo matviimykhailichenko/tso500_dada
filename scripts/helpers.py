@@ -787,7 +787,7 @@ def merge_metrics(paths: dict):
     merged_df.to_csv(out_path, sep='\t', index=False)
 
 def get_repo_root() -> Path:
-    script_path = Path(__file__)
+    script_path = Path(__file__).parent
     try:
         root = subp_check_output(
             f"cd {script_path} && git rev-parse --show-toplevel",
