@@ -1,6 +1,6 @@
 # m h  dom mon dow   command
 SHELL=/bin/bash
-BASH_ENV=~/.bashrc
+BASH_ENV=~/.cron_env
 #
 # ->| TSO500 PROCESSING:
 /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py 2> >( /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/crontab_failed.py )
