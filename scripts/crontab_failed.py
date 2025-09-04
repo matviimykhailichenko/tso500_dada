@@ -1,19 +1,15 @@
 from logging_ops import notify_bot
 import sys
 
-
-msg = f'A crontab command had failed due to unexpected reasons.'
-notify_bot(msg)
-
-
 def main():
-    if len(sys.argv) < 2:
-        notify_bot("Usage: crontab_failed.py <error_message>")
+    # Read full stderr message from stdin
+    error_message = sys.stdin.read().strip()
+
+    if not error_message:
+        notify_bot("crontab_failed.py was called but no error message was passed.")
         sys.exit(1)
 
-    error_message = sys.argv[2]
-
-    notify_bot(f"The crontab had failed with message: {error_message}")
+    notify_bot(f"The crontab had failed with message:\n{error_message}")
 
 if __name__ == "__main__":
     main()
