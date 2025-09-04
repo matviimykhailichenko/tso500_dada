@@ -376,7 +376,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
         paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
@@ -613,7 +613,6 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
-        paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
         return paths
 
@@ -675,10 +674,9 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     research_seq_dir = paths['research_seq_dir']
-    pipeline_dir = paths['pipeline_dir']
 
     server = get_server_ip()
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
@@ -701,7 +699,6 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
 def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
@@ -719,7 +716,7 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
     pedning_files = np.array_split(new_samples, len(available_servers))
 
     for server in available_servers:
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
             sh_copy(pending_blank, pending_file)

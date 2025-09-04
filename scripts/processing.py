@@ -25,7 +25,6 @@ def main():
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
         server_availability_dir: Path = Path(config['server_availability_dir'])
         server = get_server_ip()
@@ -35,8 +34,8 @@ def main():
     if not is_server_available(repo_root=repo_root):
         return
 
-    queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+    queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
+    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
 
     queue = get_queue(pending_file=pending_file, queue_file=queue_file, repo_root=repo_root)
 
@@ -55,7 +54,7 @@ def main():
     last_sample_run = False
     queues = []
     for server in servers:
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:

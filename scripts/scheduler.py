@@ -26,7 +26,6 @@ def main():
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
         queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
 
@@ -38,8 +37,8 @@ def main():
         seq_dirs.append(paths['cbmed_seq_dir'])
 
     for server in servers:
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
+        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
         if not queue_file.exists():
             sh_copy(queue_blank, queue_file)
         if not pending_file.exists():

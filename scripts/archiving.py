@@ -3,7 +3,7 @@ import yaml
 import argparse
 from datetime import datetime
 from subprocess import run as subp_run, CalledProcessError
-from helpers import is_server_available, get_server_ip
+from helpers import is_server_available, get_server_ip, get_repo_root
 from logging_ops import notify_bot
 from shutil import copy as sh_copy, move as sh_move, rmtree as sh_rmtree
 
@@ -25,7 +25,7 @@ def main():
 
     with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
+        repo_root: Path = Path(get_repo_root())
         server_availability_dir: Path = Path(config['server_availability_dir'])
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
@@ -37,8 +37,8 @@ def main():
         onco_results_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir']) / 'Analyseergebnisse'
         onco_seq_dir = Path(config['oncoservice_sequencing_dir'] + '_TEST' if testing else config['oncoservice_sequencing_dir'] ) / 'Runs'
         mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST' if testing else config['mixed_runs_dir'] ) / 'Runs'
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        queue_file = repo_root.parent.parent / f'{server}_QUEUE.txt'
+        pending_file = repo_root.parent.parent / f'{server}_PENDING.txt'
         archive_dir = Path(config['archive_dir'] + '_TEST' if testing else config['archive_dir']) / str(datetime.now().year) / 'TSO500'
         server = get_server_ip()
         if server == '10.200.214.104':
