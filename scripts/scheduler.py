@@ -29,7 +29,7 @@ def main():
         servers: list = config['available_servers']
         queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
 
-    paths = setup_paths_scheduler(testing=testing)
+    paths = setup_paths_scheduler(testing=testing, repo_root=repo_root)
     # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
     seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir'], paths['research_seq_dir']]
     if get_server_ip() == '10.200.215.35':
@@ -60,11 +60,11 @@ def main():
                     flowcell_dir = obj
             if analysis_dir.exists() and data_dir.exists():
                 input_type = 'sample'
-                input_path = scan_dir_nsqx(run_dir=run_dir)
+                input_path = scan_dir_nsqx(run_dir=run_dir, repo_root=repo_root)
                 flowcell_name = run_dir.name
             elif myrun_dir.exists() and flowcell_dir is not None:
                 input_type = 'run'
-                input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir)
+                input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir, repo_root=repo_root)
 
             if not input_path:
                 continue
@@ -83,9 +83,9 @@ def main():
         exit(0)
 
     if input_type == 'run':
-        append_pending_run(paths=paths, input_dir=input_path, testing=testing)
+        append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
     elif input_type == 'sample':
-        append_pending_samples(paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
+        append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         RuntimeError(f'Unrecognised input type: {input_type}')
 

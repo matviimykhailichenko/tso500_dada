@@ -14,8 +14,8 @@ import re
 
 
 
-def is_server_available() -> bool:
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def is_server_available(repo_root: str) -> bool:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -330,7 +330,7 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
+def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
@@ -341,7 +341,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
     if paths['testing_fast']:
         paths[
-            'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+            'tso500_script_path'] = f'{repo_root}/testing/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
@@ -570,7 +570,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
     # TODO delete QUEUED tag
 
 
-def get_queue(pending_file:Path,queue_file:Path):
+def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
     assert queue_file.exists(), 'The queue file should exist'
 
@@ -582,7 +582,7 @@ def get_queue(pending_file:Path,queue_file:Path):
         queue_no_processing = queue.iloc[1:, ]
         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-        pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
         pending_lock.release()
 
@@ -597,9 +597,9 @@ def get_queue(pending_file:Path,queue_file:Path):
     return queue
 
 
-def setup_paths_scheduler(testing: bool = True):
+def setup_paths_scheduler(repo_root: str, testing: bool = True):
     paths = {}
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         paths['tags'] = config['tags']
         paths['blocking_tags'] = config['blocking_tags']
@@ -618,8 +618,8 @@ def setup_paths_scheduler(testing: bool = True):
         return paths
 
 
-def scan_dir_nsq6000(flowcell_dir: Path):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
@@ -634,8 +634,8 @@ def scan_dir_nsq6000(flowcell_dir: Path):
         return flowcell_dir
 
 
-def scan_dir_nsqx(run_dir: Path, testing:bool = True):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
@@ -670,7 +670,7 @@ def scan_dir_nsqx(run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
+def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
     onco_seq_dir = paths['onco_seq_dir']
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
@@ -689,7 +689,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:
@@ -698,8 +698,8 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
@@ -721,7 +721,7 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
     for server in available_servers:
         pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
-            pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+            pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
             sh_copy(pending_blank, pending_file)
         if pending_file.stat().st_size < 37:
             with open(pending_file, 'a') as f:
@@ -786,14 +786,14 @@ def merge_metrics(paths: dict):
     out_path = metrics_dir / f'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
-def get_repo_root() -> Path:
+def get_repo_root() -> str:
     script_path = Path(__file__).parent
     try:
         root = subp_check_output(
             f"cd {script_path} && git rev-parse --show-toplevel",
             text=True, shell=True
         ).strip()
-        return Path(root)
+        return root
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
