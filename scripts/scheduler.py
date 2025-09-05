@@ -84,12 +84,12 @@ def main():
 
     if not input_path or not input_type:
         return
-
-    sample_sheet = flowcell_dir / ('SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv')
+    sample_sheet_name ='SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv'
+    sample_sheet = flowcell_dir / sample_sheet_name
 
     ok, reason = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
     if not ok:
-        sample_sheet_broken = sample_sheet.parent / f'SampleSheet_BROKEN_{reason}.csv'
+        sample_sheet_broken = sample_sheet.parent / f'{sample_sheet_name}_BROKEN_{reason}.csv'
         message = (f'Samplesheet validation failed for run {run_dir}:\n'
                    f'{reason}')
         notify_bot(message)

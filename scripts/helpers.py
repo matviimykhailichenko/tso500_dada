@@ -827,7 +827,6 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     if extra or missing:
         return False, 'BAD_HEADER'
 
-    # df_expected_indexes = pd.read_csv(expected_indexes)
     df_expected_indexes = (pd.read_csv(expected_indexes, usecols=lambda col: col not in [
         "Index2nsqx" if input_type == "run" else "Index2nsq6000"])
                            .rename(columns={"Index2nsq6000" if input_type == "run" else "Index2nsqx": "Index2"}))
