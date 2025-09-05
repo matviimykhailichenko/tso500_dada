@@ -797,10 +797,10 @@ def get_repo_root() -> str:
 def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> tuple[bool, str]:
     if input_type == "run":
         expected_sections = config.get("expected_sections_nsq6000")
-    elif input_type == "samples":
+    elif input_type == "sample":
         expected_sections = config.get("expected_sections_nsqx")
     else:
-        raise RuntimeError("input_type must be 'run' or 'samples'")
+        raise RuntimeError("input_type must be 'run' or 'sample'")
     expected_headers = config.get(f"expected_headers_{"nsq6000" if input_type == "run" else "nsqx"}")
     expected_indexes = f"{repo_root}/files/expected_indexes.csv"
 

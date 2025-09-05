@@ -66,7 +66,6 @@ def main():
                 flowcell_dir = run_dir
                 notify_bot(flowcell_dir)
 
-
             elif myrun_dir.exists() and flowcell_dir is not None:
                 input_type = 'run'
                 input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir, repo_root=repo_root)
