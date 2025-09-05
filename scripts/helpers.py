@@ -14,8 +14,8 @@ import re
 
 
 
-def is_server_available() -> bool:
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def is_server_available(repo_root: str) -> bool:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         server = get_server_ip()
         server_availability_dir = Path(config['server_availability_dir'])
@@ -330,7 +330,7 @@ def load_config(configfile: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
+def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
@@ -341,7 +341,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
     paths['flowcell'] = flowcell
     if paths['testing_fast']:
         paths[
-            'tso500_script_path'] = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/tso500_script_sub.sh'
+            'tso500_script_path'] = f'{repo_root}/testing/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
@@ -376,7 +376,7 @@ def setup_paths(input_path: Path, input_type: str, tag: str, flowcell: str, conf
         paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
         paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
-    log_file = str(Path(config.get('pipeline_dir')) / 'logs' / f"TSO_{tag}_{timestamp}.log")
+    log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
@@ -570,7 +570,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
     # TODO delete QUEUED tag
 
 
-def get_queue(pending_file:Path,queue_file:Path):
+def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
     assert pending_file.exists(), 'The pending file should exist'
     assert queue_file.exists(), 'The queue file should exist'
 
@@ -582,7 +582,7 @@ def get_queue(pending_file:Path,queue_file:Path):
         queue_no_processing = queue.iloc[1:, ]
         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-        pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
         pending_lock.release()
 
@@ -597,9 +597,9 @@ def get_queue(pending_file:Path,queue_file:Path):
     return queue
 
 
-def setup_paths_scheduler(testing: bool = True):
+def setup_paths_scheduler(repo_root: str, testing: bool = True):
     paths = {}
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         paths['tags'] = config['tags']
         paths['blocking_tags'] = config['blocking_tags']
@@ -613,13 +613,12 @@ def setup_paths_scheduler(testing: bool = True):
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
-        paths['pipeline_dir'] = Path(config['pipeline_dir'])
 
         return paths
 
 
-def scan_dir_nsq6000(flowcell_dir: Path):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
@@ -634,8 +633,8 @@ def scan_dir_nsq6000(flowcell_dir: Path):
         return flowcell_dir
 
 
-def scan_dir_nsqx(run_dir: Path, testing:bool = True):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
@@ -670,15 +669,14 @@ def scan_dir_nsqx(run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
+def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
     onco_seq_dir = paths['onco_seq_dir']
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     research_seq_dir = paths['research_seq_dir']
-    pipeline_dir = paths['pipeline_dir']
 
     server = get_server_ip()
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
     queued_tag.touch()
 
@@ -689,7 +687,7 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:
@@ -698,10 +696,9 @@ def append_pending_run(paths:dict, input_dir:Path, testing:bool = True):
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
 
-def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir = Path(config['pipeline_dir'])
         available_servers = config['available_servers']
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
@@ -719,9 +716,9 @@ def append_pending_samples(paths: dict, flowcell_name: str, input_dir: Path,  sa
     pedning_files = np.array_split(new_samples, len(available_servers))
 
     for server in available_servers:
-        pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
-            pending_blank = '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/testing/functional_tests/scheduler/PENDING_blank.txt'
+            pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
             sh_copy(pending_blank, pending_file)
         if pending_file.stat().st_size < 37:
             with open(pending_file, 'a') as f:
@@ -786,24 +783,24 @@ def merge_metrics(paths: dict):
     out_path = metrics_dir / f'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
-def get_repo_root() -> Path:
-    script_path = Path(__file__)
+def get_repo_root() -> str:
+    script_path = Path(__file__).parent
     try:
         root = subp_check_output(
             f"cd {script_path} && git rev-parse --show-toplevel",
             text=True, shell=True
         ).strip()
-        return Path(root)
+        return root
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
-def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet: Path) -> bool:
+def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> tuple[bool, str]:
     if input_type == "run":
         expected_sections = config.get("expected_sections_nsq6000")
-    elif input_type == "samples":
+    elif input_type == "sample":
         expected_sections = config.get("expected_sections_nsqx")
     else:
-        raise RuntimeError("input_type must be 'run' or 'samples'")
+        raise RuntimeError("input_type must be 'run' or 'sample'")
     expected_headers = config.get(f"expected_headers_{"nsq6000" if input_type == "run" else "nsqx"}")
     expected_indexes = f"{repo_root}/files/expected_indexes.csv"
 
@@ -827,10 +824,10 @@ def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet:
 
     extra = set(sections_dict.keys()) - set(expected_headers)
     missing = set(expected_headers) - set(sections_dict.keys())
-    assert not extra and not missing, (
-        f"ERROR: Headers of sections are not as expected.\n"
-        f"Extra: {extra}\n"
-        f"Missing: {missing}")
+    if extra or missing:
+        return False, (f"ERROR: Headers of sections are not as expected.\n"
+                       f"Extra: {extra}\n"
+                       f"Missing: {missing}")
 
     # df_expected_indexes = pd.read_csv(expected_indexes)
     df_expected_indexes = (pd.read_csv(expected_indexes, usecols=lambda col: col not in [
@@ -848,11 +845,11 @@ def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet:
         bcl_convert = sections_dict.pop(f"[BCLConvert_Data],,,,\n")
 
     for section_header in sections_dict:
-        print(expected_sections.get(section_header))
+        expected_sections.get(section_header)
         extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
         missing = set() - set(sections_dict.get(section_header))
-        assert not extra and not missing, (
-            f"ERROR: Section {section_header}  not as expected.\n"
+        if extra or missing:
+            return False, (f"ERROR: Section {section_header}  not as expected.\n"
             f"Extra: {extra}\n"
             f"Missing: {missing}")
 
@@ -863,11 +860,14 @@ def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet:
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
     for sample_id in df_sample_ids:
-        assert re.fullmatch(r"[A-Za-z0-9_-]+", sample_id), f"Invalid ID: {sample_id}"
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", sample_id):
+            return False, (f'The TSO500L_Data section is not as expected.\n'
+                           f'Invalid ID: {sample_id}')
 
     for row in df_indexes_no_sample_ids.itertuples(index=False, name=None):
-        assert row in set(df_expected_indexes.itertuples(index=False, name=None)), \
-            f"Row {row} not found in expected dataframe"
+        if not row in set(df_expected_indexes.itertuples(index=False, name=None)):
+            return False, (f'The TSO500L_Data section is not as expected.\n'
+                           f'Row {row} not found in expected dataframe')
 
     if input_type == 'run':
         rename_dict = {"index": "Index", "index2": "Index2"}
@@ -878,7 +878,8 @@ def validate_samplesheet(repo_root: Path, input_type: str, config, sample_sheet:
         df_bclconvert = pd.read_csv(StringIO("".join(bcl_convert))).dropna(axis=1)
 
         for row in df_bclconvert.itertuples(index=False, name=None):
-            assert row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)), \
-                f"Row {row} not found in expected dataframe"
+            if not row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)):
+                return (False, 'The BCLConvert section is not as expected.\n'
+                               'Row {row} not found in expected dataframe')
 
-    print('Samplesheet is valid')
+    return True, 'Samplesheet is valid'

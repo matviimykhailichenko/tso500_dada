@@ -2,10 +2,10 @@ from pathlib import Path
 import yaml
 import argparse
 import pandas as pd
-from helpers import is_server_available, get_server_ip, load_config, setup_paths, check_mountpoint, check_rsync, \
+from helpers import is_server_available, get_server_ip, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
-    get_queue, merge_metrics
-from logging_ops import setup_logger, notify_bot
+    get_queue, merge_metrics, get_repo_root
+from logging_ops import setup_logger
 
 
 
@@ -21,24 +21,23 @@ def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
     testing_fast: bool = args.testing_fast
-    repo_root = '/mnt/NovaseqXplus/TSO_pipeline/03_Production/pure-python-refactor'
+    repo_root = get_repo_root()
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
         servers: list = config['available_servers']
         server_availability_dir: Path = Path(config['server_availability_dir'])
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
         busy_tag = server_availability_dir / server / config['server_busy_tag']
 
-    if not is_server_available():
+    if not is_server_available(repo_root=repo_root):
         return
 
-    queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
-    pending_file = pipeline_dir.parent.parent / f'{server}_PENDING.txt'
+    queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
+    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
 
-    queue = get_queue(pending_file=pending_file, queue_file=queue_file)
+    queue = get_queue(pending_file=pending_file, queue_file=queue_file, repo_root=repo_root)
 
     if queue is None:
         return
@@ -55,13 +54,13 @@ def main():
     last_sample_run = False
     queues = []
     for server in servers:
-        queue_file = pipeline_dir.parent.parent / f'{server}_QUEUE.txt'
+        queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
     if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
         last_sample_run = True
 
-    paths: dict = setup_paths(input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+    paths: dict = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
                               testing=testing, testing_fast=testing_fast)
     failed_tag = paths['failed_tag']
     analyzing_tag = paths['analyzing_tag']

@@ -2,7 +2,6 @@
 testing_fast: False
 # TODO Change in prod
 # TODO change to a command
-pipeline_dir: '/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor'
 test_runs_dir: '/mnt/Novaseq/TSO_pipeline/test_runs'
 staging_temp_dir: '/staging/tmp'
 server_availability_dir: '/mnt/NovaseqXplus/TSO_pipeline/server_availability'
@@ -100,7 +99,7 @@ error_messages:
   16: "Passed wrong combination of runFolder and fastqFolder"
 
 # Samplesheet requirements
-expected_headers_nsqx:
+expected_headers_nsqx: &expected_headers_nsqx
   - "[Header],\n"
   - "[Reads]\n"
   - "[Sequencing_Settings]\n"
@@ -109,25 +108,24 @@ expected_headers_nsqx:
   - "[TSO500L_Data]\n"
 
 # Run name is variable (kept out of the list on purpose)
-
-expected_header_section_nsqx:
+expected_header_section_nsqx: &expected_header_section_nsqx
   - "FileFormatVersion,2\n"
   - "InstrumentPlatform,NovaSeqXSeries\n"
   - "IndexOrientation,Forward\n"
   - "\n"
 
-expected_read_section_nsqx:
+expected_read_section_nsqx: &expected_read_section_nsqx
   - "Read1Cycles,151\n"
   - "Read2Cycles,151\n"
   - "Index1Cycles,10\n"
   - "Index2Cycles,10\n"
   - "\n"
 
-expected_seq_settings_section_nsqx:
+expected_seq_settings_section_nsqx: &expected_seq_settings_section_nsqx
   - "LibraryPrepKits,TSO500ctDNA_v2\n"
   - "\n"
 
-expected_bcl_settings_section_nsqx:
+expected_bcl_settings_section_nsqx: &expected_bcl_settings_section_nsqx
   - "SoftwareVersion,2.1.1\n"
   - "AdapterRead1,CTGTCTCTTATACACATCT\n"
   - "AdapterRead2,CTGTCTCTTATACACATCT\n"
@@ -138,20 +136,20 @@ expected_bcl_settings_section_nsqx:
   - "FastqCompressionFormat,gzip\n"
   - "\n"
 
-expected_tso500_settings_section_nsqx:
+expected_tso500_settings_section_nsqx: &expected_tso500_settings_section_nsqx
   - "SoftwareVersion,2.1.1\n"
   - "StartsFromFastq,false\n"
   - "\n"
 
-
 expected_sections_nsqx:
-  "[Header],\n": expected_header_section
-  "[Reads]\n": expected_read_section
-  "[Sequencing_Settings]\n": expected_seq_settings
-  "[BCLConvert_Settings]\n": expected_bcl_settings
-  "[TSO500L_Settings]\n": expected_tso500_settings_section
-  
-expected_headers_nsq6000:
+  "[Header],\n": *expected_header_section_nsqx
+  "[Reads]\n": *expected_read_section_nsqx
+  "[Sequencing_Settings]\n": *expected_seq_settings_section_nsqx
+  "[BCLConvert_Settings]\n": *expected_bcl_settings_section_nsqx
+  "[TSO500L_Settings]\n": *expected_tso500_settings_section_nsqx
+
+
+expected_headers_nsq6000: &expected_headers_nsq6000
   - "[Header],,,,\n"
   - "[Reads],,,,\n"
   - "[Sequencing_Settings],,,,\n"
@@ -160,21 +158,21 @@ expected_headers_nsq6000:
   - "[TSO500L_Settings],,,,\n"
   - "[TSO500L_Data],,,,\n"
 
-expected_header_section_nsq6000:
+expected_header_section_nsq6000: &expected_header_section_nsq6000
   - "FileFormatVersion,2,,,\n"
   - "InstrumentPlatform,NovaSeq,,,\n"
   - "IndexOrientation,Forward,,,\n"
 
-expected_read_section_nsq6000:
+expected_read_section_nsq6000: &expected_read_section_nsq6000
   - "Read1Cycles,151,,,\n"
   - "Read2Cycles,151,,,\n"
   - "Index1Cycles,10,,,\n"
   - "Index2Cycles,10,,,\n"
 
-expected_seq_settings_section_nsq6000:
+expected_seq_settings_section_nsq6000: &expected_seq_settings_section_nsq6000
   - "LibraryPrepKits,TSO500ctDNA_v2,,,\n"
 
-expected_bcl_settings_section_nsq6000:
+expected_bcl_settings_section_nsq6000: &expected_bcl_settings_section_nsq6000
   - "SoftwareVersion,02.01.2001,,,\n"
   - "AdapterRead1,CTGTCTCTTATACACATCT,,,\n"
   - "AdapterRead2,CTGTCTCTTATACACATCT,,,\n"
@@ -183,13 +181,13 @@ expected_bcl_settings_section_nsq6000:
   - "AdapterBehavior,trim,,,\n"
   - "MinimumTrimmedReadLength,35,,,\n"
 
-expected_tso500_settings_section_nsq6000:
+expected_tso500_settings_section_nsq6000: &expected_tso500_settings_section_nsq6000
   - "SoftwareVersion,02.01.2001,,,\n"
   - "StartsFromFastq,0,,,\n"
 
 expected_sections_nsq6000:
-  "[Header],,,,\n": expected_header_section_nsq6000
-  "[Reads],,,,\n": expected_read_section_nsq6000
-  "[Sequencing_Settings],,,,\n": expected_seq_settings_section_nsq6000
-  "[BCLConvert_Settings],,,,\n": expected_bcl_settings_section_nsq6000
-  "[TSO500L_Settings],,,,\n": expected_tso500_settings_section_nsq6000
+  "[Header],,,,\n": *expected_header_section_nsq6000
+  "[Reads],,,,\n": *expected_read_section_nsq6000
+  "[Sequencing_Settings],,,,\n": *expected_seq_settings_section_nsq6000
+  "[BCLConvert_Settings],,,,\n": *expected_bcl_settings_section_nsq6000
+  "[TSO500L_Settings],,,,\n": *expected_tso500_settings_section_nsq6000
