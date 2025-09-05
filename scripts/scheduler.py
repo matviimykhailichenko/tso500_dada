@@ -87,7 +87,7 @@ def main():
     ok, msg = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
     if not ok:
         message = f'Samplesheet validation failed:\n'
-                     f'{msg}'
+                 f'{msg}'
         notify_bot(message)
         RuntimeError(message)
 
