@@ -794,7 +794,7 @@ def get_repo_root() -> str:
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
-def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> bool:
+def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> tuple[bool, str]:
     if input_type == "run":
         expected_sections = config.get("expected_sections_nsq6000")
     elif input_type == "samples":
@@ -824,10 +824,10 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     extra = set(sections_dict.keys()) - set(expected_headers)
     missing = set(expected_headers) - set(sections_dict.keys())
-    assert not extra and not missing, (
-        f"ERROR: Headers of sections are not as expected.\n"
-        f"Extra: {extra}\n"
-        f"Missing: {missing}")
+    if extra or missing:
+        return False, (f"ERROR: Headers of sections are not as expected.\n"
+                       f"Extra: {extra}\n"
+                       f"Missing: {missing}")
 
     # df_expected_indexes = pd.read_csv(expected_indexes)
     df_expected_indexes = (pd.read_csv(expected_indexes, usecols=lambda col: col not in [
@@ -848,8 +848,8 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
         print(expected_sections.get(section_header))
         extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
         missing = set() - set(sections_dict.get(section_header))
-        assert not extra and not missing, (
-            f"ERROR: Section {section_header}  not as expected.\n"
+        if extra or missing:
+            return False, (f"ERROR: Section {section_header}  not as expected.\n"
             f"Extra: {extra}\n"
             f"Missing: {missing}")
 
@@ -860,11 +860,14 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
     for sample_id in df_sample_ids:
-        assert re.fullmatch(r"[A-Za-z0-9_-]+", sample_id), f"Invalid ID: {sample_id}"
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", sample_id):
+            return False, (f'The TSO500L_Data section is not as expected.\n'
+                           f'Invalid ID: {sample_id}')
 
     for row in df_indexes_no_sample_ids.itertuples(index=False, name=None):
-        assert row in set(df_expected_indexes.itertuples(index=False, name=None)), \
-            f"Row {row} not found in expected dataframe"
+        if not row in set(df_expected_indexes.itertuples(index=False, name=None)):
+            return False, (f'The TSO500L_Data section is not as expected.\n'
+                           f'Row {row} not found in expected dataframe')
 
     if input_type == 'run':
         rename_dict = {"index": "Index", "index2": "Index2"}
@@ -875,7 +878,8 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
         df_bclconvert = pd.read_csv(StringIO("".join(bcl_convert))).dropna(axis=1)
 
         for row in df_bclconvert.itertuples(index=False, name=None):
-            assert row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)), \
-                f"Row {row} not found in expected dataframe"
+            if not row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)):
+                return (False, 'The BCLConvert section is not as expected.\n'
+                               'Row {row} not found in expected dataframe')
 
-    print('Samplesheet is valid')
+    return True, 'Samplesheet is valid'

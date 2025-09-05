@@ -84,7 +84,12 @@ def main():
 
     sample_sheet = flowcell_dir / ('SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv')
 
-    validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
+    ok, msg = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
+    if not ok:
+        message = f'Samplesheet validation failed:\n'
+                     f'{msg}'
+        notify_bot(message)
+        RuntimeError(message)
 
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
