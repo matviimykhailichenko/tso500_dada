@@ -845,7 +845,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
         bcl_convert = sections_dict.pop(f"[BCLConvert_Data],,,,\n")
 
     for section_header in sections_dict:
-        print(expected_sections.get(section_header))
+        expected_sections.get(section_header)
         extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
         missing = set() - set(sections_dict.get(section_header))
         if extra or missing:

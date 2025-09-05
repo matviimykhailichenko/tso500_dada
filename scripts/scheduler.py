@@ -90,6 +90,7 @@ def main():
                    f'{msg}')
         notify_bot(message)
         raise RuntimeError(message)
+    notify_bot(msg)
 
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
