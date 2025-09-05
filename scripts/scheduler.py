@@ -58,10 +58,12 @@ def main():
             for obj in run_dir.iterdir():
                 if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$', obj.name):
                     flowcell_dir = obj
+
             if analysis_dir.exists() and data_dir.exists():
                 input_type = 'sample'
                 input_path = scan_dir_nsqx(run_dir=run_dir, repo_root=repo_root)
                 flowcell_name = run_dir.name
+
             elif myrun_dir.exists() and flowcell_dir is not None:
                 input_type = 'run'
                 input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir, repo_root=repo_root)
