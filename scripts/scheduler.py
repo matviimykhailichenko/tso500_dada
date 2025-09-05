@@ -66,7 +66,7 @@ def main():
                 input_type = 'run'
                 input_path = scan_dir_nsq6000(flowcell_dir=flowcell_dir, repo_root=repo_root)
 
-            if not input_path or not flowcell_dir:
+            if not input_path or flowcell_dir is None:
                 continue
 
             if input_path:
