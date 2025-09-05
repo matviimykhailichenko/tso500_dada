@@ -825,9 +825,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     extra = set(sections_dict.keys()) - set(expected_headers)
     missing = set(expected_headers) - set(sections_dict.keys())
     if extra or missing:
-        return False, (f"ERROR: Headers of sections are not as expected.\n"
-                       f"Extra: {extra}\n"
-                       f"Missing: {missing}")
+        return False, 'BAD_HEADER'
 
     # df_expected_indexes = pd.read_csv(expected_indexes)
     df_expected_indexes = (pd.read_csv(expected_indexes, usecols=lambda col: col not in [
@@ -849,9 +847,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
         extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
         missing = set() - set(sections_dict.get(section_header))
         if extra or missing:
-            return False, (f"ERROR: Section {section_header}  not as expected.\n"
-            f"Extra: {extra}\n"
-            f"Missing: {missing}")
+            return False, f"BAD_{section_header}"
 
     csv_string = "".join(indexes)
 
@@ -861,13 +857,11 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     for sample_id in df_sample_ids:
         if not re.fullmatch(r"[A-Za-z0-9_-]+", sample_id):
-            return False, (f'The TSO500L_Data section is not as expected.\n'
-                           f'Invalid ID: {sample_id}')
+            return False, f'BAD_SAMPLE_ID'
 
     for row in df_indexes_no_sample_ids.itertuples(index=False, name=None):
         if not row in set(df_expected_indexes.itertuples(index=False, name=None)):
-            return False, (f'The TSO500L_Data section is not as expected.\n'
-                           f'Row {row} not found in expected dataframe')
+            return False, f'BAD_TSO500L_Data'
 
     if input_type == 'run':
         rename_dict = {"index": "Index", "index2": "Index2"}
@@ -879,7 +873,6 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
         for row in df_bclconvert.itertuples(index=False, name=None):
             if not row in set(df_indexes_for_bclconvert.itertuples(index=False, name=None)):
-                return (False, 'The BCLConvert section is not as expected.\n'
-                               'Row {row} not found in expected dataframe')
+                return False, 'BAD_BCLConvert'
 
     return True, 'Samplesheet is valid'
