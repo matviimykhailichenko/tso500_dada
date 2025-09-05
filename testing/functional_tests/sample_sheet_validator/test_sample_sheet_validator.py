@@ -28,7 +28,7 @@ def setup_environment():
             if not current_test_run.exists():
                 sh_copytree(str(test_run_ns6000), str(current_test_run))
 
-            sample_sheet_run_dir = current_test_run / 'SampleSheet.csv'
+            sample_sheet_run_dir = current_test_run / '250213_A01664_0452_AH2J5VDMX2' / 'SampleSheet.csv'
             sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
 
         elif 'Analysis' in sample_sheet.name:
