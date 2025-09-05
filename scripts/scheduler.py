@@ -89,11 +89,11 @@ def main():
 
     ok, reason = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
     if not ok:
-        sample_sheet_broken = sample_sheet.parent() / f'SampleSheet_BROKEN_{reason}.csv'
+        sample_sheet_broken = sample_sheet.parent / f'SampleSheet_BROKEN_{reason}.csv'
         message = (f'Samplesheet validation failed for run {run_dir}:\n'
                    f'{reason}')
         notify_bot(message)
-        sh_move(sample_sheet,sample_sheet_broken)
+        sh_move(sample_sheet, sample_sheet_broken)
         raise RuntimeError(message)
 
     if input_type == 'run':
