@@ -81,7 +81,7 @@ def main():
         if input_path and flowcell_dir is not None:
             break
 
-    if not input_path or not input_type:
+    if not input_path or not input_type or flowcell_dir is not None:
         exit(0)
 
     sample_sheet = flowcell_dir / ('SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv')
