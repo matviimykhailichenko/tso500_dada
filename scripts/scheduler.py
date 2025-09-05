@@ -79,10 +79,10 @@ def main():
                 notify_bot(f'Found run {run_dir}')
                 break
 
-        if input_path and flowcell_dir is not None:
+        if input_path:
             break
 
-    if not input_path or not input_type or flowcell_dir is None:
+    if not input_path or not input_type:
         return
 
     sample_sheet = flowcell_dir / ('SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv')
