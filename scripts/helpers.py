@@ -846,7 +846,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
         extra = set(sections_dict.get(section_header)) - set(expected_sections.get(section_header))
         missing = set() - set(sections_dict.get(section_header))
         if extra or missing:
-            return False, f"BAD_{section_header}"
+            return False, f"BAD_{section_header.strip().strip(',').strip('[]')}"
 
     csv_string = "".join(indexes)
 

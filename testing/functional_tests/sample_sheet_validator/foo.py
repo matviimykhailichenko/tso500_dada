@@ -1,1 +1,2 @@
-from tso500_dragen_pipeline.scripts.helpers import get_repo_root
+section_header = '[Header],\n'
+print()
