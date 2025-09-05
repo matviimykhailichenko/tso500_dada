@@ -33,13 +33,13 @@ def setup_environment():
 
         # elif 'Analysis' in sample_sheet.name:
         #     sample_sheet_counter += 1
-        #     test_flowcell_name = f'test_flowcell{sample_sheet_counter}'
-        #     current_test_run = mixed_runs_dir / test_flowcell_name
-        #     if not current_test_run.exists():
-        #         sh_copytree(str(test_run_nsx), str(current_test_run))
-        #
-        #     sample_sheet_run_dir = current_test_run / 'SampleSheet_Analysis.csv'
-        #     sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
+            test_flowcell_name = f'test_flowcell{sample_sheet_counter}'
+            current_test_run = mixed_runs_dir / test_flowcell_name
+            if not current_test_run.exists():
+                sh_copytree(str(test_run_nsx), str(current_test_run))
+
+            sample_sheet_run_dir = current_test_run / 'SampleSheet_Analysis.csv'
+            sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
 
         else:
             raise RuntimeError('Unexpected run type')
