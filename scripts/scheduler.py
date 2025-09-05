@@ -1,7 +1,7 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root, validate_samplesheet
-from shutil import copy as sh_copy
+from shutil import copy as sh_copy, move as sh_move
 from logging_ops import notify_bot
 import re
 import yaml
@@ -84,16 +84,17 @@ def main():
 
     if not input_path or not input_type:
         return
+    sample_sheet_name ='SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv'
+    sample_sheet = flowcell_dir / sample_sheet_name
 
-    sample_sheet = flowcell_dir / ('SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv')
-
-    ok, msg = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
+    ok, reason = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet, config=config)
     if not ok:
+        sample_sheet_broken = sample_sheet.parent / f'{sample_sheet_name}_BROKEN_{reason}.csv'
         message = (f'Samplesheet validation failed for run {run_dir}:\n'
-                   f'{msg}')
+                   f'{reason}')
         notify_bot(message)
+        sh_move(sample_sheet, sample_sheet_broken)
         raise RuntimeError(message)
-    notify_bot(msg)
 
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
