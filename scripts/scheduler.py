@@ -89,14 +89,14 @@ def main():
         message = (f'Samplesheet validation failed for run {run_dir}:\n'
                    f'{msg}')
         notify_bot(message)
-        RuntimeError(message)
+        raise RuntimeError(message)
 
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
     elif input_type == 'sample':
         append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
-        RuntimeError(f'Unrecognised input type: {input_type}')
+        raise RuntimeError(f'Unrecognised input type: {input_type}')
 
 
 if __name__ == '__main__':
