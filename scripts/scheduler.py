@@ -78,7 +78,7 @@ def main():
                 notify_bot(f'Found run {run_dir}')
                 break
 
-        if input_path and flowcell_dir:
+        if input_path and flowcell_dir is not None:
             break
 
     if not input_path or not input_type:
