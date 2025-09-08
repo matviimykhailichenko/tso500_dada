@@ -275,8 +275,8 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     staging_temp_dir: Path = paths['staging_temp_dir']
 
     assert input_type == 'run', 'Patho only supposed to sequence runs from NSQ6000'
-    # TODO Temporary until sx182 is fixed
-    results_dir: Path = Path('/mnt/NovaseqXplus/08_Projekte/CBmed') / f'Analyseergebnisse' / run_name
+
+    results_dir: Path = paths['results_dir']
 
     rsync_path: str = paths['rsync_path']
 
