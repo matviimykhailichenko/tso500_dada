@@ -1,0 +1,16 @@
+name: TSO500ichorCNA
+channels:
+- bioconda
+- conda-forge
+- r
+- biobuilds
+- defaults
+dependencies:
+- picard
+- samtools
+- hmmcopy
+- bwa
+- r-rcurl
+- r-usethis
+- r-ragg # use CONDA for this
+- libxml2

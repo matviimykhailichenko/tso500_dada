@@ -1,32 +1,29 @@
-FROM oraclelinux:8.6
+# Use a ready-to-go Miniconda base image
+FROM continuumio/miniconda3:latest
 
-# Install required system dependencies
-RUN dnf -y install wget bzip2 rsync which && \
-    dnf clean all
+# Everything is expected to be mounted at /mnt/code when you run the container
+WORKDIR /mnt/
 
-# Install Miniconda
-ENV CONDA_DIR=/opt/conda
-ENV PATH=$CONDA_DIR/bin:$PATH
+# Copy the env spec into the image so we can build at image build time
+# (Assumes ichorCNA.yaml is next to this Dockerfile when you build)
+COPY ichorCNA.yaml /tmp/ichorCNA.yaml
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
-    rm /tmp/miniconda.sh && \
-    $CONDA_DIR/bin/conda clean -afy
+# Create the conda env
+RUN conda env create -n ichorCNA -f /tmp/ichorCNA.yaml && conda clean -afy
 
-# Accept ToS and create environment
-RUN $CONDA_DIR/bin/conda config --set always_yes yes && \
-    $CONDA_DIR/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
-    $CONDA_DIR/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
-    $CONDA_DIR/bin/conda create --name ichorCNA && \
-    $CONDA_DIR/bin/conda clean -afy
+# Make "conda activate" work in RUN/CMD
+SHELL ["/bin/bash", "-lc"]
 
-RUN conda config --set solver classic
-RUN conda config --add channels bioconda
-RUN conda config --add channels conda-forge
-RUN conda config --add channels r
-RUN conda config --add channels biobuilds
-RUN conda config --add channels defaults
+# Auto-activate the env for interactive shells
+RUN echo "conda activate ichorCNA" >> ~/.bashrc
 
-RUN conda config --set solver classic && \
-    conda install -y hmmcopy picard samtools bwa r-rcurl r-ragg libxml2 && \
-    conda clean -afy
+# Allow overriding paths at runtime via ENV (relative to /mnt/code)
+ENV ICHOR_SCRIPT="tso500_dragen_pipeline/sandbox/ichorCNA_docker/tso500offtarget_ichorcna/drv_TSO500_offtarget_ichorCNA_parallel.sh" \
+    DATA_DIR="tso500_dragen_pipeline/sandbox/ichorCNA_docker/data" \
+    ICHOR_DIR="tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA"
+
+# Default command: activate env and run your driver script from /mnt/code
+ENTRYPOINT bash -lc 'source ~/.bashrc && \
+  bash "/mnt/code/${ICHOR_SCRIPT}" \
+    -d "/mnt/code/${DATA_DIR}/" \
+    -p "/mnt/code/${ICHOR_DIR}"'
