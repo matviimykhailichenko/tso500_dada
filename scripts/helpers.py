@@ -875,3 +875,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
                 return False, 'BAD_BCLConvert'
 
     return True, 'Samplesheet is valid'
+
+
+def run_ichorCNA(paths, input_type, last_sample_queue, logger):
+    cmd = ()
