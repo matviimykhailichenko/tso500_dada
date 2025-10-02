@@ -335,7 +335,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
-    paths['sample_sheet_valid_tag'] = config.get('sample_sheet_valid_tag', [])
     paths['rsync_path'] = sh_which('rsync')
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
@@ -602,6 +601,7 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
         paths['queued_tag'] = config['queued_tag']
+        paths['sample_sheet_valid_tag'] = config.get('sample_sheet_valid_tag', [])
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
 
