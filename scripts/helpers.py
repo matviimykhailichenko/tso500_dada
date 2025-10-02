@@ -865,7 +865,8 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     df_indexes_no_sample_ids = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
     df_sample_ids = pd.read_csv(StringIO(csv_string))['Sample_ID']
-    assert not df_sample_ids.duplicated().any()
+    if df_sample_ids.duplicated().any():
+        return False, 'ID_DUPLICATED'
 
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
