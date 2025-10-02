@@ -50,8 +50,8 @@ def setup_environment():
             if len(list(mixed_runs_dir.iterdir())) < 11:
                 sh_copytree(str(test_run_ns6000), str(current_test_run))
 
-            sample_sheet_run_dir = current_test_run / '250213_A01664_0452_AH2J5VDMX2' / 'SampleSheet.csv'
-            sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
+                sample_sheet_run_dir = current_test_run / '250213_A01664_0452_AH2J5VDMX2' / 'SampleSheet.csv'
+                sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
 
         elif 'Analysis' in sample_sheet.name:
             sample_sheet_counter += 1
@@ -60,8 +60,8 @@ def setup_environment():
             if len(list(mixed_runs_dir.iterdir())) < 11:
                 sh_copytree(str(test_run_nsx), str(current_test_run))
 
-            sample_sheet_run_dir = current_test_run / 'SampleSheet_Analysis.csv'
-            sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
+                sample_sheet_run_dir = current_test_run / 'SampleSheet_Analysis.csv'
+                sh_copy(str(sample_sheet), str(sample_sheet_run_dir))
 
 
 def test_scheduler(setup_environment):
