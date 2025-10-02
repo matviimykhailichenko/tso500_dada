@@ -73,7 +73,7 @@ def main():
                     sh_move(sample_sheet, sample_sheet_broken)
                     raise RuntimeError(message)
 
-                sample_sheet_valid_tag = flowcell_dir / paths['sample_sheet_valid_tag']
+                sample_sheet_valid_tag = run_dir / paths['sample_sheet_valid_tag']
                 sample_sheet_valid_tag.touch()
 
                 input_path = scan_dir_nsqx(run_dir=run_dir, repo_root=repo_root)
