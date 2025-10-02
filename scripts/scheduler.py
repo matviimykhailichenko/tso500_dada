@@ -59,11 +59,10 @@ def main():
                 if obj.is_dir() and re.search(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$', obj.name):
                     flowcell_dir = obj
 
-
             if analysis_dir.exists() and data_dir.exists():
                 input_type = 'sample'
                 sample_sheet_name = 'SampleSheet_Analysis.csv'
-                sample_sheet = flowcell_dir / sample_sheet_name
+                sample_sheet = run_dir / sample_sheet_name
                 ok, reason = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet,
                                                   config=config)
                 if not ok:
