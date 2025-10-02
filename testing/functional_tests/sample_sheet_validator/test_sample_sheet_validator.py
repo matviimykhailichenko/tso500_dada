@@ -66,5 +66,5 @@ def setup_environment():
 
 def test_scheduler(setup_environment):
     scheduler_call = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
-    for i in range(1):
+    for i in range(11):
         subp_run(scheduler_call,check=True,shell=True)
