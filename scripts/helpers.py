@@ -335,6 +335,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths: dict = dict()
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
+    paths['sample_sheet_valid_tag'] = config.get('sample_sheet_valid_tag', [])
     paths['rsync_path'] = sh_which('rsync')
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
@@ -618,6 +619,7 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
+        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
 
     txt_files = list(Path(flowcell_dir).glob('*.txt'))
     file_names = [path.name for path in txt_files]
@@ -628,12 +630,17 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
     if all(tag in file_names for tag in ready_tags):
         return flowcell_dir
 
+    sample_sheet_valid_tag = flowcell_dir / sample_sheet_valid_tag
+
+    if not sample_sheet_valid_tag.exists():
+        return None
 
 def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
+        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
     fastq_dir = None
 
     txt_files = list(Path(run_dir).glob('*.txt'))
@@ -643,6 +650,11 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
         return None
 
     if not all(tag in file_names for tag in ready_tags):
+        return None
+
+    sample_sheet_valid_tag = run_dir / sample_sheet_valid_tag
+
+    if not sample_sheet_valid_tag.exists():
         return None
 
     analyses_dir = run_dir / 'Analysis'
@@ -670,11 +682,13 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     research_seq_dir = paths['research_seq_dir']
+    sample_sheet_valid_tag = input_dir / paths['sample_sheet_valid_tag']
 
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
-    queued_tag.touch()
+
+    sample_sheet_valid_tag.unlink()
 
     priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
@@ -691,11 +705,13 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
+    queued_tag.touch()
 
 def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         available_servers = config['available_servers']
+        sample_sheet_valid_tag = input_dir / paths['sample_sheet_valid_tag']
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
     run_dir = fastq_gen_dir.parent
@@ -723,6 +739,7 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
+    sample_sheet_valid_tag.unlink()
     queued_tag.touch()
 
 
@@ -848,6 +865,8 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     df_indexes_no_sample_ids = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
     df_sample_ids = pd.read_csv(StringIO(csv_string))['Sample_ID']
+    assert not df_sample_ids.duplicated().any()
+
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
     for sample_id in df_sample_ids:
