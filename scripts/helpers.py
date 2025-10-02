@@ -711,10 +711,10 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         available_servers = config['available_servers']
-        sample_sheet_valid_tag = input_dir / paths['sample_sheet_valid_tag']
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
     run_dir = fastq_gen_dir.parent
+    sample_sheet_valid_tag = run_dir / paths['sample_sheet_valid_tag']
     queued_tag = run_dir / paths['queued_tag']
     #
     # paths = [fastq_gen_dir / id for id in sample_ids]
