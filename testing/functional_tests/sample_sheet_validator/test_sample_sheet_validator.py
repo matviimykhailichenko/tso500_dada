@@ -45,9 +45,9 @@ def setup_environment():
         if 'Analysis' not in sample_sheet.name:
             sample_sheet_counter += 1
 
-            test_run_name = list(generate_flowcell_names(1))[0]
+            test_run_name = f'test_run_{sample_sheet_counter}'
             current_test_run = mixed_runs_dir / test_run_name
-            if not current_test_run.exists():
+            if len(list(mixed_runs_dir.iterdir())) < 11:
                 sh_copytree(str(test_run_ns6000), str(current_test_run))
 
             sample_sheet_run_dir = current_test_run / '250213_A01664_0452_AH2J5VDMX2' / 'SampleSheet.csv'
@@ -55,9 +55,9 @@ def setup_environment():
 
         elif 'Analysis' in sample_sheet.name:
             sample_sheet_counter += 1
-            test_flowcell_name = f'test_flowcell{sample_sheet_counter}'
+            test_flowcell_name = list(generate_flowcell_names(1))[0]
             current_test_run = mixed_runs_dir / test_flowcell_name
-            if not current_test_run.exists():
+            if len(list(mixed_runs_dir.iterdir())) < 11:
                 sh_copytree(str(test_run_nsx), str(current_test_run))
 
             sample_sheet_run_dir = current_test_run / 'SampleSheet_Analysis.csv'
