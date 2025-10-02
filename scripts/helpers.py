@@ -292,7 +292,7 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
         raise RuntimeError(message)
 
 
-def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_research(paths:dict, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -552,7 +552,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
         elif tag == 'PAT':
             transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
         elif tag == 'TSO':
-            transfer_results_research(paths=paths, input_type=input_type, logger=logger, testing=testing)
+            transfer_results_research(paths=paths, logger=logger)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")
     except Exception as e:
@@ -564,10 +564,6 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
 
     notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
-
-
-    # TODO add done tag
-    # TODO delete QUEUED tag
 
 
 def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
@@ -605,6 +601,7 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
         paths['queued_tag'] = config['queued_tag']
+        paths['sample_sheet_valid_tag'] = config.get('sample_sheet_valid_tag', [])
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
 
@@ -622,6 +619,7 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
+        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
 
     txt_files = list(Path(flowcell_dir).glob('*.txt'))
     file_names = [path.name for path in txt_files]
@@ -632,12 +630,17 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
     if all(tag in file_names for tag in ready_tags):
         return flowcell_dir
 
+    sample_sheet_valid_tag = flowcell_dir / sample_sheet_valid_tag
+
+    if not sample_sheet_valid_tag.exists():
+        return None
 
 def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
+        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
     fastq_dir = None
 
     txt_files = list(Path(run_dir).glob('*.txt'))
@@ -647,6 +650,11 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
         return None
 
     if not all(tag in file_names for tag in ready_tags):
+        return None
+
+    sample_sheet_valid_tag = run_dir / sample_sheet_valid_tag
+
+    if not sample_sheet_valid_tag.exists():
         return None
 
     analyses_dir = run_dir / 'Analysis'
@@ -674,11 +682,13 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     research_seq_dir = paths['research_seq_dir']
+    sample_sheet_valid_tag = input_dir / paths['sample_sheet_valid_tag']
 
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
-    queued_tag.touch()
+
+    sample_sheet_valid_tag.unlink()
 
     priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
@@ -695,6 +705,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
+    queued_tag.touch()
 
 def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
@@ -703,6 +714,7 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
     run_dir = fastq_gen_dir.parent
+    sample_sheet_valid_tag = run_dir / paths['sample_sheet_valid_tag']
     queued_tag = run_dir / paths['queued_tag']
 
     paths = [fastq_gen_dir / id for id in sample_ids]
@@ -727,6 +739,7 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
+    sample_sheet_valid_tag.unlink()
     queued_tag.touch()
 
 
@@ -852,6 +865,9 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     df_indexes_no_sample_ids = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
     df_sample_ids = pd.read_csv(StringIO(csv_string))['Sample_ID']
+    if df_sample_ids.duplicated().any():
+        return False, 'ID_DUPLICATED'
+
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
     for sample_id in df_sample_ids:
