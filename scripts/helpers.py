@@ -292,7 +292,7 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
         raise RuntimeError(message)
 
 
-def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_research(paths:dict, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -552,7 +552,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
         elif tag == 'PAT':
             transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
         elif tag == 'TSO':
-            transfer_results_research(paths=paths, input_type=input_type, logger=logger, testing=testing)
+            transfer_results_research(paths=paths, logger=logger)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")
     except Exception as e:
@@ -564,10 +564,6 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
 
     notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
-
-
-    # TODO add done tag
-    # TODO delete QUEUED tag
 
 
 def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
