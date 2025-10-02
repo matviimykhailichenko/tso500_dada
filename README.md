@@ -8,5 +8,6 @@ _Instructions_:
 Remarks:
 - naming convention is snake_case
 - everything should be explicit
+- indexes are from https://support-docs.illumina.com/SHARE/AdapterSequences/Content/SHARE/AdapterSeq/Illumina_DNA/IlluminaUDIndexes.htm
 
 If something breaks, reach matvii.mykhailichenko@medunigraz.at.
