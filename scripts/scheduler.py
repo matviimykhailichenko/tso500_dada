@@ -115,12 +115,12 @@ def main():
     if not input_path or not input_type:
         return
 
-    # if input_type == 'run':
-    #     append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
-    # elif input_type == 'sample':
-    #     append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
-    # else:
-    #     raise RuntimeError(f'Unrecognised input type: {input_type}')
+    if input_type == 'run':
+        append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
+    elif input_type == 'sample':
+        append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
+    else:
+        raise RuntimeError(f'Unrecognised input type: {input_type}')
 
 
 if __name__ == '__main__':

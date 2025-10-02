@@ -690,20 +690,20 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
 
     sample_sheet_valid_tag.unlink()
 
-    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
-    priority = priority_map.get(input_dir.parent.parent)[0]
-    tag = priority_map.get(input_dir.parent.parent)[1]
-
-    entry = [str(input_dir), 'run', priority, tag, input_dir.name]
-    new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    if not pending_file.exists():
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-        sh_copy(pending_blank, pending_file)
-
-    if pending_file.stat().st_size < 38:
-        with open(pending_file, 'a') as f:
-            f.write('\n')
-    new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+    # priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
+    # priority = priority_map.get(input_dir.parent.parent)[0]
+    # tag = priority_map.get(input_dir.parent.parent)[1]
+    #
+    # entry = [str(input_dir), 'run', priority, tag, input_dir.name]
+    # new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
+    # if not pending_file.exists():
+    #     pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+    #     sh_copy(pending_blank, pending_file)
+    #
+    # if pending_file.stat().st_size < 38:
+    #     with open(pending_file, 'a') as f:
+    #         f.write('\n')
+    # new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
     queued_tag.touch()
 
@@ -716,28 +716,28 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
     run_dir = fastq_gen_dir.parent
     queued_tag = run_dir / paths['queued_tag']
-
-    paths = [fastq_gen_dir / id for id in sample_ids]
-    priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
-    tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
-
-    priorities = (int(priority_map.get(t)) for t in tags)
-
-    entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
-    new_samples = pd.DataFrame(entries)
-    pedning_files = np.array_split(new_samples, len(available_servers))
-
-    for server in available_servers:
-        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
-        if not pending_file.exists():
-            pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-            sh_copy(pending_blank, pending_file)
-        if pending_file.stat().st_size < 37:
-            with open(pending_file, 'a') as f:
-                f.write('\n')
-
-        pending = pd.DataFrame(pedning_files[available_servers.index(server)])
-        pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+    #
+    # paths = [fastq_gen_dir / id for id in sample_ids]
+    # priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
+    # tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
+    #
+    # priorities = (int(priority_map.get(t)) for t in tags)
+    #
+    # entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
+    # new_samples = pd.DataFrame(entries)
+    # pedning_files = np.array_split(new_samples, len(available_servers))
+    #
+    # for server in available_servers:
+    #     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
+    #     if not pending_file.exists():
+    #         pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+    #         sh_copy(pending_blank, pending_file)
+    #     if pending_file.stat().st_size < 37:
+    #         with open(pending_file, 'a') as f:
+    #             f.write('\n')
+    #
+    #     pending = pd.DataFrame(pedning_files[available_servers.index(server)])
+    #     pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
     sample_sheet_valid_tag.unlink()
     queued_tag.touch()
