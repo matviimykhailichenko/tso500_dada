@@ -15,7 +15,6 @@ def main():
         samplesheet_ns6000 = validator_dir / 'SampleSheet.csv'
         samplesheet_nsx = validator_dir / 'SampleSheet_Analysis.csv'
         sample_sheet_valid_tag = validator_dir/ config['sample_sheet_valid_tag']
-        print(samplesheet_ns6000, samplesheet_nsx, sample_sheet_valid_tag)
 
     if samplesheet_nsx.exists():
         input_type = 'sample'
