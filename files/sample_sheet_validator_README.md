@@ -21,6 +21,14 @@ Exceptions:
 - Sample_ID (can vary, but must follow naming rules)
 
 
+Naming
+------
+- NSX+ → SampleSheet_Analysis.csv  
+  (because there is another sample sheet named SampleSheet.csv for demultiplexing on the on-board DRAGEN)  
+
+- NSQ6000 → SampleSheet.csv  
+
+
 TSO500L_Data Section
 --------------------
 - Index columns (Index, Index2) must be valid index pairs from Set A or Set B.
