@@ -40,5 +40,7 @@ def main():
 
     sample_sheet_valid_tag.touch()
 
+    print(reason)
+
 if __name__ == '__main__':
     main()
