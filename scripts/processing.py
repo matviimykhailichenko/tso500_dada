@@ -57,7 +57,7 @@ def main():
         queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
         queues.append(pd.read_csv(queue_file, sep='\t'))
     queue_merged = pd.concat(queues, ignore_index=True)
-    if len(queue_merged['Tag'][queue_merged['Tag'] == tag]) == 0:
+    if len(queue_merged['Flowcell'][queue_merged['Flowcell'] == tag]) == 0:
         last_sample_run = True
 
     paths: dict = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
