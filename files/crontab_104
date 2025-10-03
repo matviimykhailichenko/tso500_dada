@@ -29,6 +29,6 @@ BASH_ENV=~/.bashrc
 #
 # ->| TSO500 PROCESSING:
 * * * * * /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/processing.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/crontab_failed.py
-
-# quota usage surveilance (this is now uploaded everyday to the Illumina license server which will then issue a new quota based on the remaining quota - the usage is reset to zero everyday around 18:20; time might vary between 17:30 and 18:30)
-55 17 * * * bash /mnt/NovaseqXplus/WXS_pipeline/03_Production/code/quota_surveilance/quota_surveilance.sh
+#
+# ->| TSO500 SAMPLE SHEET VALIDATION:
+* * * * * /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/sample_sheet_validator.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/crontab_failed.py
