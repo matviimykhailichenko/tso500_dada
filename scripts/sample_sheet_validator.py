@@ -39,3 +39,6 @@ def main():
         raise RuntimeError(message)
 
     sample_sheet_valid_tag.touch()
+
+if __name__ == '__main__':
+    main()
