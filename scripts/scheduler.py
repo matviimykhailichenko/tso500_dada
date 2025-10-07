@@ -64,7 +64,7 @@ def main():
                 sample_sheet_name = 'SampleSheet_Analysis.csv'
                 sample_sheet = run_dir / sample_sheet_name
                 if not sample_sheet.exists():
-                    'oops the stuff aint exists'
+                    print(sample_sheet)
                     continue
 
                 ok, reason = validate_samplesheet(repo_root=repo_root, input_type=input_type, sample_sheet=sample_sheet,
