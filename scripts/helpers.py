@@ -601,7 +601,6 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
         paths['queued_tag'] = config['queued_tag']
-        paths['sample_sheet_valid_tag'] = config.get('sample_sheet_valid_tag', [])
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
 
@@ -671,13 +670,10 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     cbmed_seq_dir = paths['cbmed_seq_dir']
     patho_seq_dir = paths['patho_seq_dir']
     research_seq_dir = paths['research_seq_dir']
-    sample_sheet_valid_tag = input_dir / paths['sample_sheet_valid_tag']
 
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
-
-    sample_sheet_valid_tag.unlink()
 
     priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
@@ -703,7 +699,6 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
 
     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
     run_dir = fastq_gen_dir.parent
-    sample_sheet_valid_tag = run_dir / paths['sample_sheet_valid_tag']
     queued_tag = run_dir / paths['queued_tag']
 
     paths = [fastq_gen_dir / id for id in sample_ids]
@@ -728,7 +723,6 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
-    sample_sheet_valid_tag.unlink()
     queued_tag.touch()
 
 
