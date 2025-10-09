@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sample IDs → SampleSheet_Analysis.csv</title>
+  <style>
+    table, th, td { border: 1px solid #000; border-collapse: collapse; padding: 5px; }
+    th { background: #eee; }
+    input.invalid { border: 2px solid red; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .top { margin-bottom: 8px; }
+    label { font-weight: 600; margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <label for="runName">RunName:</label>
+    <input id="runName" type="text" placeholder="250718_BI_735_batch1" value="250718_BI_735_batch1" oninput="validateAll()">
+  </div>
+
+  <table id="dataTable">
+    <tr><th>Sample IDs</th><th>UDPs</th></tr>
+    <tr>
+      <td><input type="text" placeholder="SAMPLE_TAG" oninput="validateAll()"></td>
+      <td><input type="text" placeholder="UDP0001" oninput="validateAll()"></td>
+    </tr>
+  </table>
+  <br>
+  <button onclick="addRow()">➕ Add Row</button>
+  <button id="saveButton" onclick="saveToServer()" disabled>💾 Save SampleSheet</button>
+
+  <script>
+    const samplePattern = /^[A-Za-z\-_]+$/;
+    const udpPattern = /^UDP0*(\d{1,4})$/;
+
+    function addRow() {
+      const row = document.getElementById("dataTable").insertRow(-1);
+      row.insertCell(0).innerHTML = '<input type="text" placeholder="SAMPLE_TAG" oninput="validateAll()">';
+      row.insertCell(1).innerHTML = '<input type="text" placeholder="UDP0001" oninput="validateAll()">';
+      validateAll();
+    }
+
+    function validateAll() {
+      const table = document.getElementById("dataTable");
+      const saveButton = document.getElementById("saveButton");
+      const runName = document.getElementById("runName");
+
+      let valid = true;
+
+      // RunName required (simple non-empty check; adjust as needed)
+      if (!runName.value.trim()) {
+        runName.classList.add("invalid");
+        valid = false;
+      } else {
+        runName.classList.remove("invalid");
+      }
+
+      for (let i = 1; i < table.rows.length; i++) {
+        const [sampleInput, udpInput] = table.rows[i].getElementsByTagName("input");
+        const s = sampleInput.value.trim();
+        const u = udpInput.value.trim().toUpperCase();
+
+        // Sample_ID validation
+        if (s && samplePattern.test(s)) {
+          sampleInput.classList.remove("invalid");
+        } else {
+          sampleInput.classList.add("invalid");
+          valid = false;
+        }
+
+        // UDP validation: UDP0001–UDP0192
+        let ok = false;
+        const m = u.match(udpPattern);
+        if (m) {
+          const num = parseInt(m[1], 10);
+          ok = num >= 1 && num <= 192;
+        }
+        if (ok) {
+          udpInput.classList.remove("invalid");
+        } else {
+          udpInput.classList.add("invalid");
+          valid = false;
+        }
+      }
+      saveButton.disabled = !valid;
+    }
+
+    function collectRows() {
+      const table = document.getElementById("dataTable");
+      const rows = [];
+      for (let i = 1; i < table.rows.length; i++) {
+        const [s, u] = table.rows[i].getElementsByTagName("input");
+        rows.push({
+          sample_id: s.value.trim(),
+          udp: u.value.trim().toUpperCase()
+        });
+      }
+      return rows;
+    }
+
+    async function saveToServer() {
+      const runName = document.getElementById("runName").value.trim();
+      const rows = collectRows();
+      const resp = await fetch("/save_samplesheet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run_name: runName, rows })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.ok) {
+        alert("Saved:\n" + data.saved_to);
+      } else {
+        alert("Save failed:\n" + (data.errors ? data.errors.join("\n") : "Unknown error"));
+      }
+    }
+  </script>
+</body>
+</html>
