@@ -619,7 +619,6 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags']
-        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
 
     txt_files = list(Path(flowcell_dir).glob('*.txt'))
     file_names = [path.name for path in txt_files]
@@ -630,17 +629,12 @@ def scan_dir_nsq6000(repo_root:str, flowcell_dir: Path):
     if all(tag in file_names for tag in ready_tags):
         return flowcell_dir
 
-    sample_sheet_valid_tag = flowcell_dir / sample_sheet_valid_tag
-
-    if not sample_sheet_valid_tag.exists():
-        return None
 
 def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         blocking_tags = config['blocking_tags']
         ready_tags = config['ready_tags_nsqx']
-        sample_sheet_valid_tag = config['sample_sheet_valid_tag']
     fastq_dir = None
 
     txt_files = list(Path(run_dir).glob('*.txt'))
@@ -650,11 +644,6 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
         return None
 
     if not all(tag in file_names for tag in ready_tags):
-        return None
-
-    sample_sheet_valid_tag = run_dir / sample_sheet_valid_tag
-
-    if not sample_sheet_valid_tag.exists():
         return None
 
     analyses_dir = run_dir / 'Analysis'
