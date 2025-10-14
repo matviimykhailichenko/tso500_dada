@@ -22,10 +22,10 @@ def main():
     args = create_parser().parse_args()
     testing: bool = args.testing
     verbose: bool = args.verbosity
+    repo_root = get_repo_root()
 
-    with open('/mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/config.yaml', 'r') as file:
+    with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        repo_root = get_repo_root()
         server_availability_dir: Path = Path(config['server_availability_dir'])
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
