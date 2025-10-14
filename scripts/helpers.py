@@ -333,6 +333,7 @@ def load_config(configfile: str) -> dict:
 def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
+    paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
@@ -398,6 +399,9 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         'PAT': paths['patho_results_dir']
     }
     paths['results_dir'] = results_dirs_map[tag]
+    paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
+    paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
+    paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
 
     return paths
 
@@ -878,4 +882,38 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
 
 def run_ichorCNA(paths, input_type, last_sample_queue, logger):
-    cmd = ()
+    run_name = paths['run_name']
+    if input_type == 'sample':
+        sample_id = paths['sample_id']
+        bams_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller/{sample_id}")
+        ichorCNA_dir = Path(f"/staging/tmp/{run_name}/Results/ichorCNA")
+        ichorCNA_dir.mkdir(parents=True, exist_ok=True)
+        for bam_bai in bams_dir.rglob("*.bam*"):
+            if not bam_bai.name.startswith("evidence"):
+                sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+
+    elif input_type == 'run':
+        caller_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller")
+        ichorCNA_dir = Path(f"/staging/tmp/{run_name}/Results/ichorCNA")
+        ichorCNA_dir.mkdir(parents=True, exist_ok=True)
+        for sample_dir in caller_dir:
+            for bam_bai in sample_dir.rglob("*.bam*"):
+                if not bam_bai.name.startswith("evidence"):
+                    sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+
+    cmd = (
+        "docker run --rm "
+        f"-v {paths['ichorCNA_repo']}:/mnt/repo "
+        f"-v {paths['ichorCNA_wrapper']}:/mnt/wrapper "
+        f"-v {ichorCNA_dir}:/mnt/data "
+        "ichorCNA "
+        "bash /mnt/wrapper/drv_TSO500_offtarget_ichorCNA_docker.sh "
+        "-d /mnt/data/ -p /mnt/code"
+    )
+    try:
+        subp_run(cmd, shell=True).check_returncode()
+    except CalledProcessError as e:
+        message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        # raise RuntimeError(message)
