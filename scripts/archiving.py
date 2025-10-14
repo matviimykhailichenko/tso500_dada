@@ -47,7 +47,7 @@ def main():
             reference = Path('/staging/illumina/DRAGEN_TruSight_Oncology_500_ctDNA/resources/hg19_decoy/genome.fa')
         reference_hash = Path(str(reference) + '.md5')
 
-    if not is_server_available() or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
+    if not is_server_available(repo_root) or not queue_file.stat().st_size < 38 or not pending_file.stat().st_size < 38:
         return
 
     busy_tag.touch()
@@ -58,7 +58,7 @@ def main():
         cram_files = []
         run_name = None
         for results_dir in onco_results_dir.iterdir():
-            run_name: str = results_dir.name
+            run_name = results_dir.name
             if not (results_dir / analyzed_tag).exists() or (results_dir / archiving_failed_tag).exists():
                 continue
             bam_files = [
