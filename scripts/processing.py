@@ -75,9 +75,9 @@ def main():
         if not paths['analyzing_tag'].exists():
             paths['analyzing_tag'].touch()
             paths['queued_tag'].unlink()
-        stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+        # stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
-        process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+        # process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         if tag == 'ONC':
             run_ichorCNA(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
