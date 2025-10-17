@@ -21,9 +21,3 @@ RUN echo "conda activate TSO500ichorCNA" >> ~/.bashrc
 ENV ICHOR_SCRIPT="tso500_dragen_pipeline/sandbox/ichorCNA_docker/tso500offtarget_ichorcna/drv_TSO500_offtarget_ichorCNA_parallel.sh" \
     DATA_DIR="tso500_dragen_pipeline/sandbox/ichorCNA_docker/data" \
     ICHOR_DIR="tso500_dragen_pipeline/ichorCNA"
-
-# Default command: activate env and run your driver script from /mnt/code
-ENTRYPOINT bash -lc 'source ~/.bashrc && \
-  bash "/mnt/code/${ICHOR_SCRIPT}" \
-    -d "/mnt/code/${DATA_DIR}/" \
-    -p "/mnt/code/${ICHOR_DIR}"'
