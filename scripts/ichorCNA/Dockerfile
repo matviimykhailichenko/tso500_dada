@@ -9,7 +9,7 @@ WORKDIR /mnt/
 COPY ichorCNA.yaml /tmp/ichorCNA.yaml
 
 # Create the conda env
-RUN conda env create -n ichorCNA -f /tmp/ichorCNA.yaml && conda clean -afy
+RUN conda env create -f /tmp/ichorCNA.yaml && conda clean -afy
 
 # Make "conda activate" work in RUN/CMD
 SHELL ["/bin/bash", "-lc"]
