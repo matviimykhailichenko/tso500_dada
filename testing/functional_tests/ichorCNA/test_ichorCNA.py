@@ -21,6 +21,7 @@ repo_root = get_repo_root()
 sys.path.insert(0, str(repo_root))
 
 from scripts.helpers import run_ichorCNA
+from scripts.logging_ops import setup_logger
 
 
 @pytest.fixture()
@@ -34,7 +35,7 @@ def setup_environment(request):
 
 def test_ichorCNA(setup_environment):
     paths = {}
-    logger = None
+    logger = setup_logger(logger_name='test',log_file=f'{repo_root}/logs/test.log')
     paths['run_name'] = f'{datetime.today().strftime('%y%m%d')}_TSO500_Onco'
     paths['sample_id'] = 'Sample_1-ONC'
     paths['ichorCNA_repo'] = '/mnt/NovaseqXplus/TSO_pipeline/resources/ichorCNA'
