@@ -908,7 +908,7 @@ def run_ichorCNA(paths, input_type, logger):
         f"-v {ichorCNA_dir}:/mnt/data "
         "ichorcna:latest "
         "bash /mnt/wrapper/drv_TSO500_offtarget_ichorCNA_docker.sh "
-        "-d /mnt/data/ -p /mnt/code"
+        "-d /mnt/data/ -p /mnt/repo"
     )
     try:
         subp_run(cmd, shell=True, check=True, capture_output=True, text=True)
