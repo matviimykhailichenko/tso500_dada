@@ -916,4 +916,4 @@ def run_ichorCNA(paths, input_type, logger):
         message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
         notify_bot(message)
         logger.error(message)
-        # raise RuntimeError(message)
+        raise RuntimeError(message)
