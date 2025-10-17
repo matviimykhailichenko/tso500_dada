@@ -911,7 +911,7 @@ def run_ichorCNA(paths, input_type, logger):
         "-d /mnt/data/ -p /mnt/code"
     )
     try:
-        subp_run(cmd, shell=True).check_returncode()
+        subp_run(cmd, shell=True, check=True, capture_output=True, text=True)
     except CalledProcessError as e:
         message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
         notify_bot(message)
