@@ -15,7 +15,7 @@ RUN conda env create -n ichorCNA -f /tmp/ichorCNA.yaml && conda clean -afy
 SHELL ["/bin/bash", "-lc"]
 
 # Auto-activate the env for interactive shells
-RUN echo "conda activate ichorCNA" >> ~/.bashrc
+RUN echo "conda activate TSO500ichorCNA" >> ~/.bashrc
 
 # Allow overriding paths at runtime via ENV (relative to /mnt/code)
 ENV ICHOR_SCRIPT="tso500_dragen_pipeline/sandbox/ichorCNA_docker/tso500offtarget_ichorcna/drv_TSO500_offtarget_ichorCNA_parallel.sh" \
