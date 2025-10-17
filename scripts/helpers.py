@@ -881,7 +881,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     return True, 'Samplesheet is valid'
 
 
-def run_ichorCNA(paths, input_type, last_sample_queue, logger):
+def run_ichorCNA(paths, input_type, logger):
     run_name = paths['run_name']
     if input_type == 'sample':
         sample_id = paths['sample_id']
