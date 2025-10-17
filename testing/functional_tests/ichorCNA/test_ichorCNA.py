@@ -26,7 +26,7 @@ from scripts.logging_ops import setup_logger
 
 @pytest.fixture()
 def setup_environment(request):
-    results_test_dir = Path('/mnt/Novaseq/TSO_pipeline/test_runs/test_samples_oncoservice_results')
+    results_test_dir = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_oncoservice_results')
     results_tmp_dir = Path(f'/staging/tmp/{datetime.today().strftime('%y%m%d')}_TSO500_Onco')
 
     if not results_tmp_dir.exists():
