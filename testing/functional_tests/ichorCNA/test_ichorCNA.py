@@ -1,8 +1,7 @@
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree, copy as sh_copy, move as sh_move
-from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
-import yaml
+from shutil import copytree as sh_copytree
+from subprocess import CalledProcessError, check_output as subp_check_output
 import sys
 from datetime import datetime
 
@@ -22,7 +21,6 @@ repo_root = get_repo_root()
 sys.path.insert(0, str(repo_root))
 
 from scripts.helpers import run_ichorCNA
-from scripts.logging_ops import setup_logger
 
 
 @pytest.fixture()
@@ -36,7 +34,7 @@ def setup_environment(request):
 
 def test_ichorCNA(setup_environment):
     paths = {}
-    logger = setup_logger(logger_name='test',log_file=f'{repo_root}/logs/test.log')
+    logger = None
     paths['run_name'] = f'{datetime.today().strftime('%y%m%d')}_TSO500_Onco'
     paths['sample_id'] = 'Sample_1-ONC'
     paths['ichorCNA_repo'] = '/mnt/NovaseqXplus/TSO_pipeline/resources/ichorCNA'
