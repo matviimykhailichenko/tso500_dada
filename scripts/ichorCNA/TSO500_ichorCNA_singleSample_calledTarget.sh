@@ -2,8 +2,6 @@
 
 set -e -o pipefail
 
-hostname
-
 # ACTIVATE CONDA ENVIRONMENT
 eval "$(conda shell.bash hook)"
 conda activate TSO500ichorCNA
