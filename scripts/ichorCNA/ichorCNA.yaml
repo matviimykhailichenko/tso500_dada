@@ -16,3 +16,8 @@ dependencies:
 - r-ragg # use CONDA for this
 - libxml2
 - r-optparse
+- r-ggplot2
+- r-domc
+- r-foreach
+- r-stringr
+
