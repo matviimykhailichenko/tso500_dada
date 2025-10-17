@@ -34,6 +34,9 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
     elif step == "running":
         msg = f"Running the TSO500 script for {prefix} the run {run_name}"
 
+    elif step == "running_ichorCNA":
+        msg = f"Running the ichorCNA docker for {prefix} the run {run_name}"
+
     elif step == "transferring":
         msg = f"Transferring the results for {prefix} the run {run_name}"
 
