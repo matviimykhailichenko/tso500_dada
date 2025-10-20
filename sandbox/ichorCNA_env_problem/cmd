@@ -13,6 +13,7 @@ docker run --rm \
     PON="/mnt/repo/accessory_files/PoN_of_10controls_fromTSO_1000kb.txt_median.rds"
     OUTDIR="/mnt/data/ichorCNA/Results_ichorCNA"
 
+    conda activate TSO500ichorCNA
     # === Run ichorCNA ===
     Rscript "$R_SCRIPT" \
       --WIG "$WIG" \
