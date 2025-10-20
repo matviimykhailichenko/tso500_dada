@@ -1,5 +1,5 @@
 docker run --rm \
-  -v /mnt/repo:/mnt/repo \
+  -v /mnt/NovaseqXplus/TSO_pipeline/resources/ichorCNA:/mnt/repo \
   -v /mnt/NovaseqXplus/TSO_pipeline/01_Staging/ichorCNA-docker/scripts/ichorCNA:/mnt/wrapper \
   -v /mnt/data/ichorCNA:/mnt/data \
   ichorcna:latest \
