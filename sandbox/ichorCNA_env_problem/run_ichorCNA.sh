@@ -1,0 +1,24 @@
+Rscript /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA/scripts/runIchorCNA.R \
+    --WIG /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_env_problem/Sample_1-ONC_tumor.wig \
+    --gcWig /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA/inst/extdata/gc_hg19_1000kb.wig \
+    --mapWig /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA/inst/extdata/map_hg19_1000kb.wig \
+    --ploidy "c(2,3,4)" \
+    --normal "c(0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95)" \
+    --maxCN 7 \
+    --id "Sample_1-ONC" \
+    --estimateNormal TRUE \
+    --estimatePloidy TRUE \
+    --includeHOMD FALSE \
+    --chrs "c(1:22,\"X\")" \
+    --chrTrain "c(1:18)" \
+    --centromere /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA/inst/extdata/GRCh37.p13_centromere_UCSC-gapTable.txt \
+    --normalPanel /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/scripts/ichorCNA/accessory_files/PoN_of_10controls_fromTSO_1000kb.txt_median.rds \
+    --txnE 0.999 \
+    --txnStrength 100000 \
+    --scStates "c(1,3)" \
+    --estimateScPrevalence TRUE \
+    --maxFracGenomeSubclone 0.5 \
+    --maxFracCNASubclone 0.7 \
+    --minSegmentBins 50 \
+    --altFracThreshold 0.7 \
+    --outDir /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_env_problem/Results_ichorCNA
