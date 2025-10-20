@@ -25,3 +25,4 @@ dependencies:
   - bioconductor-genomicranges
   - r-ichorcna
   - r-optparse
+  - rsync
