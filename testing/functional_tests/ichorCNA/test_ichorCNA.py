@@ -27,14 +27,14 @@ from scripts.logging_ops import setup_logger
 @pytest.fixture()
 def setup_environment(request):
     paths = {}
-    paths['run_name'] = f'{datetime.today().strftime('%y%m%d')}_TSO500_Onco'
+    paths['run_name'] = f'251017_TSO500_Onco'
     paths['sample_id'] = 'Sample_1-ONC'
     paths['ichorCNA_repo'] = '/mnt/NovaseqXplus/TSO_pipeline/resources/ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
     paths['tag'] = 'TEST'
     input_type = 'sample'
     results_test_dir = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_oncoservice_results')
-    results_tmp_dir = Path(f'/staging/tmp/{datetime.today().strftime('%y%m%d')}_TSO500_Onco')
+    results_tmp_dir = Path(f'/staging/tmp/251017_TSO500_Onco')
     sample_caller_dir = results_tmp_dir / f'Logs_Intermediates/DragenCaller/{paths['sample_id']}'
     sample_results_dir = results_tmp_dir / 'Results/ichorCNA'
 
