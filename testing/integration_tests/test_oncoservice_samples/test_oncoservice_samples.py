@@ -39,13 +39,13 @@ def setup_environment(request):
 @pytest.mark.dependency(name="scheduling")
 def test_scheduling(setup_environment):
     repo_root = get_repo_root()
-    scheduling_call = f'python3 {repo_root}/scripts/scheduler.py -t'
+    scheduling_call = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
     subp_run(scheduling_call, check=True, shell=True)
 
 
 @pytest.mark.dependency(depends=["scheduling"])
 def test_processing():
     repo_root = get_repo_root()
-    processing_call = f'python3 {repo_root}/scripts/processing.py -t'
+    processing_call = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/processing.py -t'
     for i in range(2):
         subp_run(processing_call,check=True,shell=True)
