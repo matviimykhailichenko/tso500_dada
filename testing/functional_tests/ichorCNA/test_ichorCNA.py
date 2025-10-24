@@ -51,5 +51,5 @@ def setup_environment(request):
 def test_ichorCNA(setup_environment):
     paths, input_type, results_tmp_dir = setup_environment
     logger = setup_logger(logger_name='test',log_file=f'{repo_root}/logs/test.log')
-    run_ichorCNA(paths=paths, input_type=input_type, logger=logger)
+    run_ichorCNA(paths=paths, input_type=input_type, last_sample_queue=False, logger=logger)
 
