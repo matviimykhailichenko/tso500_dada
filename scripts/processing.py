@@ -2,7 +2,7 @@ from pathlib import Path
 import yaml
 import argparse
 import pandas as pd
-from scripts.helpers import is_server_available, get_server_ip, setup_paths, check_mountpoint, check_rsync, \
+from helpers import is_server_available, get_server_ip, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
     get_queue, merge_metrics, get_repo_root, run_ichorCNA
 from logging_ops import setup_logger

@@ -1,9 +1,8 @@
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree, copy as sh_copy, move as sh_move
+from shutil import copytree as sh_copytree, copy as sh_copy
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
-import sys
 
 
 

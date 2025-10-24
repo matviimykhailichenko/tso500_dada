@@ -1,5 +1,5 @@
 import argparse
-from scripts.helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
+from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root, validate_samplesheet
 from shutil import copy as sh_copy, move as sh_move
 from logging_ops import notify_bot
