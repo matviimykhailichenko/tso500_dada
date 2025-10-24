@@ -3,6 +3,8 @@ from pathlib import Path
 from shutil import copytree as sh_copytree, copy as sh_copy
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
+from datetime import datetime
+import random, string
 
 
 
@@ -21,12 +23,15 @@ def get_repo_root() -> str:
 @pytest.fixture()
 def setup_environment(request):
     repo_root = get_repo_root()
+    today = datetime.now().strftime("%y%m%d")
+    run_name = f"{today}_A01664_2749_CICEAJ7JXH"
+
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_seq_dir:Path = Path(config['oncoservice_dir'] + '_TEST') / 'Runs'
         test_onco_samples:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_oncoservice')
-    test_onco_run_seq_dir = onco_seq_dir / 'test_samples'
+    test_onco_run_seq_dir = onco_seq_dir / run_name
     pending_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
     pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
 
