@@ -9,6 +9,7 @@ dependencies:
   - libxml2
   - r-ragg
   - samtools
+  - bioconductor-hmmcopy
   - hmmcopy
   - bwa
   - r-rcurl
@@ -23,6 +24,5 @@ dependencies:
   - r-foreach
   - r-stringr
   - bioconductor-genomicranges
-  - r-ichorcna
+  #- r-ichorcna
   - r-optparse
-  - rsync

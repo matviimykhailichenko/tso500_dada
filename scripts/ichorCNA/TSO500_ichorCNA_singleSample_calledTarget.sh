@@ -102,13 +102,23 @@ function pipeline(){
   markdup_temp_dir="${user_temp_dir}/markDuplicates-${sample_name}"  # THIS MUST BE SAMPLE-SPECIFIC!
   mkdir -p "${markdup_temp_dir}"
   trap "echo 'cleaning up temporary directory for marking duplicates..' && rm -rdf ${markdup_temp_dir}; conda deactivate" SIGINT SIGTERM
-  python3 "${markdup_script_path}" --input-bam "${input_directory_path}/${sample_name}.bam" --output-dir "${input_directory_path}" --processes ${proc_number} --temp-dir "${markdup_temp_dir}"
-  # delete temporary directory for sample if it still exists after marking duplicates with picard
-  if [ -d "${markdup_temp_dir}" ]
-  then
-    rm -rf "${markdup_temp_dir}"
+    # Skip markduplicates if already exists
+  if [ -f "${input_directory_path}/${sample_name}.markdup.bam" ]; then
+    echo "STEP1: MarkDuplicates already completed for ${sample_name}, skipping..."
+  else
+    echo "***************************************************************"
+    echo "  STEP1: Running MarkDuplicates for sample: ${sample_name}     "
+    echo "***************************************************************"
+    python3 "${markdup_script_path}" --input-bam "${input_directory_path}/${sample_name}.bam" --output-dir "${input_directory_path}" --processes ${proc_number} --temp-dir "${markdup_temp_dir}"
+
+    # delete temporary directory for sample if it still exists after marking duplicates with picard
+    if [ -d "${markdup_temp_dir}" ]; then
+      rm -rf "${markdup_temp_dir}"
+    fi
   fi
+
   ichor "${sample_name}" "${input_directory_path}" "${ichor_installation_path}"
+
 }
 
 function ichor(){
@@ -165,7 +175,6 @@ function ichor(){
     --outDir "${2}/Results_ichorCNA_${1}"
   fi
 }
-
 #--------------------------------------------------------------------------------------------------
 #***************************************MAIN*******************************************************
 #--------------------------------------------------------------------------------------------------
