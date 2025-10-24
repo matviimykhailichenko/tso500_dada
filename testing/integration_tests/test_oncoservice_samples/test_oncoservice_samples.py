@@ -24,7 +24,7 @@ def setup_environment(request):
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        onco_seq_dir:Path = Path(config['oncoservice_novaseqx_dir'] + '_TEST') / 'Runs'
+        onco_seq_dir:Path = Path(config['oncoservice_dir'] + '_TEST') / 'Runs'
         test_onco_samples:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/test_samples_oncoservice')
     test_onco_run_seq_dir = onco_seq_dir / 'test_samples'
     pending_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
