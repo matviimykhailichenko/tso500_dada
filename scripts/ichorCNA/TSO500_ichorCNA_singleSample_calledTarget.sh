@@ -172,8 +172,8 @@ function ichor(){
     --maxFracCNASubclone 0.7 \
     --minSegmentBins 50 \
     --altFracThreshold 0.7 \
-    --outDir "${2}/Results_ichorCNA_${1}" \
-    --libDir "${3}"
+    --libdir "${3}" \
+    --outDir "${2}/Results_ichorCNA_${1}"
   fi
 }
 #--------------------------------------------------------------------------------------------------
