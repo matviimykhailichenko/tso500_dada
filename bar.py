@@ -1,8 +1,11 @@
 from pathlib import Path
-sample_sheet = Path('/mnt/NovaseqXplus/07_Oncoservice/Runs/20250613_LH00803_0012_B232KMCLT3/SampleSheet_Analysis.csv')
+import yaml
 
-if sample_sheet.exists():
-    print('we are cooked')
+paths = {}
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)
 
-
-
+paths['pipeline_dir'] = Path(config['pipeline_dir'])
+paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
+paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
+print(paths['ichorCNA_repo'])

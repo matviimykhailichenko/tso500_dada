@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree, copy, rmtree
+from shutil import copytree, copy, rmtree, move
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
 from datetime import datetime
@@ -46,11 +46,14 @@ def setup_environment(request):
     }
 
     # --- TEARDOWN ---
+    fastq_gen_dir = test_onco_run_seq_dir / 'FastqGeneration'
+    fastq_arrival_dir = test_onco_run_seq_dir / 'Analysis/1/Data/BCLConvert/fastq'
+    for sample_dir in fastq_gen_dir.iterdir():
+        for fastq in sample_dir.iterdir():
+            move(fastq, fastq_arrival_dir)
+
     if pending_file.exists():
         pending_file.unlink()
-
-    if test_onco_run_seq_dir.exists():
-        rmtree(test_onco_run_seq_dir)
 
 
 @pytest.mark.dependency(name="scheduling")
