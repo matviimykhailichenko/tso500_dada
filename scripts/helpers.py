@@ -292,7 +292,7 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
         raise RuntimeError(message)
 
 
-def transfer_results_research(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_research(paths:dict, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -556,7 +556,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
         elif tag == 'PAT':
             transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
         elif tag == 'TSO':
-            transfer_results_research(paths=paths, input_type=input_type, logger=logger, testing=testing)
+            transfer_results_research(paths=paths, logger=logger)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")
     except Exception as e:
@@ -568,10 +568,6 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
 
     notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
-
-
-    # TODO add done tag
-    # TODO delete QUEUED tag
 
 
 def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
@@ -682,7 +678,6 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
-    queued_tag.touch()
 
     priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
@@ -699,6 +694,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
             f.write('\n')
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
+    queued_tag.touch()
 
 def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
@@ -856,6 +852,9 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
     df_indexes_no_sample_ids = pd.read_csv(StringIO(csv_string)).drop(columns=['Sample_ID'])
     df_sample_ids = pd.read_csv(StringIO(csv_string))['Sample_ID']
+    if df_sample_ids.duplicated().any():
+        return False, 'ID_DUPLICATED'
+
     df_indexes_no_sample_ids.to_csv('sample_sheet_indexes', index=False)
 
     for sample_id in df_sample_ids:
