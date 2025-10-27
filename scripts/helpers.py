@@ -84,12 +84,7 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
-    run_name: str = paths['run_name']
-
-    if input_type == 'run':
-        results_dir: Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Analyseergebnisse' / run_name
-    elif input_type == 'sample':
-        results_dir: Path = paths['onco_results_dir'] / run_name
+    results_dir = paths['results_dir']
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
     try:
@@ -395,8 +390,8 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
-        'TSO': paths['research_results_dir'],
-        'PAT': paths['patho_results_dir']
+        'TSO': paths['research_results_dir'] / paths['run_name'],
+        'PAT': paths['patho_results_dir'] / paths['run_name']
     }
     paths['results_dir'] = results_dirs_map[tag]
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
@@ -905,8 +900,8 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
 
     cmd = (
         "docker run --rm "
-        f"-v {paths['ichorCNA_repo']}:/mnt/repo "
-        f"-v {paths['ichorCNA_wrapper']}:/mnt/wrapper "
+        f"-v {str(paths['ichorCNA_repo'])}:/mnt/repo "
+        f"-v {str(paths['ichorCNA_wrapper'])}:/mnt/wrapper "
         f"-v {ichorCNA_dir}:/mnt/data "
         "ichorcna:latest "
         "bash /mnt/wrapper/drv_TSO500_offtarget_ichorCNA_docker.sh "
