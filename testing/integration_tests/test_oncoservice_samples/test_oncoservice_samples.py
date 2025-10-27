@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree as sh_copytree, copy as sh_copy
+from shutil import copytree, copy, rmtree
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
 from datetime import datetime
@@ -20,7 +20,7 @@ def get_repo_root() -> str:
         raise RuntimeError("Not inside a git repository")
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def setup_environment(request):
     repo_root = get_repo_root()
     today = datetime.now().strftime("%y%m%d")
@@ -35,9 +35,22 @@ def setup_environment(request):
     pending_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
     pending_file: Path = Path('/mnt/NovaseqXplus/TSO_pipeline/10.200.214.104_PENDING.txt')
 
-    sh_copy(str(pending_blank), str(pending_file))
+    copy(str(pending_blank), str(pending_file))
     if not test_onco_run_seq_dir.exists():
-        sh_copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
+        copytree(str(test_onco_samples),str(test_onco_run_seq_dir))
+
+    # Provide paths to tests
+    yield {
+        "pending_file": pending_file,
+        "test_run_dir": test_onco_run_seq_dir
+    }
+
+    # --- TEARDOWN ---
+    if pending_file.exists():
+        pending_file.unlink()
+
+    if test_onco_run_seq_dir.exists():
+        rmtree(test_onco_run_seq_dir)
 
 
 @pytest.mark.dependency(name="scheduling")

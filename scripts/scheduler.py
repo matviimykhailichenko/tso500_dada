@@ -84,7 +84,6 @@ def main():
 
     if not input_path or not input_type:
         return
-    sample_sheet_name ='SampleSheet.csv' if input_type == 'run' else 'SampleSheet_Analysis.csv'
 
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
