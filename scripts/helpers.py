@@ -903,6 +903,7 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         f"-v {str(paths['ichorCNA_repo'])}:/mnt/repo "
         f"-v {str(paths['ichorCNA_wrapper'])}:/mnt/wrapper "
         f"-v {ichorCNA_dir}:/mnt/data "
+        f"--user $(id -u):$(id -g) "
         "ichorcna:latest "
         "bash /mnt/wrapper/drv_TSO500_offtarget_ichorCNA_docker.sh "
         "-d /mnt/data/ -p /mnt/repo"
