@@ -23,7 +23,7 @@ def get_repo_root() -> str:
 @pytest.fixture(scope="module")
 def setup_environment(request):
     repo_root = get_repo_root()
-    today = datetime.now().strftime("%y%m%d")
+    today = datetime.now().strftime("%Y%m%d")
     run_name = f"{today}_A01664_2749_CICEAJ7JXH"
 
 
