@@ -84,12 +84,7 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
-    run_name: str = paths['run_name']
-
-    if input_type == 'run':
-        results_dir: Path = Path(str(paths['onco_results_dir']) + '_TEST' if testing else '') / 'Analyseergebnisse' / run_name
-    elif input_type == 'sample':
-        results_dir: Path = paths['onco_results_dir'] / run_name
+    results_dir = paths['results_dir']
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
     try:
@@ -333,6 +328,7 @@ def load_config(configfile: str) -> dict:
 def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
     paths: dict = dict()
+    paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = sh_which('rsync')
@@ -394,10 +390,13 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
-        'TSO': paths['research_results_dir'],
-        'PAT': paths['patho_results_dir']
+        'TSO': paths['research_results_dir'] / paths['run_name'],
+        'PAT': paths['patho_results_dir'] / paths['run_name']
     }
     paths['results_dir'] = results_dirs_map[tag]
+    paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
+    paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
+    paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
 
     return paths
 
@@ -501,19 +500,14 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
         raise RuntimeError(msg)
 
 
-def process_object(input_type:str,paths:dict,last_sample_queue:bool,logger:Logger):
-    """
-    Can be a run or a sample
-    :param paths:
-    :return:
-    """
+def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
     notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
 
     if input_type == 'run':
-        tso_script_call = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']}"
+        cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"
         try:
-            subp_run(tso_script_call,check=True,shell=True)
+            subp_run(cmd,check=True,shell=True)
         except CalledProcessError as e:
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
@@ -523,11 +517,11 @@ def process_object(input_type:str,paths:dict,last_sample_queue:bool,logger:Logge
             raise RuntimeError(msg)
 
     elif input_type == 'sample':
-        tso_script_call = (f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']}  "
+        cmd = (f"{paths['tso500_script_path']} --fastqFolder {paths['sample_staging_temp_dir']}  "
                            f"--sampleSheet {paths['sample_sheet']} --analysisFolder {paths['analysis_dir']} "
                            f"--sampleIDs {paths['sample_id']}")
         try:
-            subp_run(tso_script_call,check=True,shell=True)
+            subp_run(cmd,check=True,shell=True)
         except CalledProcessError as e:
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
@@ -874,3 +868,46 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
                 return False, 'BAD_BCLConvert'
 
     return True, 'Samplesheet is valid'
+
+
+def run_ichorCNA(paths, input_type, last_sample_queue, logger):
+    notify_pipeline_status(step='running_ichorCNA', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type, last_sample_queue=last_sample_queue)
+
+    run_name = paths['run_name']
+    if input_type == 'sample':
+        sample_id = paths['sample_id']
+        bams_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller/{sample_id}")
+        ichorCNA_dir = Path(f"/staging/tmp/{run_name}/Results/ichorCNA")
+        ichorCNA_dir.mkdir(parents=True, exist_ok=True)
+        for bam_bai in bams_dir.rglob("*.bam*"):
+            if not bam_bai.name.startswith("evidence"):
+                sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+
+    elif input_type == 'run':
+        caller_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller")
+        ichorCNA_dir = Path(f"/staging/tmp/{run_name}/Results/ichorCNA")
+        ichorCNA_dir.mkdir(parents=True, exist_ok=True)
+        for sample_dir in caller_dir:
+            for bam_bai in sample_dir.rglob("*.bam*"):
+                if not bam_bai.name.startswith("evidence"):
+                    sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+
+    cmd = (
+        "docker run --rm "
+        f"-v {str(paths['ichorCNA_repo'])}:/mnt/repo "
+        f"-v {str(paths['ichorCNA_wrapper'])}:/mnt/wrapper "
+        f"-v {ichorCNA_dir}:/mnt/data "
+        f"--user $(id -u):$(id -g) "
+        "ichorcna:latest "
+        "bash /mnt/wrapper/drv_TSO500_offtarget_ichorCNA_docker.sh "
+        "-d /mnt/data/ -p /mnt/repo"
+    )
+    try:
+        subp_run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except CalledProcessError as e:
+        message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
+        notify_bot(message)
+        logger.error(message)
+        raise RuntimeError(message)
+

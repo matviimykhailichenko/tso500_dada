@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 from helpers import is_server_available, get_server_ip, setup_paths, check_mountpoint, check_rsync, \
     check_structure, check_docker_image, check_tso500_script, stage_object, process_object, transfer_results, \
-    get_queue, merge_metrics, get_repo_root
+    get_queue, merge_metrics, get_repo_root, run_ichorCNA
 from logging_ops import setup_logger
 
 
@@ -78,6 +78,9 @@ def main():
         stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
+
+        if tag == 'ONC':
+            run_ichorCNA(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 

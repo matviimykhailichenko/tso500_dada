@@ -1,0 +1,15 @@
+name: Minimal_rdeps_n_extra_R
+channels:
+ - bioconda
+ - conda-forge
+ - r
+ - defaults
+dependencies:
+ - picard
+ - samtools
+ - bioconda::hmmcopy
+ - bioconda::bwa
+ - conda-forge::r-rcurl
+ - conda-forge::r-usethis
+ - conda-forge::r-ragg
+ - anaconda::libxml2
