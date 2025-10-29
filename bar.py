@@ -1,8 +1,5 @@
-from pathlib import Path
-sample_sheet = Path('/mnt/NovaseqXplus/07_Oncoservice/Runs/20250613_LH00803_0012_B232KMCLT3/SampleSheet_Analysis.csv')
-
-if sample_sheet.exists():
-    print('we are cooked')
+import subprocess
 
 
-
+cmd = f"bash /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/test.sh 2>&1 | tee -a test.log"
+subprocess.run(cmd, check=True, shell=True)

@@ -1,3 +1,3 @@
-bash /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/tso500offtarget_ichorcna/drv_TSO500_offtarget_ichorCNA_parallel.sh \
+bash /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/scripts/ichorCNA/drv_TSO500_offtarget_ichorCNA_parallel.sh \
     -d /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/data/ \
     -p /media/matvii/30c92328-1f20-448d-a014-902558a05393/tso500_dragen_pipeline/sandbox/ichorCNA_docker/ichorCNA
