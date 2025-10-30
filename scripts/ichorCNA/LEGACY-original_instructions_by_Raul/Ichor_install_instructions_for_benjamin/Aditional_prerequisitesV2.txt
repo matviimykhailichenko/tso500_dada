@@ -1,0 +1,94 @@
+### After this
+name: env_from_yml_4
+channels:
+ - bioconda
+ - conda-forge
+ - r
+ - biobuilds
+ - defaults
+dependencies:
+ - picard
+ - samtools
+ - bioconda::hmmcopy
+ - bioconda::bwa
+ - conda-forge::r-rcurl # use CONDA
+ - conda-forge::r-usethis # use CONDA wanted "curl"?
+ - conda-forge::r-ragg # use CONDA for this
+ - anaconda::libxml2
+
+### You could need these packages
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install(version = "3.18") # Check the version of BiocManager for your case
+BiocManager("GenomicRanges")
+BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+
+
+install.packages("easypackages")
+install.packages("ggplot2")
+install.packages("doMC")
+install.packages("foreach")
+install.packages("stringr")
+install.packages("optparse")
+install.packages("stringi")
+install.packages("Matrix")
+
+install.packages(c("devtools","doMC","foreach","ggplot2","Matrix","optparse","stringi","stringr"))
+library("easypackages")
+easypackages::libraries("doMC","foreach","ggplot2","Matrix","optparse","stringi","stringr")
+
+#install.packages("devtools") # ??? ; conda install -c conda-forge r-devtools
+
+## Then check "Quick_configuration_token_github"
+
+library("devtools")
+install_github("broadinstitute/ichorCNA")
+#      conda install -c bioconda r-ichorcna
+# - bioconda::r-ichorcna
+
+
+#####################
+# Appendix
+#################
+# Installing picard externally is an option since the picard from conda is complaining (2024-04-18)
+# for example "wget https://github.com/broadinstitute/picard/releases/download/3.1.1/picard.jar"
+# you can find the most recent version here https://broadinstitute.github.io/picard/ then run it as java -jar mypicardversion.jar
+
+
+# Trouble shooting:
+# If you had troubles you can try conda
+ - conda-forge::r-ggplot2
+	install.packages("ggplot2")
+	conda install -c conda-forge r-ggplot2	# in PROCESS
+
+ - conda-forge::r-domc
+	install.packages("doMC")
+	conda install -c conda-forge r-domc
+	
+ - biobuilds::r-foreach
+	install.packages("foreach")
+	conda install -c r r-foreach
+		
+ - conda-forge::r-stringr # Only installing r-rcurl ... DONE
+ 	conda install -c conda-forge r-stringr
+ 	
+ - bioconda::r-optparse # Only installing r-rcurl goes
+	conda install -c bioconda r-optparse
+
+  - conda-forge::r-stringi # Only installing r-rcurl this goes
+	install.packages("stringi")
+
+  - conda-forge::r-devtools # use CONDA wants package "credentials" -> "usethis"
+ 	conda install -c conda-forge r-devtools
+ 	 
+#      conda install -c bioconda r-ichorcna
+ - bioconda::r-ichorcna
+ install_github("broadinstitute/ichorCNA")
+	
+ - conda-forge::r-matrix # install.packages("Matrix") goes only with r-rcurl # I this this is installed alone
+
+
+
+
+
