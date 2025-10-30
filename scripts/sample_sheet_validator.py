@@ -14,7 +14,7 @@ def main():
         validator_dir = pipeline_dir / 'sample_sheet_validator'
         samplesheet_ns6000 = validator_dir / 'SampleSheet.csv'
         samplesheet_nsx = validator_dir / 'SampleSheet_Analysis.csv'
-        sample_sheet_valid_tag = validator_dir/ config['sample_sheet_valid_tag']
+        sample_sheet_valid_tag = validator_dir / config['sample_sheet_valid_tag']
 
     if samplesheet_nsx.exists():
         input_type = 'sample'
