@@ -792,7 +792,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     else:
         raise RuntimeError("input_type must be 'run' or 'sample'")
     expected_headers = config.get(f"expected_headers_{"nsq6000" if input_type == "run" else "nsqx"}")
-    expected_indexes = f"{repo_root}/files/expected_indexes.csv"
+    expected_indexes = f"{repo_root}/files/sample_sheet_validator/expected_indexes.csv"
 
     with open(sample_sheet, 'r') as f:
         lines = f.readlines()

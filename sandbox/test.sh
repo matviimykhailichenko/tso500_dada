@@ -1,1 +1,0 @@
-echo "I end up in a log file"
