@@ -115,7 +115,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging: Path = staging_temp_dir / run_name
-    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -291,7 +290,7 @@ def transfer_results_research(paths:dict, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    results_dir: Path = paths['results_dir'] / paths['run_name']
+    results_dir: Path = paths['results_dir']
 
     rsync_path: str = paths['rsync_path']
 
