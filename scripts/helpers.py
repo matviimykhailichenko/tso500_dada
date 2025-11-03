@@ -115,26 +115,13 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging: Path = staging_temp_dir / run_name
-    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
+    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / flowcell
     fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
+
+
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
-
-    if input_type == 'run':
-        checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
-        checksums_call = (
-            f'cd {str(fastq_gen_seq_dir)} && '
-            "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-            f"{str(checksums_humgen)}"
-        )
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
-            # raise RuntimeError(message)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (
@@ -597,7 +584,6 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
