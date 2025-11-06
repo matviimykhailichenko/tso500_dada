@@ -1,10 +1,13 @@
+import sys
 import pytest
 from pathlib import Path
 from shutil import copy as sh_copy, copytree as sh_copytree
 from subprocess import run
 import datetime
 import yaml
-from testing.helpers import get_repo_root
+from ..scripts.helpers import get_repo_root
+repo_root = get_repo_root()
+sys.path.append(repo_root)
 from scripts.helpers import get_server_ip
 
 
