@@ -1,6 +1,6 @@
 from pathlib import Path
 from logging import Logger
-from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move, copytree as sh_copytree
+from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move, copytree as sh_copytree
 from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
 from typing import Optional
 import yaml
@@ -118,7 +118,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / flowcell
     fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
 
-    sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
+    move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -154,7 +154,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
 
     elif input_type == 'run':
         try:
-            sh_move(paths['run_dir'] / flowcell, data_cbmed_dir)
+            move(paths['run_dir'] / flowcell, data_cbmed_dir)
         except Exception as e:
             message = f"Moving results had FAILED: {e}"
             notify_bot(message)
@@ -190,7 +190,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(message)
         # raise RuntimeError(message)
 
-    sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir / 'SampleSheet.csv')
+    move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir / 'SampleSheet.csv')
 
     checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
@@ -711,7 +711,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
         samples.append(str(sample_dir))
         if not sample_dir.exists():
             sample_dir.mkdir(parents=True)
-        sh_move(str(fastq), str(sample_dir))
+        move(str(fastq), str(sample_dir))
     samples = list(set(samples))
 
     return samples
@@ -861,9 +861,12 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         bams_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller/{sample_id}")
         ichorCNA_dir = Path(f"/staging/tmp/{run_name}/Results/ichorCNA")
         ichorCNA_dir.mkdir(parents=True, exist_ok=True)
+        moved_files = {}
         for bam_bai in bams_dir.rglob("*.bam*"):
             if not bam_bai.name.startswith("evidence"):
-                sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+                dest = ichorCNA_dir / bam_bai.name
+                move(bam_bai, dest)
+                moved_files[str(dest)] = str(bam_bai)
 
     elif input_type == 'run':
         caller_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller")
@@ -872,7 +875,7 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         for sample_dir in caller_dir:
             for bam_bai in sample_dir.rglob("*.bam*"):
                 if not bam_bai.name.startswith("evidence"):
-                    sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+                    move(bam_bai, ichorCNA_dir / bam_bai.name)
 
     cmd = (
         "docker run --rm "
@@ -892,3 +895,5 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         logger.error(message)
         raise RuntimeError(message)
 
+    for new, old in moved_files:
+        move(new, old)
