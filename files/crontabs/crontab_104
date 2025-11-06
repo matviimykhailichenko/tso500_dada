@@ -25,7 +25,7 @@ SHELL=/bin/bash
 BASH_ENV=~/.bashrc
 #
 # ->| TSO500 SCHEDULING:
-4-59/5 * * * * /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/scheduler.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/crontab_failed.py
+*/5 * * * * /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/scheduler.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/crontab_failed.py
 #
 # ->| TSO500 PROCESSING:
 */15 * * * * /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/processing.py || /staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/03_Production/tso500_dragen_pipeline/scripts/crontab_failed.py
