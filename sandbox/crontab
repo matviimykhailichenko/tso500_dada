@@ -22,7 +22,7 @@
 #
 # m h  dom mon dow   command
 SHELL=/bin/bash
-BASH_ENV=~/.bashrc
+BASH_ENV=~/.cron_env
 #
 # ->| TSO500 SCHEDULING:
 4-59/5 * * * * echo "$(date '+\%Y-\%m-\%d \%H:\%M:\%S') – cron executed" >> /mnt/NovaseqXplus/TSO_pipeline/01_Staging/research-fix/logs/cron_log.txt 2>&1
