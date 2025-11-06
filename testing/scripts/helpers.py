@@ -1,5 +1,5 @@
 from pathlib import Path
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 
 def get_repo_root() -> str:
