@@ -34,11 +34,13 @@ def setup_environment():
 
 @pytest.mark.dependency(name="scheduling")
 def test_scheduling(setup_environment):
-    cmd = '/staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/scheduler.py -t'
+    repo_root = get_repo_root()
+    cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
     run(cmd, check=True, shell=True)
 
 
 @pytest.mark.dependency(depends=["scheduling"])
 def test_processing():
-    cmd = '/staging/env/tso500_dragen_pipeline/bin/python3 /mnt/NovaseqXplus/TSO_pipeline/01_Staging/pure-python-refactor/scripts/processing.py -t'
+    repo_root = get_repo_root()
+    cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/processing.py -t'
     run(cmd,check=True,shell=True)
