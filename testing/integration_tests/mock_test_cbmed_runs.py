@@ -15,8 +15,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
-    test_cbmed_run_1:Path = Path(f'{repo_root}/testing/integration_tests/mock/test_run_cbmed_1')
-    test_cbmed_run_2:Path = Path(f'{repo_root}/testing/integration_tests/mock/test_run_cbmed_2')
+    test_ns6000_run: Path = pipeline_dir / 'test_runs/mock/test_run_ns6000'
 
     server_ip = get_server_ip
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
@@ -31,10 +30,10 @@ def setup_environment():
         pending_file.unlink()
 
     if not test_cbmed_run_seq_dir_1.exists():
-        copytree(str(test_cbmed_run_1), str(test_cbmed_run_seq_dir_1))
+        copytree(str(test_ns6000_run), str(test_cbmed_run_seq_dir_1))
 
     if not test_cbmed_run_seq_dir_2.exists():
-        copytree(str(test_cbmed_run_2), str(test_cbmed_run_seq_dir_2))
+        copytree(str(test_ns6000_run), str(test_cbmed_run_seq_dir_2))
 
 
 @pytest.mark.dependency(name='scheduler')
