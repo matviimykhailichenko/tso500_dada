@@ -31,7 +31,7 @@ def setup_environment():
         pending_blank:Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
         test_onco_run:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/mock/test_run_nsx_onc')
     server_ip = '10.200.214.104'
-    pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
+    pending_file = pipeline_dir / f'{server_ip}_PENDING.txt'
     test_onco_run_seq_dir = onco_seq_dir / run_name
 
     if test_onco_run_seq_dir.exists():
