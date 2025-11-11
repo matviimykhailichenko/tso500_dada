@@ -685,7 +685,8 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
 
     queued_tag.touch()
 
-def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
+# Danger - AI-written function!
+def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list, testing: bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         available_servers = config['available_servers']
@@ -697,26 +698,79 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
     paths = [fastq_gen_dir / id for id in sample_ids]
     priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
-
     priorities = (int(priority_map.get(t)) for t in tags)
 
     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
     new_samples = pd.DataFrame(entries)
-    pedning_files = np.array_split(new_samples, len(available_servers))
 
-    for server in available_servers:
-        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
-        if not pending_file.exists():
+    # --- CUSTOM ROUTING START ---
+    onc_samples = new_samples[new_samples['Tag'] == 'ONC']
+    other_samples = new_samples[new_samples['Tag'] != 'ONC']
+
+    # Write ONC samples only to 10.200.214.104
+    if not onc_samples.empty:
+        onc_pending = Path(repo_root).parent.parent / '10.200.214.104_PENDING.txt'
+        if not onc_pending.exists():
             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-            sh_copy(pending_blank, pending_file)
-        if pending_file.stat().st_size < 37:
-            with open(pending_file, 'a') as f:
+            sh_copy(pending_blank, onc_pending)
+        if onc_pending.stat().st_size < 37:
+            with open(onc_pending, 'a') as f:
                 f.write('\n')
 
-        pending = pd.DataFrame(pedning_files[available_servers.index(server)])
-        pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+        onc_samples.to_csv(onc_pending, sep='\t', mode='a', header=False, index=False)
+
+    # Distribute other samples normally
+    if not other_samples.empty:
+        pedning_files = np.array_split(other_samples, len(available_servers))
+        for server in available_servers:
+            pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
+            if not pending_file.exists():
+                pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+                sh_copy(pending_blank, pending_file)
+            if pending_file.stat().st_size < 37:
+                with open(pending_file, 'a') as f:
+                    f.write('\n')
+
+            pending = pd.DataFrame(pedning_files[available_servers.index(server)])
+            pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+    # --- CUSTOM ROUTING END ---
 
     queued_tag.touch()
+
+
+# Old human-made one
+# def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
+#     with open(f'{repo_root}/config.yaml', 'r') as file:
+#         config = yaml.safe_load(file)
+#         available_servers = config['available_servers']
+#
+#     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
+#     run_dir = fastq_gen_dir.parent
+#     queued_tag = run_dir / paths['queued_tag']
+#
+#     paths = [fastq_gen_dir / id for id in sample_ids]
+#     priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
+#     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
+#
+#     priorities = (int(priority_map.get(t)) for t in tags)
+#
+#     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
+#     new_samples = pd.DataFrame(entries)
+#     pedning_files = np.array_split(new_samples, len(available_servers))
+#
+#     for server in available_servers:
+#         pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
+#         if not pending_file.exists():
+#             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+#             sh_copy(pending_blank, pending_file)
+#         if pending_file.stat().st_size < 37:
+#             with open(pending_file, 'a') as f:
+#                 f.write('\n')
+#
+#         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
+#         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
+#
+#     queued_tag.touch()
 
 
 def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
