@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree, copy, rmtree, move
+from shutil import copytree, copy, move
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
 from datetime import datetime

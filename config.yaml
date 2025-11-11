@@ -8,7 +8,7 @@ oncoservice_novaseqx_dir: '/mnt/NovaseqXplus/07_Oncoservice'
 oncoservice_novaseq6000_dir: '/mnt/Novaseq/07_Oncoservice'
 cbmed_novaseq_dir: '/mnt/Novaseq/08_Projekte/CBmed'
 oncoservice_dir: '/mnt/NovaseqXplus/07_Oncoservice'
-cbmed_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
+cbmed_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid/flowcells'
 cbmed_nsq6000_dir: '/mnt/Novaseq/08_Projekte/CBmed/Runs'
 cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 # TODO Change in prod
