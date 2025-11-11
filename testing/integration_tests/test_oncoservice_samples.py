@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree, copy, rmtree, move
+from shutil import copytree, copy, move
 from subprocess import run as subp_run, CalledProcessError, check_output as subp_check_output
 import yaml
 from datetime import datetime
@@ -24,8 +24,6 @@ def setup_environment(request):
     repo_root = get_repo_root()
     today = datetime.now().strftime("%Y%m%d")
     run_name = f"{today}_A01664_2749_CICEAJ7JXH"
-
-
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         onco_seq_dir:Path = Path(config['oncoservice_dir'] + '_TEST') / 'Runs'

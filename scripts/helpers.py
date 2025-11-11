@@ -1,6 +1,6 @@
 from pathlib import Path
 from logging import Logger
-from shutil import which as sh_which, rmtree as sh_rmtree, copy as sh_copy, move as sh_move, copytree as sh_copytree
+from shutil import which, rmtree, copy, move, copytree
 from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
 from typing import Optional
 import yaml
@@ -37,7 +37,7 @@ def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = Non
         try:
             if logger_runtime:
                 logger_runtime.info(f"deleting directory '{dead_dir_path}' ...")
-            sh_rmtree(str(dead_dir_path))  # should also delete the directory itself along with its contents
+            rmtree(str(dead_dir_path))  # should also delete the directory itself along with its contents
             if logger_runtime:
                 logger_runtime.info(f"successfully deleted directory '{dead_dir_path}'")
         except Exception as e:
@@ -60,7 +60,7 @@ def delete_file(dead_file_path: Path):
 # TODO add check of the sx176 mountpoint
 def is_nas_mounted(mountpoint_dir: str,
                    logger_runtime: Logger) -> bool:
-    mountpoint_binary = sh_which('mountpoint')
+    mountpoint_binary = which('mountpoint')
     if not mountpoint_binary:
         mountpoint_binary = '/usr/bin/mountpoint'
         logger_runtime.warning(f"looked for the mountpoint executable at '{mountpoint_binary}' but didn't "
@@ -115,6 +115,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging: Path = staging_temp_dir / run_name
+    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
     fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
@@ -150,7 +151,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         # raise RuntimeError(message)
 
     if not fastq_gen_results_dir.exists() or not any(fastq_gen_results_dir.iterdir()):
-        sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
+        copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
         rsync_call = (f"{rsync_path} -r "
@@ -166,7 +167,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     elif input_type == 'run':
         try:
-            sh_move(paths['run_dir'] / flowcell, data_cbmed_dir)
+            move(paths['run_dir'] / flowcell, data_cbmed_dir)
         except Exception as e:
             message = f"Moving results had FAILED: {e}"
             notify_bot(message)
@@ -290,7 +291,7 @@ def transfer_results_research(paths:dict, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    results_dir: Path = paths['results_dir']
+    results_dir: Path = paths['results_dir'] / paths['run_name']
 
     rsync_path: str = paths['rsync_path']
 
@@ -330,7 +331,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
-    paths['rsync_path'] = sh_which('rsync')
+    paths['rsync_path'] = which('rsync')
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
@@ -572,7 +573,7 @@ def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
         pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-        sh_copy(pending_blank, pending_file)
+        copy(pending_blank, pending_file)
         pending_lock.release()
 
     elif not queue_file.stat().st_size < 38:
@@ -676,7 +677,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
         pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-        sh_copy(pending_blank, pending_file)
+        copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:
         with open(pending_file, 'a') as f:
@@ -708,7 +709,7 @@ def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input
         pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
         if not pending_file.exists():
             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-            sh_copy(pending_blank, pending_file)
+            copy(pending_blank, pending_file)
         if pending_file.stat().st_size < 37:
             with open(pending_file, 'a') as f:
                 f.write('\n')
@@ -729,7 +730,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
         samples.append(str(sample_dir))
         if not sample_dir.exists():
             sample_dir.mkdir(parents=True)
-        sh_move(str(fastq), str(sample_dir))
+        move(str(fastq), str(sample_dir))
     samples = list(set(samples))
 
     return samples
@@ -881,7 +882,7 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         ichorCNA_dir.mkdir(parents=True, exist_ok=True)
         for bam_bai in bams_dir.rglob("*.bam*"):
             if not bam_bai.name.startswith("evidence"):
-                sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+                move(bam_bai, ichorCNA_dir / bam_bai.name)
 
     elif input_type == 'run':
         caller_dir = Path(f"/staging/tmp/{run_name}/Logs_Intermediates/DragenCaller")
@@ -890,7 +891,7 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         for sample_dir in caller_dir:
             for bam_bai in sample_dir.rglob("*.bam*"):
                 if not bam_bai.name.startswith("evidence"):
-                    sh_move(bam_bai, ichorCNA_dir / bam_bai.name)
+                    move(bam_bai, ichorCNA_dir / bam_bai.name)
 
     cmd = (
         "docker run --rm "
