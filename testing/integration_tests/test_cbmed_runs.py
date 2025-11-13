@@ -11,7 +11,6 @@ from ..scripts.helpers import get_repo_root, get_server_ip
 @pytest.fixture()
 def setup_environment():
     server_ip = get_server_ip()
-    enable_testing_mode(server_ip=server_ip)
     repo_root = get_repo_root()
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -31,11 +30,6 @@ def setup_environment():
 
     if not test_cbmed_run_seq_dir.exists():
         sh_copytree(str(test_cbmed_run),str(test_cbmed_run_seq_dir))
-
-    yield
-
-    disable_testing_mode(server_ip=server_ip, repo_root=repo_root)
-
 
 @pytest.mark.dependency(name="scheduling")
 def test_scheduling(setup_environment):
