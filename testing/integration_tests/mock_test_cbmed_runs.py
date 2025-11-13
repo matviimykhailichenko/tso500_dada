@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree
+from shutil import copytree, rmtree
 from subprocess import run
 from datetime import datetime
 import yaml
@@ -8,7 +8,7 @@ from ..scripts.helpers import get_repo_root, get_server_ip
 
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def setup_environment():
     repo_root = get_repo_root()
     with open(f'{repo_root}/config.yaml', 'r') as file:
@@ -21,6 +21,7 @@ def setup_environment():
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_cbmed_run_seq_dir = cbmed_seq_dir / f'{datetime.now().strftime("%y%m%d")}_BI_735_batch1'
+    test_results = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen_TEST/250213_A01664_0452_AH2J5VDMX2')
 
     if queue_file.exists():
         queue_file.unlink()
@@ -30,6 +31,14 @@ def setup_environment():
 
     if not test_cbmed_run_seq_dir.exists():
         copytree(str(test_ns6000_run), str(test_cbmed_run_seq_dir))
+
+    yield
+
+    print("Test is finished. Press Enter to continue teardown...")
+    input()
+
+    rmtree(test_cbmed_run_seq_dir)
+    rmtree(test_results)
 
 
 @pytest.mark.dependency(name='scheduler')
