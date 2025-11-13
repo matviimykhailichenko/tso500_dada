@@ -399,7 +399,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
 
     if tag == 'CBM':
-        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / ('flowcells_TEST' if testing else 'flowcells') / flowcell / flowcell
+        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
         paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
         paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
         paths['failed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('failed_tag')
