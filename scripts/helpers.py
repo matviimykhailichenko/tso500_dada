@@ -319,7 +319,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['flowcell'] = flowcell
     if paths['testing_fast']:
         paths[
-            'tso500_script_path'] = f'{repo_root}/testing/tso500_script_sub.sh'
+            'tso500_script_path'] = f'{repo_root}/testing/scripts/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
