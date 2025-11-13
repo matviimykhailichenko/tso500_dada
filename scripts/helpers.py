@@ -97,26 +97,26 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
-    cbmed_results_dir: Path = paths['cbmed_results_dir']
-    flowcell: str = paths['flowcell']
-    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
-    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
-    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
-    run_name: str = paths['run_name']
-    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    rsync_path: str = paths['rsync_path']
-    staging_temp_dir: Path = paths['staging_temp_dir']
+    cbmed_results_dir= paths['cbmed_results_dir']
+    flowcell = paths['flowcell']
+    flowcell_cbmed_dir= cbmed_results_dir / 'flowcells' / flowcell
+    data_cbmed_dir= flowcell_cbmed_dir / flowcell
+    dragen_cbmed_dir= cbmed_results_dir / 'dragen'
+    run_name = paths['run_name']
+    cbmed_seq_dir= paths['cbmed_seq_dir']
+    rsync_path = paths['rsync_path']
+    staging_temp_dir= paths['staging_temp_dir']
 
     if input_type == 'sample':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = flowcell_run_dir / 'FastqGeneration'
+        flowcell_run_dir= cbmed_seq_dir / flowcell
+        fastq_gen_seq_dir= flowcell_run_dir / 'FastqGeneration'
     elif input_type == 'run':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
+        flowcell_run_dir= cbmed_seq_dir / flowcell
+        fastq_gen_seq_dir= staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
-    results_staging: Path = staging_temp_dir / run_name
-    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / flowcell
-    fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
+    results_staging= staging_temp_dir / run_name
+    results_cbmed_dir= dragen_cbmed_dir / flowcell / flowcell
+    fastq_gen_results_dir= flowcell_cbmed_dir / 'FastqGeneration'
 
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
 
@@ -190,7 +190,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(message)
         # raise RuntimeError(message)
 
-    sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir / 'SampleSheet.csv')
+    sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
 
     checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
     checksums_call = (
