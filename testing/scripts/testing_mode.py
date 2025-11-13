@@ -16,7 +16,7 @@ def enable_testing_mode():
     cron.write_to_user(user=True)
     print(f"Enabled testing mode for server {server_ip}")
 
-def disable_testing_mode(server_ip, repo_root):
+def disable_testing_mode():
     server_ip = get_server_ip()
     repo_root = get_repo_root()
     last_part = server_ip.split('.')[-1]
@@ -30,15 +30,14 @@ def disable_testing_mode(server_ip, repo_root):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Enable or disable testing mode for a given server.")
-    parser.add_argument("-e", "--enable", metavar="SERVER_IP", help="Enable testing mode for the specified server IP")
-    parser.add_argument("-d", "--disable", nargs=2, metavar=("SERVER_IP", "REPO_ROOT"), help="Disable testing mode for the specified server IP and repo root")
+    parser.add_argument("-e", "--enable", help="Enable testing mode for the specified server IP")
+    parser.add_argument("-d", "--disable", help="Disable testing mode for the specified server IP and repo root")
 
     args = parser.parse_args()
 
     if args.enable:
         enable_testing_mode(args.enable)
     elif args.disable:
-        server_ip, repo_root = args.disable
-        disable_testing_mode(server_ip, repo_root)
+        disable_testing_mode(args.disable)
     else:
         parser.print_help()
