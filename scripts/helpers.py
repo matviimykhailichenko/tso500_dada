@@ -221,6 +221,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
+    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+
     cmd = f"sed 's#{results_cbmed_dir.parent}##' {checksums_for_cbmed} > {checksums_cbmed}"
     try:
         subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
@@ -233,7 +235,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
