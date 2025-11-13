@@ -5,7 +5,7 @@ from shutil import copy as sh_copy, copytree as sh_copytree
 from subprocess import run
 from datetime import datetime
 import yaml
-from ..scripts.helpers import get_repo_root, get_server_ip, enable_testing_mode, disable_testing_mode
+from ..scripts.helpers import get_repo_root, get_server_ip
 
 
 @pytest.fixture()
