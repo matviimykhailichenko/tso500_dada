@@ -100,8 +100,10 @@ def main():
     except Exception:
         if not failed_tag.parent.exists():
             paths['failed_tag_flowcell_dir'].touch()
-        failed_tag.touch()
-        analyzing_tag.unlink()
+            paths['analyzing_tag_flowcell_dir'].unlink()
+        else:
+            failed_tag.touch()
+            analyzing_tag.unlink()
         raise RuntimeError
     finally:
         idle_tag.touch()
