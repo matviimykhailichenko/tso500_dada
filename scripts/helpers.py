@@ -383,7 +383,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
     paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
-    paths['research_seq_dir'] = Path(config.get('research_dir')) / ('Runs_TEST' if testing else 'Analyseergebnisse')
+    paths['research_seq_dir'] = Path(config.get('research_dir')) / ('Runs_TEST' if testing else 'Runs')
     paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
@@ -399,7 +399,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
 
     if tag == 'CBM':
-        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
+        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / ('flowcells_TEST' if testing else 'flowcells') / flowcell / flowcell
         paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
         paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
         paths['failed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('failed_tag')
