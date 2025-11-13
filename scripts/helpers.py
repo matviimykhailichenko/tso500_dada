@@ -373,7 +373,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM': paths['cbmed_seq_dir'].parent / 'dragen' + '_TEST' if testing else 'dragen' / flowcell / flowcell,
+        'CBM': paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name']
     }
