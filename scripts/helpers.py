@@ -211,7 +211,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         f'cd /mnt && '
         f"find {results_cbmed_dir.relative_to("/mnt")} -type f -print0 | "
         "parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_cbmed)}"
+        f"{str(checksums_for_cbmed)}"
     )
     try:
         subp_run(cmd, shell=True).check_returncode()
@@ -232,6 +232,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         notify_bot(msg)
         logger.error(msg)
         # raise RuntimeError(msg)
+
+    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
