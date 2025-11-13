@@ -12,7 +12,6 @@ import numpy as np
 from io import StringIO
 import re
 
-from testing.integration_tests.test_cbmed_samples.cleanup import analyzing_tag
 
 
 def is_server_available(repo_root: str) -> bool:
