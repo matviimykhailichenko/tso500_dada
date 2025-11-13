@@ -378,7 +378,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
@@ -387,7 +386,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
+        'CBM': paths['cbmed_seq_dir'].parent / 'dragen' + '_TEST' if testing else 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name'],
         'RNA': paths['patho_results_dir'] / paths['run_name']
