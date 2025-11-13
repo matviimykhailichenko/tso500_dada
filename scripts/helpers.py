@@ -223,7 +223,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
 
     checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
 
-    cmd = f"sed 's#{results_cbmed_dir.parent}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
+    cmd = f"sed 's#{results_cbmed_dir.relative_to("/mnt").parent}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
     try:
         subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
     except CalledProcessError as e:
