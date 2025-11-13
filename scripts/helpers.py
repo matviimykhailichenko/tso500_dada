@@ -99,9 +99,9 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     cbmed_results_dir= paths['results_dir']
     flowcell = paths['flowcell']
-    flowcell_cbmed_dir = paths['cbmed_seq_dir']
+    flowcell_cbmed_dir = paths['cbmed_seq_dir'] / flowcell
     data_cbmed_dir= flowcell_cbmed_dir / flowcell
-    dragen_cbmed_dir= cbmed_results_dir / 'dragen'
+    dragen_cbmed_dir= paths['results_dir']
     run_name = paths['run_name']
     cbmed_seq_dir= paths['cbmed_seq_dir']
     rsync_path = paths['rsync_path']
@@ -114,8 +114,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         flowcell_run_dir= cbmed_seq_dir / flowcell
         fastq_gen_seq_dir= staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
-    results_staging= staging_temp_dir / run_name
-    results_cbmed_dir= dragen_cbmed_dir / flowcell / flowcell
+    results_staging = staging_temp_dir / run_name
+    results_cbmed_dir = dragen_cbmed_dir / flowcell / flowcell
     fastq_gen_results_dir= flowcell_cbmed_dir / 'FastqGeneration'
 
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
