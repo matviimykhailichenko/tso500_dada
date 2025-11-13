@@ -62,8 +62,10 @@ def main():
 
     paths: dict = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
                               testing=testing, testing_fast=testing_fast)
+    queued_tag = paths['queued_tag']
     failed_tag = paths['failed_tag']
     analyzing_tag = paths['analyzing_tag']
+    analyzed_tag = paths['analyzed_tag']
     try:
         logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
         check_mountpoint(paths=paths, logger=logger)
@@ -72,9 +74,9 @@ def main():
         check_rsync(paths=paths, logger=logger)
         check_tso500_script(paths=paths, logger=logger)
 
-        if not paths['analyzing_tag'].exists():
-            paths['analyzing_tag'].touch()
-            paths['queued_tag'].unlink()
+        if not analyzing_tag.exists():
+            analyzing_tag.touch()
+            queued_tag.unlink()
         stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
@@ -87,8 +89,13 @@ def main():
         if last_sample_queue:
             merge_metrics(paths=paths)
         if last_sample_run or input_type == 'run':
-            paths['analyzed_tag'].touch()
-            paths['analyzing_tag'].unlink()
+            if tag == 'CBM':
+                paths['analyzed_tag_flowcell_dir'].touch()
+                paths['analyzing_tag_flowcell_dir'].unlink()
+            else:
+                analyzed_tag.touch()
+                analyzing_tag.unlink()
+
 
     except Exception:
         failed_tag.touch()
