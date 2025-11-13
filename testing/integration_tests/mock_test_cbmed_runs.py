@@ -22,6 +22,7 @@ def setup_environment():
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_cbmed_run_seq_dir = cbmed_seq_dir / f'{datetime.now().strftime("%y%m%d")}_BI_735_batch1'
     test_results = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen_TEST/250213_A01664_0452_AH2J5VDMX2')
+    test_run_flowcell = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/flowcells_TEST/250213_A01664_0452_AH2J5VDMX2')
 
     if queue_file.exists():
         queue_file.unlink()
@@ -39,6 +40,7 @@ def setup_environment():
 
     rmtree(test_cbmed_run_seq_dir)
     rmtree(test_results)
+    rmtree(test_run_flowcell)
 
 
 @pytest.mark.dependency(name='scheduler')
