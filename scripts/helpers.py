@@ -12,6 +12,7 @@ import numpy as np
 from io import StringIO
 import re
 
+from testing.integration_tests.test_cbmed_samples.cleanup import analyzing_tag
 
 
 def is_server_available(repo_root: str) -> bool:
@@ -397,6 +398,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
+
+    if tag == 'CBM':
+        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
+        paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
+        paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
 
     return paths
 
