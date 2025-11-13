@@ -19,14 +19,14 @@ def create_parser():
 
 def main():
     args = create_parser().parse_args()
-    testing: bool = args.testing
-    testing_fast: bool = args.testing_fast
+    testing = args.testing
+    testing_fast = args.testing_fast
     repo_root = get_repo_root()
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        servers: list = config['available_servers']
-        server_availability_dir: Path = Path(config['server_availability_dir'])
+        servers = config['available_servers']
+        server_availability_dir = Path(config['server_availability_dir'])
         server = get_server_ip()
         idle_tag = server_availability_dir / server / config['server_idle_tag']
         busy_tag = server_availability_dir / server / config['server_busy_tag']
@@ -60,7 +60,7 @@ def main():
     if len(queue_merged['Flowcell'][queue_merged['Flowcell'] == flowcell]) == 0:
         last_sample_run = True
 
-    paths: dict = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+    paths = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
                               testing=testing, testing_fast=testing_fast)
     queued_tag = paths['queued_tag']
     failed_tag = paths['failed_tag']
