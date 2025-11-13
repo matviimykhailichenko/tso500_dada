@@ -97,7 +97,7 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
-    cbmed_results_dir= paths['cbmed_results_dir']
+    cbmed_results_dir= paths['results_dir']
     flowcell = paths['flowcell']
     flowcell_cbmed_dir= cbmed_results_dir / 'flowcells' / flowcell
     data_cbmed_dir= flowcell_cbmed_dir / flowcell
