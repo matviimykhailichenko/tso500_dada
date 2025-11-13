@@ -15,7 +15,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         cbmed_seq_dir: Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
-        pending_blank: Path = Path(f'{repo_root}/testing/files/PENDING_blank.txt')
+        pending_blank: Path = Path(f'{repo_root}/files/PENDING_blank.txt')
         test_cbmed_run: Path = Path(f'{pipeline_dir}/test_runs/cbmed')
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
