@@ -554,7 +554,7 @@ def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
         queue_no_processing = queue.iloc[1:, ]
         queue_no_processing.to_csv(queue_file, sep='\t', index=False)
 
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/files/PENDING_blank.txt'
         sh_copy(pending_blank, pending_file)
         pending_lock.release()
 
