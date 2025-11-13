@@ -96,7 +96,6 @@ def main():
                 analyzed_tag.touch()
                 analyzing_tag.unlink()
 
-
     except Exception:
         if not failed_tag.parent.exists():
             paths['failed_tag_flowcell_dir'].touch()
