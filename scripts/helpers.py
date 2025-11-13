@@ -27,9 +27,9 @@ def is_server_available(repo_root: str) -> bool:
         elif server_busy_tag.exists() and not server_idle_tag.exists():
             return False
         else:
-            message = f"There is a problem with busy/idle tags for the {server} server"
-            notify_bot(message)
-            raise RuntimeError(message)
+            msg = f"There is a problem with busy/idle tags for the {server} server"
+            notify_bot(msg)
+            raise RuntimeError(msg)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -90,10 +90,10 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
@@ -132,10 +132,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     if not fastq_gen_results_dir.exists() or not any(fastq_gen_results_dir.iterdir()):
         sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
@@ -147,19 +147,19 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         try:
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            # raise RuntimeError(message)
+            msg = f"Transferring results had FAILED: {e}"
+            notify_bot(msg)
+            logger.error(msg)
+            # raise RuntimeError(msg)
 
     elif input_type == 'run':
         try:
             sh_move(paths['run_dir'] / flowcell, data_cbmed_dir)
         except Exception as e:
-            message = f"Moving results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            # raise RuntimeError(message)
+            msg = f"Moving results had FAILED: {e}"
+            notify_bot(msg)
+            logger.error(msg)
+            # raise RuntimeError(msg)
 
     if input_type == 'run':
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
@@ -171,10 +171,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         try:
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
-            logger.error(message)
-            # raise RuntimeError(message)
+            msg = f"Transferring results had FAILED: {e}"
+            notify_bot(msg)
+            logger.error(msg)
+            # raise RuntimeError(msg)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
@@ -185,10 +185,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     try:
         subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
-        message = f"Transferring results had FAILED: {e}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Transferring results had FAILED: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
 
@@ -201,10 +201,10 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     try:
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     checksums_for_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_for_CBmed.sha256'
     cmd = (
@@ -216,19 +216,22 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     try:
         subp_run(cmd, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     cmd = f"sed 's#{results_cbmed_dir.parent}##' {checksums_for_cbmed} > {checksums_cbmed}"
     try:
-        subp_run(cmd, shell=True).check_returncode()
+        subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Sedding of checksums for CBmed had failed {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = (
+            f"Sedding of checksums for CBmed failed with return code {e.returncode}. "
+            f"Error output: {e.stderr.strip() if e.stderr else 'No stderr output'}"
+        )
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
@@ -236,13 +239,13 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     try:
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
         if stdout is not None:
-            message = f"Checksums in a CBmed run are different"
-            # raise RuntimeError(message)
+            msg = f"Checksums in a CBmed run are different"
+            # raise RuntimeError(msg)
     except CalledProcessError as e:
-        message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     return 0
 
@@ -263,10 +266,10 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def transfer_results_research(paths:dict, logger:Logger):
@@ -283,10 +286,10 @@ def transfer_results_research(paths:dict, logger:Logger):
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def get_server_ip() -> str:
@@ -296,8 +299,8 @@ def get_server_ip() -> str:
         server_ip = result.stdout.split()[-2]
 
     except CalledProcessError as e:
-        message = f"Failed to retrieve server's ID: {e.stderr}"
-        raise RuntimeError(message)
+        msg = f"Failed to retrieve server's ID: {e.stderr}"
+        raise RuntimeError(msg)
 
     return server_ip
 
@@ -356,7 +359,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
-    paths['error_messages'] = config.get('error_messages', {})
+    paths['error_msgs'] = config.get('error_msgs', {})
     paths['tag'] = tag
     paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
@@ -497,7 +500,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
         try:
             subp_run(cmd,check=True,shell=True)
         except CalledProcessError as e:
-            err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
+            err_msg = paths['error_msgs'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
             notify_bot(msg)
@@ -511,7 +514,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
         try:
             subp_run(cmd,check=True,shell=True)
         except CalledProcessError as e:
-            err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
+            err_msg = paths['error_msgs'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
             notify_bot(msg)
@@ -893,8 +896,8 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
     try:
         subp_run(cmd, shell=True, check=True, capture_output=True, text=True)
     except CalledProcessError as e:
-        message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        raise RuntimeError(msg)
 
