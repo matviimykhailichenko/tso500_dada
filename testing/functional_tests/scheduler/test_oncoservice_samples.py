@@ -3,7 +3,6 @@ from pathlib import Path
 from shutil import copy as sh_copy, copytree as sh_copytree, rmtree as sh_rmtree
 from subprocess import run as subp_run, check_output as subp_check_output, CalledProcessError
 import yaml
-
 from datetime import datetime
 
 
@@ -47,6 +46,6 @@ def setup_environment():
 
 def test_scheduler(setup_environment):
     repo_root = get_repo_root()
-    scheduler_call = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
+    cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
 
-    subp_run(scheduler_call,check=True,shell=True)
+    subp_run(cmd,check=True,shell=True)
