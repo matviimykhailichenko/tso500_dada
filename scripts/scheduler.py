@@ -23,8 +23,8 @@ def main():
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        servers: list = config['available_servers']
-        queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
+        servers = config['available_servers']
+        queue_blank = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing, repo_root=repo_root)
     # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
