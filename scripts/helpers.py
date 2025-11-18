@@ -103,16 +103,9 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     run_name = paths['run_name']
     rsync_path = paths['rsync_path']
     staging_temp_dir= paths['staging_temp_dir']
-
-    if input_type == 'run':
-        fastq_gen_seq_dir= staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
-
     results_staging = staging_temp_dir / run_name
     results_cbmed_dir = dragen_cbmed_dir / run_name / flowcell
-    fastq_gen_results_dir= flowcell_cbmed_dir / 'FastqGeneration'
-
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
-
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
@@ -129,9 +122,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         notify_bot(msg)
         logger.error(msg)
         # raise RuntimeError(msg)
-
-    if not fastq_gen_results_dir.exists() or not any(fastq_gen_results_dir.iterdir()):
-        sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
