@@ -8,13 +8,10 @@ import yaml
 from pathlib import Path
 
 
-
-
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script to monitor sequencing directories')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     return parser
-
 
 
 def main():

@@ -83,7 +83,7 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
+def transfer_results_oncoservice(paths: dict, logger: Logger):
     results_dir = paths['results_dir']
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
@@ -97,25 +97,18 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
-    cbmed_results_dir= paths['results_dir']
     flowcell = paths['flowcell']
     flowcell_cbmed_dir = paths['cbmed_seq_dir'] / flowcell
-    data_cbmed_dir= flowcell_cbmed_dir / flowcell
     dragen_cbmed_dir= paths['results_dir']
     run_name = paths['run_name']
-    cbmed_seq_dir= paths['cbmed_seq_dir']
     rsync_path = paths['rsync_path']
     staging_temp_dir= paths['staging_temp_dir']
 
-    if input_type == 'sample':
-        flowcell_run_dir= cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir= flowcell_run_dir / 'FastqGeneration'
-    elif input_type == 'run':
-        flowcell_run_dir= cbmed_seq_dir / flowcell
+    if input_type == 'run':
         fastq_gen_seq_dir= staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
 
     results_staging = staging_temp_dir / run_name
-    results_cbmed_dir = dragen_cbmed_dir / flowcell / flowcell
+    results_cbmed_dir = dragen_cbmed_dir / run_name / flowcell
     fastq_gen_results_dir= flowcell_cbmed_dir / 'FastqGeneration'
 
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
@@ -140,42 +133,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     if not fastq_gen_results_dir.exists() or not any(fastq_gen_results_dir.iterdir()):
         sh_copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
-    if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
-        rsync_call = (f"{rsync_path} -r "
-                      f"{str(flowcell_run_dir)}/ "
-                      f"{str(flowcell_cbmed_dir / flowcell)}")
-        try:
-            subp_run(rsync_call, shell=True, check=True)
-        except CalledProcessError as e:
-            msg = f"Transferring results had FAILED: {e}"
-            notify_bot(msg)
-            logger.error(msg)
-            # raise RuntimeError(msg)
-
-    elif input_type == 'run':
-        try:
-            sh_move(paths['run_dir'] / flowcell, data_cbmed_dir)
-        except Exception as e:
-            msg = f"Moving results had FAILED: {e}"
-            notify_bot(msg)
-            logger.error(msg)
-            # raise RuntimeError(msg)
-
-    if input_type == 'run':
-        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"{str(fastq_gen_seq_dir)}/ "
-                      f"{str(fastq_gen_results_dir)}")
-        try:
-            subp_run(rsync_call, shell=True, check=True)
-        except CalledProcessError as e:
-            msg = f"Transferring results had FAILED: {e}"
-            notify_bot(msg)
-            logger.error(msg)
-            # raise RuntimeError(msg)
-
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
     rsync_call = (f"{rsync_path} -r "
                   f"--out-format=\"%C %n\" "
@@ -191,20 +148,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         # raise RuntimeError(msg)
 
     sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
-
-    checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
-    checksums_call = (
-        f'cd {str(fastq_gen_results_dir)} && '
-        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_cbmed)}"
-    )
-    try:
-        subp_run(checksums_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(msg)
-        logger.error(msg)
-        # raise RuntimeError(msg)
 
     checksums_for_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_for_CBmed.sha256'
     cmd = (
@@ -235,7 +178,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
     )
@@ -243,6 +185,8 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
         if stdout is not None:
             msg = f"Checksums in a CBmed run are different"
+            notify_bot(msg)
+            logger.error(msg)
             # raise RuntimeError(msg)
     except CalledProcessError as e:
         msg = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
