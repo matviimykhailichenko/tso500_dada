@@ -89,20 +89,12 @@ def main():
         if last_sample_queue:
             merge_metrics(paths=paths)
         if last_sample_run or input_type == 'run':
-            if tag == 'CBM':
-                paths['analyzed_tag_flowcell_dir'].touch()
-                paths['analyzing_tag_flowcell_dir'].unlink()
-            else:
-                analyzed_tag.touch()
-                analyzing_tag.unlink()
+            analyzed_tag.touch()
+            analyzing_tag.unlink()
 
     except Exception:
-        if not failed_tag.parent.exists():
-            paths['failed_tag_flowcell_dir'].touch()
-            paths['analyzing_tag_flowcell_dir'].unlink()
-        else:
-            failed_tag.touch()
-            analyzing_tag.unlink()
+        failed_tag.touch()
+        analyzing_tag.unlink()
         raise RuntimeError
     finally:
         idle_tag.touch()

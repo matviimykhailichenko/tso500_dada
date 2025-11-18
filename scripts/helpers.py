@@ -98,7 +98,6 @@ def transfer_results_oncoservice(paths: dict, logger: Logger):
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     flowcell = paths['flowcell']
-    flowcell_cbmed_dir = paths['cbmed_seq_dir'] / flowcell
     dragen_cbmed_dir= paths['results_dir']
     run_name = paths['run_name']
     rsync_path = paths['rsync_path']
@@ -106,7 +105,6 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     results_staging = staging_temp_dir / run_name
     results_cbmed_dir = dragen_cbmed_dir / run_name / flowcell
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
-    flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
@@ -318,12 +316,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
-
-    if tag == 'CBM':
-        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
-        paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
-        paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
-        paths['failed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('failed_tag')
 
     return paths
 
