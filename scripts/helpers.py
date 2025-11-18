@@ -673,7 +673,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     queued_tag = input_dir / paths['queued_tag']
 
     priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
-                    paths['rnaseq_sequencing_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
+                    paths['rnaseq_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
                     paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
