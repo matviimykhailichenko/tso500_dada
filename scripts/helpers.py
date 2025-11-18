@@ -107,7 +107,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
+    checksums_humgen = dragen_cbmed_dir / f'{flowcell}_Results_HumGenNAS.sha256'
     checksums_call = (
         f'cd {str(results_staging)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -137,7 +137,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
 
     sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
 
-    checksums_for_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_for_CBmed.sha256'
+    checksums_for_cbmed = dragen_cbmed_dir / f'{flowcell}_Results_for_CBmed.sha256'
     cmd = (
         f'cd /mnt && '
         f"find {results_cbmed_dir.relative_to("/mnt")} -type f -print0 | "
@@ -152,7 +152,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+    checksums_cbmed = dragen_cbmed_dir / f'{flowcell}_Results.sha256'
 
     cmd = f"sed 's#{results_cbmed_dir.relative_to("/mnt")}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
     try:
