@@ -84,7 +84,7 @@ def main():
         return
 
     if input_type == 'run':
-        append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path, testing=testing)
+        append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path)
     elif input_type == 'sample':
         append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
