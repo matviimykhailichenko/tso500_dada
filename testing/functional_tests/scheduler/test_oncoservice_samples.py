@@ -3,7 +3,6 @@ from pathlib import Path
 from shutil import copy as sh_copy, copytree as sh_copytree, rmtree as sh_rmtree
 from subprocess import run as subp_run, check_output as subp_check_output, CalledProcessError
 import yaml
-
 from datetime import datetime
 
 
@@ -28,7 +27,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir: Path = Path(config['pipeline_dir'])
         onco_seq_dir:Path = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs'
-        pending_blank:Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
+        pending_blank:Path = Path(f'{repo_root}/files/PENDING_blank.txt')
         test_onco_run:Path = Path('/mnt/NovaseqXplus/TSO_pipeline/test_runs/mock/test_run_nsx_onc')
     server_ip = '10.200.214.104'
     pending_file = pipeline_dir / f'{server_ip}_PENDING.txt'
@@ -47,6 +46,6 @@ def setup_environment():
 
 def test_scheduler(setup_environment):
     repo_root = get_repo_root()
-    scheduler_call = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
+    cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/scheduler.py -t'
 
-    subp_run(scheduler_call,check=True,shell=True)
+    subp_run(cmd,check=True,shell=True)
