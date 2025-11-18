@@ -14,7 +14,7 @@ def setup_environment():
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
-        rnaseq_dir = Path(config['rnaseq_dir'] + '_TEST')
+        rnaseq_dir = Path(config['rnaseq_sequencing_dir'] + '_TEST')
     test_ns6000_run = pipeline_dir / 'test_runs/mock/test_run_ns6000'
     server_ip = get_server_ip
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
