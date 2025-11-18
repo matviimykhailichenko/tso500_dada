@@ -605,7 +605,6 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
@@ -674,8 +673,8 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     queued_tag = input_dir / paths['queued_tag']
 
     priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
-                    paths['patho_seq_dir']: [3, 'PAT'], paths['research_seq_dir']: [4, 'TSO'],
-                    paths['patho_seq_dir']: [3, 'RNA']}
+                    paths['rnaseq_sequencing_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
+                    paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
