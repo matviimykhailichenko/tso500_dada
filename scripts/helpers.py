@@ -485,6 +485,9 @@ def check_tso500_script(paths: dict, logger: Logger):
 
 
 def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger):
+    if paths['tag'] == 'RNA':
+        return
+
     notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
 
@@ -503,6 +506,9 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
 def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
     notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
+
+    if paths['tag'] == 'RNA':
+        cmd = 'command to do smt'
 
     if input_type == 'run':
         cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"
@@ -533,6 +539,8 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
 
 def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, testing: bool = True, logger: Logger = None):
     tag = paths['tag']
+    if tag == 'RNA':
+        return
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
@@ -659,24 +667,21 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
-    onco_seq_dir = paths['onco_seq_dir']
-    cbmed_seq_dir = paths['cbmed_seq_dir']
-    patho_seq_dir = paths['patho_seq_dir']
-    research_seq_dir = paths['research_seq_dir']
-
+def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
 
-    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
+    priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
+                    paths['patho_seq_dir']: [3, 'PAT'], paths['research_seq_dir']: [4, 'TSO'],
+                    paths['patho_seq_dir']: [3, 'RNA']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/files/PENDING_blank.txt'
         copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:

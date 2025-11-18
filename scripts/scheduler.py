@@ -9,12 +9,10 @@ from pathlib import Path
 
 
 
-
 def create_parser():
     parser = argparse.ArgumentParser(description='This is a crontab script to monitor sequencing directories')
     parser.add_argument('-t', '--testing',action='store_true', help='Testing mode')
     return parser
-
 
 
 def main():
@@ -30,8 +28,8 @@ def main():
         queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing, repo_root=repo_root)
-    # TODO assumption: for now CBmed are only on NS6000 and version 2.1.
-    seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir'], paths['research_seq_dir']]
+    # Assumption: for now CBmed are only on NS6000 and version 2.1.
+    seq_dirs = [paths['onco_seq_dir'], paths['mixed_runs_dir'], paths['research_seq_dir'], paths['rnaseq_dir']]
     if get_server_ip() == '10.200.215.35':
         seq_dirs.append(paths['patho_seq_dir'])
         seq_dirs.append(paths['cbmed_seq_dir'])
@@ -91,7 +89,6 @@ def main():
         append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         raise RuntimeError(f'Unrecognised input type: {input_type}')
-
 
 if __name__ == '__main__':
     main()
