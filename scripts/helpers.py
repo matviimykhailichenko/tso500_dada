@@ -712,7 +712,7 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
     if not onc_samples.empty:
         onc_pending = Path(repo_root).parent.parent / '10.200.214.104_PENDING.txt'
         if not onc_pending.exists():
-            pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+            pending_blank = f'{repo_root}/files/PENDING_blank.txt'
             copy(pending_blank, onc_pending)
         if onc_pending.stat().st_size < 37:
             with open(onc_pending, 'a') as f:
@@ -726,7 +726,7 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
         for server in available_servers:
             pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
             if not pending_file.exists():
-                pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+                pending_blank = f'{repo_root}/files/PENDING_blank.txt'
                 copy(pending_blank, pending_file)
             if pending_file.stat().st_size < 37:
                 with open(pending_file, 'a') as f:
