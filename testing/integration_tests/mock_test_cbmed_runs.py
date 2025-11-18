@@ -13,16 +13,16 @@ def setup_environment():
     repo_root = get_repo_root()
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        pipeline_dir: Path = Path(config['pipeline_dir'])
-        cbmed_seq_dir:Path = Path(config['cbmed_sequencing_dir'] + '_TEST')
-    test_ns6000_run: Path = pipeline_dir / 'test_runs/mock/test_run_ns6000'
-
+        pipeline_dir = Path(config['pipeline_dir'])
+        cbmed_seq_dir = Path(config['cbmed_sequencing_dir'] + '_TEST')
+    test_ns6000_run = pipeline_dir / 'test_runs/mock/test_run_ns6000'
     server_ip = get_server_ip
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_cbmed_run_seq_dir = cbmed_seq_dir / f'{datetime.now().strftime("%y%m%d")}_BI_735_batch1'
-    test_results = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen_TEST/250213_A01664_0452_AH2J5VDMX2')
-    test_run_flowcell = Path('/mnt/CBmed_NAS3/Genomics/TSO500_liquid/flowcells_TEST/250213_A01664_0452_AH2J5VDMX2')
+    date = datetime.now().strftime("%Y%m%d")
+    test_cbmed_run_seq_dir = cbmed_seq_dir / f'{date}_BI_733_b01_s01'
+    test_results = Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen_TEST/{date}_BI_733_b01_s01')
+    test_run_flowcell = Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid/flowcells_TEST/{date}_BI_733_b01_s01')
 
     if queue_file.exists():
         queue_file.unlink()
