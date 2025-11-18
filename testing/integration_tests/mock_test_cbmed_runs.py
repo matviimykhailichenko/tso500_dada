@@ -22,7 +22,6 @@ def setup_environment():
     date = datetime.now().strftime("%Y%m%d")
     test_cbmed_run_seq_dir = cbmed_seq_dir / f'{date}_BI_733_b01_s01'
     test_results = Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid/dragen_TEST/{date}_BI_733_b01_s01')
-    test_run_flowcell = Path(f'/mnt/CBmed_NAS3/Genomics/TSO500_liquid/flowcells_TEST/{date}_BI_733_b01_s01')
 
     if queue_file.exists():
         queue_file.unlink()
@@ -40,7 +39,6 @@ def setup_environment():
 
     rmtree(test_cbmed_run_seq_dir)
     rmtree(test_results)
-    rmtree(test_run_flowcell)
 
 
 @pytest.mark.dependency(name='scheduler')
