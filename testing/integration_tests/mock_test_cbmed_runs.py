@@ -1,3 +1,4 @@
+import argparse
 import pytest
 from pathlib import Path
 from shutil import copytree, rmtree
@@ -7,9 +8,17 @@ import yaml
 from ..scripts.helpers import get_repo_root, get_server_ip
 
 
+def setup_parcer():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--teardown',action='store_true')
+
+    return parser.parse_args()
+
 
 @pytest.fixture(scope="module")
 def setup_environment():
+    args = setup_parcer()
+    teardown = args.teardown
     repo_root = get_repo_root()
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -37,8 +46,9 @@ def setup_environment():
     print("Test is finished. Press Enter to continue teardown...")
     input()
 
-    rmtree(test_cbmed_run_seq_dir)
-    rmtree(test_results)
+    if teardown:
+        rmtree(test_cbmed_run_seq_dir)
+        rmtree(test_results)
 
 
 @pytest.mark.dependency(name='scheduler')
