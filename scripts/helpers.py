@@ -186,7 +186,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
     return 0
 
 
-def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_patho(paths:dict, input_type:str, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
