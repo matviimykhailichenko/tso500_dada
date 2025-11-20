@@ -508,7 +508,14 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
                            last_sample_queue=last_sample_queue)
 
     if paths['tag'] == 'RNA':
-        cmd = 'command to do smt'
+        cmd = 'echo Pretening to demux the run...'
+        try:
+            subp_run(cmd,check=True,shell=True)
+        except CalledProcessError as e:
+            msg = f"Demultiplexing of the run {paths['run_name']} had failed."
+            logger.error(msg)
+            notify_bot(msg)
+            raise RuntimeError(msg)
 
     if input_type == 'run':
         cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"

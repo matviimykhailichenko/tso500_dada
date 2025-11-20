@@ -16,7 +16,7 @@ def setup_environment():
         pipeline_dir = Path(config['pipeline_dir'])
         rnaseq_dir = Path(config['rnaseq_sequencing_dir'] + '_TEST')
     test_ns6000_run = pipeline_dir / 'test_runs/mock/test_run_ns6000'
-    server_ip = get_server_ip
+    server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     date = datetime.now().strftime("%Y%m%d")

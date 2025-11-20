@@ -45,7 +45,7 @@ def main():
     busy_tag.touch()
     idle_tag.unlink()
 
-    path, input_type, _, tag, flowcell = queue.iloc[0]
+    input_path, input_type, _, tag, flowcell = queue.iloc[0]
 
     last_sample_queue = False
     if input_type == 'sample' and len(queue['Tag'][queue['Tag'] == tag]) == 1:
@@ -60,7 +60,7 @@ def main():
     if len(queue_merged['Flowcell'][queue_merged['Flowcell'] == flowcell]) == 0:
         last_sample_run = True
 
-    paths = setup_paths(repo_root=repo_root, input_path=Path(path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
+    paths = setup_paths(repo_root=repo_root, input_path=Path(input_path), input_type=input_type, tag=tag, flowcell=flowcell, config=config,
                               testing=testing, testing_fast=testing_fast)
     try:
         logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
@@ -73,6 +73,7 @@ def main():
         if not paths['analyzing_tag'].exists():
             paths['analyzing_tag'].touch()
             paths['queued_tag'].unlink()
+
         stage_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
