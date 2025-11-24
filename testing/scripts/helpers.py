@@ -1,5 +1,7 @@
 from pathlib import Path
 from subprocess import check_output, CalledProcessError, run
+from datetime import datetime
+
 
 
 def get_repo_root() -> str:
@@ -24,3 +26,9 @@ def get_server_ip() -> str:
         raise RuntimeError(message)
 
     return server_ip
+
+def generate_illumia_string:
+    today = datetime.now().strftime("%Y%m%d")
+    illumina_sting = f"{today}_A01664_2749_CICEAJ7JXH"
+
+    return illumina_sting
