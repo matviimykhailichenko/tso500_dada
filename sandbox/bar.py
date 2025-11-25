@@ -5,6 +5,8 @@ cmd = 'bcl-convert ' \
       '--bcl-input-directory /mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells_TEST/test_big_run/250829_A01664_0550_AH3MYWDMX2 ' \
       '--output-directory /staging/tmp/RNAseq_test'
 
+# cmd = 'python3 foo.py'
+
 proc = Popen(
     cmd,
     stdout=PIPE,
@@ -19,10 +21,6 @@ captured = []
 for line in proc.stdout:
     print(line, end='')         # real-time output
     captured.append(line)       # storing for later check
-
-for line in proc.stderr:
-    print(line, end='')
-    captured.append(line)
 
 proc.wait()
 
