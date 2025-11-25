@@ -1,7 +1,7 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which, rmtree, copy, move, copytree
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
+from subprocess import run as subp_run, PIPE, CalledProcessError, check_output as subp_check_output, STDOUT, Popen
 from typing import Optional
 import yaml
 from logging_ops import notify_bot, notify_pipeline_status
@@ -67,7 +67,7 @@ def is_nas_mounted(mountpoint_dir: str,
                                f"find the file (path was None) or could not access it (permission problem). "
                                f"Using the default one anyways at '{mountpoint_binary}'. This might cause "
                                f"subprocess failure!")
-    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=subp_PIPE, encoding='utf-8')
+    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=PIPE, encoding='utf-8')
     try:
         ran_mount_check.check_returncode()
     except CalledProcessError:
@@ -327,7 +327,7 @@ def load_config(configfile: str) -> dict:
 
 def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
-    paths: dict = dict()
+    paths = dict()
     paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
@@ -447,7 +447,7 @@ def check_structure(paths: dict,
 def check_docker_image(logger: Logger):
 
     try:
-        result = subp_run(['docker', 'images'], stdout=subp_PIPE, stderr=subp_PIPE, text=True)
+        result = subp_run(['docker', 'images'], stdout=PIPE, stderr=PIPE, text=True)
     except Exception as e:
         msg = f"Error checking docker image: {e}"
         notify_bot(msg)
@@ -508,14 +508,41 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
                            last_sample_queue=last_sample_queue)
 
     if paths['tag'] == 'RNA':
-        cmd = 'echo Pretening to demux the run...'
-        try:
-            subp_run(cmd,check=True,shell=True)
-        except CalledProcessError as e:
-            msg = f"Demultiplexing of the run {paths['run_name']} had failed."
-            logger.error(msg)
-            notify_bot(msg)
-            raise RuntimeError(msg)
+        cmd = f'bcl-convert --bcl-input-directory {paths['input_dir']} --output-directory {paths['analysis_dir']}'
+
+        proc = Popen(
+            cmd,
+            stdout=PIPE,
+            stderr=STDOUT,
+            text=True,
+            bufsize=1,
+            shell=True
+        )
+
+        warning_found = False
+
+        while True:
+            line = proc.stdout.readline()
+
+            if not line:
+                if proc.poll() is not None:
+                    break
+                continue
+
+            print(line, end="")
+
+            if "WARNING" in line:
+                warning_found = True
+                print("=== WARNING DETECTED — stopping run ===")
+                proc.terminate()
+                break
+
+            proc.wait()
+
+            if warning_found:
+                raise RuntimeError("Bcl-convert reported incomplete data")
+
+        rmtree(paths['analysis_dir'])
 
     if input_type == 'run':
         cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"
