@@ -1,1 +1,1 @@
-print('Literally WARINING')
+print('Literally WARNING')
