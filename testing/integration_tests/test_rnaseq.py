@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree, rmtree
+from shutil import copytree
 from subprocess import run
 from datetime import datetime
 import yaml
@@ -21,6 +21,7 @@ def setup_environment():
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     date = datetime.now().strftime("%Y%m%d")
     test_rnaseq_run_seq_dir = rnaseq_dir / f'{date}_RNAseq_b01_s01'
+    queued_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -37,14 +38,13 @@ def setup_environment():
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
-        rmtree(test_rnaseq_run_seq_dir)
-        print(f"Removed directory: {test_rnaseq_run_seq_dir}")
+        queued_tag.unlink()
+        print(f"Removed the queued tag")
 
     else:
         print("Teardown skipped. Directories remain.")
 
     print("The test is finished.")
-
 
 
 @pytest.mark.dependency(name='scheduler')
