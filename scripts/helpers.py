@@ -391,9 +391,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
-        'PAT': paths['patho_results_dir'] / paths['run_name']
+        'PAT': paths['patho_results_dir'] / paths['run_name'],
+        'RNA': paths['patho_results_dir'] / paths['run_name']
     }
-    paths['results_dir'] = results_dirs_map[tag]
+    if tag is not 'RNA':
+        paths['results_dir'] = results_dirs_map[tag]
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
