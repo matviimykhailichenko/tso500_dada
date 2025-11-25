@@ -1,4 +1,5 @@
 from subprocess import PIPE, Popen, STDOUT
+from re import compile
 
 cmd = 'bcl-convert ' \
       '--bcl-input-directory /mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells_TEST/test_big_run/250829_A01664_0550_AH3MYWDMX2 ' \
@@ -22,6 +23,10 @@ for line in proc.stdout:
 proc.wait()
 
 full_output = ''.join(captured)
+
+ansi_escape = compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
+
+clean_output = ansi_escape.sub('', full_output)
 
 if 'WARNING' in full_output:
     print('Oh shoot data is incomplete')
