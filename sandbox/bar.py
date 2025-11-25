@@ -1,0 +1,26 @@
+from subprocess import run, PIPE, Popen, STDOUT
+
+cmd = ('bcl-convert '
+       '--bcl-input-directory /mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells/250829_RNAseq_seqrun4/250829_A01664_0550_AH3MYWDMX2 '
+       '--output-directory /staging/tmp/RNAseq_test')
+
+proc = Popen(
+    cmd,
+    stdout=PIPE,
+    stderr=STDOUT,
+    text=True,
+    bufsize=1)
+
+captured = []
+
+for line in proc.stdout:
+    print(line, end='')         # real-time output
+    captured.append(line)       # storing for later check
+
+proc.wait()
+
+full_output = ''.join(captured)
+
+if 'WARNING' in full_output:
+    print('Oh shoot data is incomplete')
+    raise RuntimeError("Bcl-convert reported incomplete data")
