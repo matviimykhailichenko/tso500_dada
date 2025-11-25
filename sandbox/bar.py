@@ -28,6 +28,6 @@ ansi_escape = compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
 
 clean_output = ansi_escape.sub('', full_output)
 
-if 'WARNING' in full_output:
+if 'WARNING:' in clean_output:
     print('Oh shoot data is incomplete')
     raise RuntimeError("Bcl-convert reported incomplete data")
