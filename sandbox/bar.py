@@ -20,6 +20,10 @@ for line in proc.stdout:
     print(line, end='')         # real-time output
     captured.append(line)       # storing for later check
 
+for line in proc.stderr:
+    print(line, end='')
+    captured.append(line)
+
 proc.wait()
 
 full_output = ''.join(captured)
