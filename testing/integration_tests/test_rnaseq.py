@@ -22,6 +22,7 @@ def setup_environment():
     date = datetime.now().strftime("%Y%m%d")
     test_rnaseq_run_seq_dir = rnaseq_dir / f'{date}_RNAseq_b01_s01'
     queued_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
+    failed_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/FAILED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -38,7 +39,10 @@ def setup_environment():
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
-        queued_tag.unlink()
+        if queued_tag.exists():
+            queued_tag.unlink()
+        if failed_tag.exists():
+            failed_tag.unlink()
         print(f"Removed the queued tag")
 
     else:
