@@ -1,7 +1,7 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root
-from shutil import copy as sh_copy
+from shutil import copy
 from logging_ops import notify_bot
 import re
 import yaml
@@ -24,8 +24,8 @@ def main():
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        servers: list = config['available_servers']
-        queue_blank: Path = Path(f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt')
+        servers = config['available_servers']
+        queue_blank = Path(f'{repo_root}/files/PENDING_blank.txt')
 
     paths = setup_paths_scheduler(testing=testing, repo_root=repo_root)
     # Assumption: for now CBmed are only on NS6000 and version 2.1.
@@ -38,9 +38,9 @@ def main():
         queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
         pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
         if not queue_file.exists():
-            sh_copy(queue_blank, queue_file)
+            copy(queue_blank, queue_file)
         if not pending_file.exists():
-            sh_copy(queue_blank, pending_file)
+            copy(queue_blank, pending_file)
 
     input_path = None
     input_type = None
