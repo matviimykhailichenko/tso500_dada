@@ -97,32 +97,26 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
-    cbmed_results_dir: Path = paths['cbmed_results_dir']
-    flowcell: str = paths['flowcell']
-    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
-    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
-    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
-    run_name: str = paths['run_name']
-    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    rsync_path: str = paths['rsync_path']
-    staging_temp_dir: Path = paths['staging_temp_dir']
+    flowcell_cbmed_dir = paths['cbmed_results_dir'] / 'flowcells' / paths['flowcell']
+    data_cbmed_dir = flowcell_cbmed_dir / paths['flowcell']
+    dragen_cbmed_dir = paths['cbmed_results_dir'] / 'dragen'
 
     if input_type == 'sample':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = flowcell_run_dir / 'FastqGeneration'
+        flowcell_run_dir = paths['cbmed_seq_dir'] / paths['flowcell']
+        fastq_gen_seq_dir = flowcell_run_dir / 'FastqGeneration'
     elif input_type == 'run':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
+        flowcell_run_dir = paths['cbmed_seq_dir'] / paths['flowcell']
+        fastq_gen_seq_dir = paths['staging_temp_dir']/ paths['run_name'] / 'Logs_Intermediates' / 'FastqGeneration'
 
-    results_staging: Path = staging_temp_dir / run_name
-    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
-    fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
+    results_staging = paths['staging_temp_dir'] / paths['run_name']
+    results_cbmed_dir = dragen_cbmed_dir / paths['flowcell'] / 'Results'
+    fastq_gen_results_dir = flowcell_cbmed_dir / 'FastqGeneration'
 
     flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     if input_type == 'run':
-        checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
+        checksums_humgen = flowcell_cbmed_dir / f'{paths['flowcell']}_fastqs_HumGenNAS.sha256'
         checksums_call = (
             f'cd {str(fastq_gen_seq_dir)} && '
             "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -136,7 +130,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             logger.error(message)
             # raise RuntimeError(message)
 
-    checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
+    checksums_humgen = dragen_cbmed_dir / paths['flowcell'] / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
     checksums_call = (
         f'cd {str(results_staging)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -154,9 +148,9 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
 
     if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
-        rsync_call = (f"{rsync_path} -r "
+        rsync_call = (f"{paths['rsync_path']} -r "
                       f"{str(flowcell_run_dir)}/ "
-                      f"{str(flowcell_cbmed_dir / flowcell)}")
+                      f"{str(flowcell_cbmed_dir / paths['flowcell'])}")
         try:
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
@@ -167,7 +161,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     elif input_type == 'run':
         try:
-            move(paths['run_dir'] / flowcell, data_cbmed_dir)
+            move(paths['run_dir'] / paths['flowcell'], data_cbmed_dir)
         except Exception as e:
             message = f"Moving results had FAILED: {e}"
             notify_bot(message)
@@ -176,7 +170,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
 
     if input_type == 'run':
         log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
+        rsync_call = (f"{paths['rsync_path']} -r "
                       f"--out-format=\"%C %n\" "
                       f"--log-file {str(log_file_path)} "
                       f"{str(fastq_gen_seq_dir)}/ "
@@ -190,7 +184,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             # raise RuntimeError(message)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path} -r "
+    rsync_call = (f"{paths['rsync_path']} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(results_staging)}/ "
@@ -203,7 +197,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
+    checksums_cbmed = flowcell_cbmed_dir / f'{paths['flowcell']}_fastqs.sha256'
     checksums_call = (
         f'cd {str(fastq_gen_results_dir)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -217,7 +211,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         logger.error(message)
         # raise RuntimeError(message)
 
-    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
+    checksums_cbmed = dragen_cbmed_dir / paths['flowcell'] / f'{paths['flowcell']}_Results.sha256'
     checksums_call = (
         f'cd {str(results_cbmed_dir)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -560,10 +554,10 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
                            input_type=input_type, last_sample_queue=last_sample_queue)
 
 
-def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
-    assert pending_file.exists(), 'The pending file should exist'
-    assert queue_file.exists(), 'The queue file should exist'
-
+def get_queue(server_ip):
+    repo_root = get_repo_root()
+    queue_file = Path(repo_root).parent.parent / f'{server_ip}_QUEUE.txt'
+    pending_file = Path(repo_root).parent.parent / f'{server_ip}_PENDING.txt'
     pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
     if not pending_file.stat().st_size < 38:
@@ -591,13 +585,13 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
     paths = {}
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
+        paths['available_servers'] = config['available_servers']
         paths['tags'] = config['tags']
         paths['blocking_tags'] = config['blocking_tags']
         paths['ready_tags'] = config['ready_tags']
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
@@ -659,35 +653,41 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
-    onco_seq_dir = paths['onco_seq_dir']
-    cbmed_seq_dir = paths['cbmed_seq_dir']
-    patho_seq_dir = paths['patho_seq_dir']
-    research_seq_dir = paths['research_seq_dir']
-
-    server = get_server_ip()
-    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
+def append_pending_run(paths:dict, input_dir:Path):
+    repo_root = get_repo_root()
     queued_tag = input_dir / paths['queued_tag']
 
-    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
+    priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'], paths['patho_seq_dir']: [3, 'PAT'], paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
-    if not pending_file.exists():
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-        copy(pending_blank, pending_file)
 
-    if pending_file.stat().st_size < 38:
-        with open(pending_file, 'a') as f:
-            f.write('\n')
+    server = None
+
+    # For now CBM and PAT are only on NS6000 and version 2.1
+    if tag == 'CBM' or tag == 'PAT':
+        server = '10.200.215.35'
+
+    # And ONC is only on 104 because of ichorCNA
+    elif tag == 'ONC':
+        server = '10.200.214.104'
+
+    if server is None:
+        server_loads = []
+        for server_ip in paths['available_servers']:
+            current_queue = get_queue(server_ip=server_ip)
+            server_loads.append(current_queue.shape[0])
+        server = min(server_loads)
+
+    pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     new_run.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
 
     queued_tag.touch()
 
 # Danger - AI-written function!
-def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list, testing: bool = True):
+def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         available_servers = config['available_servers']
@@ -704,11 +704,9 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
     new_samples = pd.DataFrame(entries)
 
-    # --- CUSTOM ROUTING START ---
     onc_samples = new_samples[new_samples['Tag'] == 'ONC']
     other_samples = new_samples[new_samples['Tag'] != 'ONC']
 
-    # Write ONC samples only to 10.200.214.104
     if not onc_samples.empty:
         onc_pending = Path(repo_root).parent.parent / '10.200.214.104_PENDING.txt'
         if not onc_pending.exists():
@@ -720,7 +718,6 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
         onc_samples.to_csv(onc_pending, sep='\t', mode='a', header=False, index=False)
 
-    # Distribute other samples normally
     if not other_samples.empty:
         pedning_files = np.array_split(other_samples, len(available_servers))
         for server in available_servers:
@@ -734,43 +731,9 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
             pending = pd.DataFrame(pedning_files[available_servers.index(server)])
             pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
-    # --- CUSTOM ROUTING END ---
 
     queued_tag.touch()
 
-# Old human-made one
-# def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
-#     with open(f'{repo_root}/config.yaml', 'r') as file:
-#         config = yaml.safe_load(file)
-#         available_servers = config['available_servers']
-#
-#     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
-#     run_dir = fastq_gen_dir.parent
-#     queued_tag = run_dir / paths['queued_tag']
-#
-#     paths = [fastq_gen_dir / id for id in sample_ids]
-#     priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
-#     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
-#
-#     priorities = (int(priority_map.get(t)) for t in tags)
-#
-#     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
-#     new_samples = pd.DataFrame(entries)
-#     pedning_files = np.array_split(new_samples, len(available_servers))
-#
-#     for server in available_servers:
-#         pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
-#         if not pending_file.exists():
-#             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-#             sh_copy(pending_blank, pending_file)
-#         if pending_file.stat().st_size < 37:
-#             with open(pending_file, 'a') as f:
-#                 f.write('\n')
-#
-#         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
-#         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
-#
-#     queued_tag.touch()
 
 def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
     tags = paths['tags']
@@ -846,23 +809,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
     expected_headers = config.get(f"expected_headers_{"nsq6000" if input_type == "run" else "nsqx"}")
     expected_indexes = f"{repo_root}/files/sample_sheet_validator/expected_indexes.csv"
 
-    with open(sample_sheet, 'r') as f:
-        lines = f.readlines()
-        section_header = None
-        sections_dict = {}
-        current_sections = []
-        for line in lines:
-            if line.startswith('['):
-                if current_sections:
-                    sections_dict[section_header] = current_sections
-                    current_sections = []
-                section_header = line
-            elif line.startswith(','):
-                continue
-            else:
-                current_sections.append(line)
-
-    sections_dict[section_header] = current_sections
+    sections_dict = parse_sample_sheet(sample_sheet=sample_sheet)
 
     extra = set(sections_dict.keys()) - set(expected_headers)
     missing = set(expected_headers) - set(sections_dict.keys())
@@ -963,3 +910,23 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         logger.error(message)
         raise RuntimeError(message)
 
+def parse_sample_sheet(sample_sheet):
+    with open(sample_sheet, 'r') as f:
+        lines = f.readlines()
+        section_header = None
+        sections_dict = {}
+        current_sections = []
+        for line in lines:
+            if line.startswith('['):
+                if current_sections:
+                    sections_dict[section_header] = current_sections
+                    current_sections = []
+                section_header = line
+            elif line.startswith(','):
+                continue
+            else:
+                current_sections.append(line)
+
+    sections_dict[section_header] = current_sections
+
+    return sections_dict
