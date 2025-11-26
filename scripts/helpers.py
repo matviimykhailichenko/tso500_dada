@@ -137,21 +137,21 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     sh_move(paths['staging_temp_dir'] / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
 
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
-    # cmd = (
-    #     f'cd {str(results_cbmed_dir.parent)} && '
-    #     f"find . -type f -print0 | "
-    #     "sed -i 's|  \./|  |' | "
-    #     f"parallel --null -j {available_cpus} "
-    #     "sha256sum {} | tee "
-    #     f"{str(checksums_cbmed)}"
-    # )
     cmd = (
         f"cd '{results_cbmed_dir.parent}' && "
-        "find . -type f -print0 | "
+        f"find '{results_cbmed_dir.name}' -type f -print0 | "
         f"parallel --null -j {available_cpus} sha256sum {{}} | "
         "sed 's|  \\./|  |' | "
         f"tee '{checksums_cbmed}'"
     )
+
+    # cmd = (
+    #     f"cd '{results_cbmed_dir.parent}' && "
+    #     "find . -type f -print0 | "
+    #     f"parallel --null -j {available_cpus} sha256sum {{}} | "
+    #     "sed 's|  \\./|  |' | "
+    #     f"tee '{checksums_cbmed}'"
+    # )
 
     try:
         subp_run(cmd, shell=True).check_returncode()
