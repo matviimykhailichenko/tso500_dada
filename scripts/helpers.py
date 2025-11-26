@@ -104,13 +104,13 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
     checksums_humgen = run_cbmed_dir / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
-    checksums_call = (
+    cmd = (
         f'cd {str(results_staging)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
         f"{str(checksums_humgen)}"
     )
     try:
-        subp_run(checksums_call, shell=True).check_returncode()
+        subp_run(cmd, shell=True).check_returncode()
     except CalledProcessError as e:
         msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
         notify_bot(msg)
@@ -135,10 +135,9 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
 
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
-        f"cd '{results_cbmed_dir}' && "
-        "find . -type f -printf '%P\\0' | "
-        "parallel --null -j 40 sha256sum {{}} | "
-        f"tee '{checksums_cbmed}'"
+        f'cd {str(results_cbmed_dir.parent)} && '
+        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
+        f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(cmd, shell=True).check_returncode()
