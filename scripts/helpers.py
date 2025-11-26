@@ -276,7 +276,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
         paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
         paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
         paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
@@ -289,8 +288,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
         paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
-        paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
         paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
+    if tag is not 'RNA':
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
+    else:
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful']
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
