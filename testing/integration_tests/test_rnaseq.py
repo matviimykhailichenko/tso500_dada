@@ -4,7 +4,8 @@ from shutil import copytree
 from subprocess import run
 from datetime import datetime
 import yaml
-from ..scripts.helpers import get_repo_root, get_server_ip
+from ..scripts.helpers import get_repo_root, get_server_ip, find_illumina_string
+from re import fullmatch
 
 
 
@@ -21,9 +22,10 @@ def setup_environment():
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     date = datetime.now().strftime("%Y%m%d")
     test_rnaseq_run_seq_dir = rnaseq_dir / f'{date}_RNAseq_b01_s01'
-    queued_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
-    failed_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/FAILED.txt'
-    analyzed_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/ANALYZED.txt'
+    illumina_string = find_illumina_string(test_rnaseq_run_seq_dir)
+    queued_tag = test_rnaseq_run_seq_dir / illumina_string / 'QUEUED.txt'
+    failed_tag = test_rnaseq_run_seq_dir / illumina_string /'FAILED.txt'
+    analyzed_tag = test_rnaseq_run_seq_dir / illumina_string / 'ANALYZED.txt'
 
     if queue_file.exists():
         queue_file.unlink()

@@ -1,5 +1,7 @@
 from pathlib import Path
 from subprocess import check_output, CalledProcessError, run
+from re import fullmatch
+
 
 
 def get_repo_root() -> str:
@@ -13,6 +15,7 @@ def get_repo_root() -> str:
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
+
 def get_server_ip() -> str:
     try:
         call = "hostname -I"
@@ -24,3 +27,11 @@ def get_server_ip() -> str:
         raise RuntimeError(message)
 
     return server_ip
+
+
+def find_illumina_string(dir: Path) -> str | None:
+    for subdir in dir.iterdir():
+        m = fullmatch(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$', subdir.name)
+        if m:
+            return m.group()
+    return None
