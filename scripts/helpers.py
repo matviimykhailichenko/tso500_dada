@@ -342,7 +342,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
-
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
     paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
