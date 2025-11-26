@@ -1,7 +1,7 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which, rmtree, copy, move, copytree
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
+from subprocess import run as subp_run, PIPE, CalledProcessError, check_output as subp_check_output, STDOUT, Popen
 from typing import Optional
 import yaml
 from logging_ops import notify_bot, notify_pipeline_status
@@ -67,7 +67,7 @@ def is_nas_mounted(mountpoint_dir: str,
                                f"find the file (path was None) or could not access it (permission problem). "
                                f"Using the default one anyways at '{mountpoint_binary}'. This might cause "
                                f"subprocess failure!")
-    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=subp_PIPE, encoding='utf-8')
+    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=PIPE, encoding='utf-8')
     try:
         ran_mount_check.check_returncode()
     except CalledProcessError:
@@ -327,7 +327,7 @@ def load_config(configfile: str) -> dict:
 
 def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
-    paths: dict = dict()
+    paths = dict()
     paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
@@ -342,7 +342,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
-
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
     paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
@@ -354,23 +353,22 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
-        paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
-        paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
-        paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
-        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
+        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
-        paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
-        paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
-        paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
-        paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
+    paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
+    paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
+    if tag is not 'RNA':
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
+    else:
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful_tag']
+    paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
@@ -391,9 +389,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
-        'PAT': paths['patho_results_dir'] / paths['run_name']
+        'PAT': paths['patho_results_dir'] / paths['run_name'],
+        'RNA': paths['patho_results_dir'] / paths['run_name']
     }
-    paths['results_dir'] = results_dirs_map[tag]
+    if tag is not 'RNA':
+        paths['results_dir'] = results_dirs_map[tag]
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
@@ -447,7 +447,7 @@ def check_structure(paths: dict,
 def check_docker_image(logger: Logger):
 
     try:
-        result = subp_run(['docker', 'images'], stdout=subp_PIPE, stderr=subp_PIPE, text=True)
+        result = subp_run(['docker', 'images'], stdout=PIPE, stderr=PIPE, text=True)
     except Exception as e:
         msg = f"Error checking docker image: {e}"
         notify_bot(msg)
@@ -485,6 +485,9 @@ def check_tso500_script(paths: dict, logger: Logger):
 
 
 def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger):
+    if paths['tag'] == 'RNA':
+        return
+
     notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
 
@@ -503,6 +506,43 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
 def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
     notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
+
+    if paths['tag'] == 'RNA':
+        cmd = f'bcl-convert --bcl-input-directory {paths['input_dir']} --output-directory {paths['analysis_dir']}'
+
+        proc = Popen(
+            cmd,
+            stdout=PIPE,
+            stderr=STDOUT,
+            text=True,
+            bufsize=1,
+            shell=True
+        )
+
+        warning_found = False
+
+        while True:
+            line = proc.stdout.readline()
+
+            if not line:
+                if proc.poll() is not None:
+                    break
+                continue
+
+            print(line, end="")
+
+            if "WARNING" in line:
+                warning_found = True
+                print("=== WARNING DETECTED — stopping run ===")
+                proc.terminate()
+                break
+
+            proc.wait()
+
+            if warning_found:
+                raise RuntimeError("Bcl-convert reported incomplete data")
+
+        rmtree(paths['analysis_dir'])
 
     if input_type == 'run':
         cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"
@@ -533,6 +573,8 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
 
 def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, testing: bool = True, logger: Logger = None):
     tag = paths['tag']
+    if tag == 'RNA':
+        return
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type,
@@ -597,10 +639,10 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
+        paths['rnaseq_dir'] = Path(config['rnaseq_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
 
@@ -659,24 +701,21 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
-    onco_seq_dir = paths['onco_seq_dir']
-    cbmed_seq_dir = paths['cbmed_seq_dir']
-    patho_seq_dir = paths['patho_seq_dir']
-    research_seq_dir = paths['research_seq_dir']
-
+def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
 
-    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
+    priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
+                    paths['rnaseq_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
+                    paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/files/PENDING_blank.txt'
         copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:

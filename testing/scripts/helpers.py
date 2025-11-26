@@ -1,5 +1,6 @@
 from pathlib import Path
 from subprocess import check_output, CalledProcessError, run
+from re import fullmatch
 from datetime import datetime
 
 
@@ -15,6 +16,7 @@ def get_repo_root() -> str:
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
 
+
 def get_server_ip() -> str:
     try:
         call = "hostname -I"
@@ -27,8 +29,17 @@ def get_server_ip() -> str:
 
     return server_ip
 
+
 def generate_illumia_string():
     today = datetime.now().strftime("%Y%m%d")
     illumina_sting = f"{today}_A01664_2749_CICEAJ7JXH"
 
     return illumina_sting
+
+
+def find_illumina_string(dir: Path) -> str | None:
+    for subdir in dir.iterdir():
+        m = fullmatch(r'^\d{6}_A01664_\d{4}_[A-Z0-9]{10}$', subdir.name)
+        if m:
+            return m.group()
+    return None
