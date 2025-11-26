@@ -587,9 +587,9 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
 
     try:
         if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths, input_type=input_type,logger=logger,testing=testing)
+            transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
         elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger)
+            transfer_results_cbmed(paths=paths, logger=logger)
         elif tag == 'PAT':
             transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
         elif tag == 'TSO':
