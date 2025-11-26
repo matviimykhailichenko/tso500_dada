@@ -138,8 +138,9 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
 
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
-        f'cd {str(results_cbmed_dir.parent.parent)} && '
-        f"find {paths['flowcell']} -type f -print0 | "
+        f'cd {str(results_cbmed_dir.parent)} && '
+        f"find . -type f -print0 | "
+        "sed -i 's|  \./|  |' | "
         f"parallel --null -j {available_cpus} "
         "sha256sum {} | tee "
         f"{str(checksums_cbmed)}"
