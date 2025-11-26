@@ -106,11 +106,11 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
 
     checksums_humgen = run_cbmed_dir / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
     cmd = (
-        f'cd {str(results_staging)} && '
+        f"cd '{results_staging}' && "
         "find . -type f -print0 | "
-        f"parallel --null -j {available_cpus} "
-        "sha256sum {} | tee "
-        f"{str(checksums_humgen)}"
+        f"parallel --null -j {available_cpus} sha256sum {{}} | "
+        f"sed 's|  \\./|  {paths['flowcell']}/|' | "
+        f"tee '{checksums_humgen}'"
     )
     try:
         subp_run(cmd, shell=True).check_returncode()
@@ -144,15 +144,6 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
         "sed 's|  \\./|  |' | "
         f"tee '{checksums_cbmed}'"
     )
-
-    # cmd = (
-    #     f"cd '{results_cbmed_dir.parent}' && "
-    #     "find . -type f -print0 | "
-    #     f"parallel --null -j {available_cpus} sha256sum {{}} | "
-    #     "sed 's|  \\./|  |' | "
-    #     f"tee '{checksums_cbmed}'"
-    # )
-
     try:
         subp_run(cmd, shell=True).check_returncode()
     except CalledProcessError as e:
