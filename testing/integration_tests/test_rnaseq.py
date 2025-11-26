@@ -22,10 +22,6 @@ def setup_environment():
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     date = datetime.now().strftime("%Y%m%d")
     test_rnaseq_run_seq_dir = rnaseq_dir / f'{date}_RNAseq_b01_s01'
-    illumina_string = find_illumina_string(test_rnaseq_run_seq_dir)
-    queued_tag = test_rnaseq_run_seq_dir / illumina_string / 'QUEUED.txt'
-    failed_tag = test_rnaseq_run_seq_dir / illumina_string /'FAILED.txt'
-    analyzed_tag = test_rnaseq_run_seq_dir / illumina_string / 'ANALYZED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -35,6 +31,11 @@ def setup_environment():
 
     if not test_rnaseq_run_seq_dir.exists():
         copytree(str(test_ns6000_run), str(test_rnaseq_run_seq_dir))
+
+    illumina_string = find_illumina_string(test_rnaseq_run_seq_dir)
+    queued_tag = test_rnaseq_run_seq_dir / illumina_string / 'QUEUED.txt'
+    failed_tag = test_rnaseq_run_seq_dir / illumina_string /'FAILED.txt'
+    analyzed_tag = test_rnaseq_run_seq_dir / illumina_string / 'ANALYZED.txt'
 
     yield
 
