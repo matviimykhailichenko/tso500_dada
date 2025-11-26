@@ -102,11 +102,14 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     results_cbmed_dir = paths['results_dir'] / paths['run_name'] / paths['flowcell']
     sh_move(results_staging / 'SampleSheet.csv', paths['staging_temp_dir'] / 'SampleSheet.csv')
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
+    available_cpus = get_max_available_cpus()
 
     checksums_humgen = run_cbmed_dir / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
     cmd = (
         f'cd {str(results_staging)} && '
-        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
+        "find . -type f -print0 | "
+        f"parallel --null -j {available_cpus} "
+        "sha256sum {} | tee "
         f"{str(checksums_humgen)}"
     )
     try:
@@ -135,10 +138,10 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
 
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
-        f'cd {str(results_cbmed_dir.parent)} && '
-        "find . -type f -print0 | "
-        r"sed -z 's|^\\./||' | "
-        "parallel --null -j 40 sha256sum {} | tee "
+        f'cd {str(results_cbmed_dir.parent.parent)} && '
+        f"find {paths['flowcell']} -type f -print0 | "
+        f"parallel --null -j {available_cpus} "
+        "sha256sum {} | tee "
         f"{str(checksums_cbmed)}"
     )
     try:
@@ -826,3 +829,7 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         logger.error(msg)
         raise RuntimeError(msg)
 
+def get_max_available_cpus() -> int:
+    cmd = "nproc"
+    output = subp_run(cmd, shell=True, check=True, text=True, capture_output=True)
+    return int(output.stdout) - 4
