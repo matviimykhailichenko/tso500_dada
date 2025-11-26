@@ -15,7 +15,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
         rnaseq_dir = Path(config['rnaseq_sequencing_dir'] + '_TEST')
-    test_ns6000_run = pipeline_dir / 'test_runs/test_run_ns6000'
+    test_ns6000_run = pipeline_dir / 'test_runs/run_rnaseq'
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
@@ -23,6 +23,7 @@ def setup_environment():
     test_rnaseq_run_seq_dir = rnaseq_dir / f'{date}_RNAseq_b01_s01'
     queued_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
     failed_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/FAILED.txt'
+    analyzed_tag = test_rnaseq_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/ANALYZED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -35,7 +36,7 @@ def setup_environment():
 
     yield
 
-    user_input = input("Test is finished. Proceed with teardown (delete directories)? (y/n): ")
+    user_input = input("Test is finished. Proceed with teardown? (y/n): ")
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
@@ -43,7 +44,9 @@ def setup_environment():
             queued_tag.unlink()
         if failed_tag.exists():
             failed_tag.unlink()
-        print(f"Removed the queued tag")
+        if analyzed_tag.exists():
+            analyzed_tag.unlink()
+        print(f"Removed all tags")
 
     else:
         print("Teardown skipped. Directories remain.")
