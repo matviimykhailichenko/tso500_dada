@@ -96,19 +96,14 @@ def transfer_results_oncoservice(paths: dict, logger: Logger):
         raise RuntimeError(msg)
 
 
-def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
-    flowcell = paths['flowcell']
-    dragen_cbmed_dir = paths['results_dir']
-    run_name = paths['run_name']
-    rsync_path = paths['rsync_path']
-    staging_temp_dir= paths['staging_temp_dir']
-    results_staging = staging_temp_dir / run_name
-    run_cbmed_dir = dragen_cbmed_dir / run_name
-    results_cbmed_dir = dragen_cbmed_dir / run_name / flowcell
-    sh_move(results_staging / 'SampleSheet.csv', staging_temp_dir / 'SampleSheet.csv')
+def transfer_results_cbmed(paths: dict, logger: Logger):
+    results_staging = paths['staging_temp_dir'] / paths['run_name']
+    run_cbmed_dir = paths['results_dir'] / paths['run_name']
+    results_cbmed_dir = paths['results_dir'] / paths['run_name'] / paths['flowcell']
+    sh_move(results_staging / 'SampleSheet.csv', paths['staging_temp_dir'] / 'SampleSheet.csv')
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
 
-    checksums_humgen = run_cbmed_dir / f'{flowcell}_Results_HumGenNAS.sha256'
+    checksums_humgen = run_cbmed_dir / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
     checksums_call = (
         f'cd {str(results_staging)} && '
         "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
@@ -123,7 +118,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         # raise RuntimeError(msg)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path} -r "
+    rsync_call = (f"{paths['rsync_path']} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(results_staging)}/ "
@@ -136,14 +131,13 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-    sh_move(staging_temp_dir / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
+    sh_move(paths['staging_temp_dir'] / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
 
-    checksums_for_cbmed = run_cbmed_dir / f'{flowcell}.sha256'
+    checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
-        f'cd /mnt && '
-        f"find {results_cbmed_dir.relative_to("/mnt")} -type f -print0 | "
+        f"find {results_cbmed_dir} -type f -print0 | "
         "parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_for_cbmed)}"
+        f"{str(checksums_cbmed)}"
     )
     try:
         subp_run(cmd, shell=True).check_returncode()
@@ -153,19 +147,19 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-    checksums_cbmed = run_cbmed_dir /f'{flowcell}_Results.sha256'
+    # checksums_cbmed = run_cbmed_dir /f'{paths['flowcell']}_Results.sha256'
 
-    cmd = f"sed 's#{results_cbmed_dir.relative_to("/mnt")}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
-    try:
-        subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
-    except CalledProcessError as e:
-        msg = (
-            f"Sedding of checksums for CBmed failed with return code {e.returncode}. "
-            f"Error output: {e.stderr.strip() if e.stderr else 'No stderr output'}"
-        )
-        notify_bot(msg)
-        logger.error(msg)
-        # raise RuntimeError(msg)
+    # cmd = f"sed 's#{results_cbmed_dir.relative_to("/mnt")}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
+    # try:
+    #     subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
+    # except CalledProcessError as e:
+    #     msg = (
+    #         f"Sedding of checksums for CBmed failed with return code {e.returncode}. "
+    #         f"Error output: {e.stderr.strip() if e.stderr else 'No stderr output'}"
+    #     )
+    #     notify_bot(msg)
+    #     logger.error(msg)
+    #     # raise RuntimeError(msg)
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
