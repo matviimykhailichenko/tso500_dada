@@ -136,8 +136,7 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
         f"cd '{results_cbmed_dir}' && "
-        "find . -type f -print0 | "
-        "sed -z 's|^\\./||' | "
+        "find . -type f -printf '%P\\0' | "
         "parallel --null -j 40 sha256sum {{}} | "
         f"tee '{checksums_cbmed}'"
     )
