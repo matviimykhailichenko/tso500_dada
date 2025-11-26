@@ -135,10 +135,11 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
 
     checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
     cmd = (
-        f"cd {results_cbmed_dir} "
-        f"find . -type f -print0 | "
-        "parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_cbmed)}"
+        f"cd '{results_cbmed_dir}' && "
+        "find . -type f -print0 | "
+        "sed -z 's|^\\./||' | "
+        "parallel --null -j 40 sha256sum {{}} | "
+        f"tee '{checksums_cbmed}'"
     )
     try:
         subp_run(cmd, shell=True).check_returncode()
