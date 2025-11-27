@@ -152,20 +152,6 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
         logger.error(msg)
         # raise RuntimeError(msg)
 
-    # checksums_cbmed = run_cbmed_dir /f'{paths['flowcell']}_Results.sha256'
-
-    # cmd = f"sed 's#{results_cbmed_dir.relative_to("/mnt")}#.#' {checksums_for_cbmed} > {checksums_cbmed}"
-    # try:
-    #     subp_run(cmd, shell=True, capture_output=True, text=True).check_returncode()
-    # except CalledProcessError as e:
-    #     msg = (
-    #         f"Sedding of checksums for CBmed failed with return code {e.returncode}. "
-    #         f"Error output: {e.stderr.strip() if e.stderr else 'No stderr output'}"
-    #     )
-    #     notify_bot(msg)
-    #     logger.error(msg)
-    #     # raise RuntimeError(msg)
-
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
     )
