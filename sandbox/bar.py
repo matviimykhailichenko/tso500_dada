@@ -6,6 +6,6 @@ diff_call = (
     )
 stdout = run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
 if stdout is not None:
-    msg = f"Checksums in a CBmed run are different"
+    msg = f"Checksums in a CBmed run are different: {stdout}"
     print(msg)
     # raise RuntimeError(msg)
