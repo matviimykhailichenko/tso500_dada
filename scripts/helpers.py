@@ -171,7 +171,7 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     )
     try:
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
-        if stdout is not None:
+        if stdout:
             msg = f"Checksums in a CBmed run are different"
             notify_bot(msg)
             logger.error(msg)
