@@ -25,7 +25,7 @@ def setup_logger(logger_name: str,
     return logger
 
 
-def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
+def notify_pipeline_status(paths, step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
     prefix = f"the last {tag} sample in" if input_type == "sample" and last_sample_queue else ""
 
     if step == "staging":
@@ -33,6 +33,9 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
 
     elif step == "running":
         msg = f"Running the TSO500 script for {prefix} the run {run_name}"
+
+    elif step == "running" and paths['tag'] == 'RNA':
+        msg = f'Demuxing the run {run_name}'
 
     elif step == "running_ichorCNA":
         msg = f"Running the ichorCNA docker for {prefix} the run {run_name}"

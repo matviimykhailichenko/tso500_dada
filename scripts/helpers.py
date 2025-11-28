@@ -504,7 +504,7 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
 
 
 def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
-    notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
+    notify_pipeline_status(step='running', paths=paths, run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
 
     if paths['tag'] == 'RNA':
