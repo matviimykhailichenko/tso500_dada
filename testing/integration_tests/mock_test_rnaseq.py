@@ -23,8 +23,8 @@ def setup_environment():
     date = datetime.now().strftime("%Y%m%d")
     test_rna_liquid_run_seq_dir = rna_liquid_dir / f'{date}_RNAseq_b01_s01'
     test_rna_solid_run_seq_dir = rna_solid_dir / f'{date}_RNAseq_b01_s01'
-    queued_tag_liquid = test_rna_liquid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
-    queued_tag_solid = test_rna_solid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
+    # queued_tag_liquid = test_rna_liquid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
+    # queued_tag_solid = test_rna_solid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -48,7 +48,7 @@ def setup_environment():
             rmtree(test_rna_liquid_run_seq_dir)
         if test_rna_solid_run_seq_dir.exists():
             rmtree(test_rna_liquid_run_seq_dir)
-        print(f"Removed the queued tag")
+        print(f"Removed directories")
 
     else:
         print("Teardown skipped. Directories remain.")
