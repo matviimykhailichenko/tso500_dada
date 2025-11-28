@@ -54,7 +54,6 @@ def setup_environment():
     print("The test is finished.")
 
 
-
 @pytest.mark.dependency(name='scheduler')
 def test_scheduler(setup_environment):
     repo_root = get_repo_root()
