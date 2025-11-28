@@ -489,8 +489,7 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
     if paths['tag'] == 'RNA':
         return
 
-    notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
-                           last_sample_queue=last_sample_queue)
+    notify_pipeline_status(step='staging', paths=paths, logger=logger, last_sample_queue=last_sample_queue)
 
     rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
@@ -505,8 +504,7 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
 
 
 def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
-    notify_pipeline_status(step='running', paths=paths, run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
-                           last_sample_queue=last_sample_queue)
+    notify_pipeline_status(step='running', paths=paths, logger=logger, last_sample_queue=last_sample_queue)
 
     if paths['tag'] == 'RNA':
         cmd = f'bcl-convert --bcl-input-directory {paths['input_dir']} --output-directory {paths['analysis_dir']}'
@@ -577,9 +575,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
     if tag == 'RNA':
         return
 
-    notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
-                           input_type=input_type,
-                           last_sample_queue=last_sample_queue)
+    notify_pipeline_status(step='transferring', paths=paths, logger=logger, last_sample_queue=last_sample_queue)
 
     try:
         if tag == 'ONC':
@@ -599,8 +595,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
     delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
-    notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
-                           input_type=input_type, last_sample_queue=last_sample_queue)
+    notify_pipeline_status(step='finished', paths=paths, logger=logger, last_sample_queue=last_sample_queue)
 
 
 def get_queue(repo_root:str, pending_file:Path,queue_file:Path):
@@ -959,8 +954,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
 
 def run_ichorCNA(paths, input_type, last_sample_queue, logger):
-    notify_pipeline_status(step='running_ichorCNA', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
-                           input_type=input_type, last_sample_queue=last_sample_queue)
+    notify_pipeline_status(step='running_ichorCNA', paths=paths, logger=logger, last_sample_queue=last_sample_queue)
 
     run_name = paths['run_name']
     if input_type == 'sample':
