@@ -5,7 +5,6 @@ from subprocess import run
 from datetime import datetime
 import yaml
 from ..scripts.helpers import get_repo_root, get_server_ip, find_illumina_string
-from re import fullmatch
 
 
 
