@@ -44,8 +44,8 @@ def setup_environment():
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
-        if test_rna_liquid_run_seq_dir.exists():
-            rmtree(test_rna_liquid_run_seq_dir)
+        # if test_rna_liquid_run_seq_dir.exists():
+        #     rmtree(test_rna_liquid_run_seq_dir)
         if test_rna_solid_run_seq_dir.exists():
             rmtree(test_rna_liquid_run_seq_dir)
         print(f"Removed directories")
