@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from shutil import copytree
+from shutil import copytree, rmtree
 from subprocess import run
 from datetime import datetime
 import yaml
@@ -44,10 +44,10 @@ def setup_environment():
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
-        if queued_tag_liquid.exists():
-            queued_tag_liquid.unlink()
-        if queued_tag_solid.exists():
-            queued_tag_solid.unlink()
+        if test_rna_liquid_run_seq_dir.exists():
+            rmtree(test_rna_liquid_run_seq_dir)
+        if test_rna_solid_run_seq_dir.exists():
+            rmtree(test_rna_liquid_run_seq_dir)
         print(f"Removed the queued tag")
 
     else:
