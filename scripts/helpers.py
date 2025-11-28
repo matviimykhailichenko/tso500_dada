@@ -726,8 +726,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
 
     queued_tag.touch()
 
-# Danger - AI-written function!
-def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list, testing: bool = True):
+def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         available_servers = config['available_servers']
@@ -744,11 +743,9 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
     new_samples = pd.DataFrame(entries)
 
-    # --- CUSTOM ROUTING START ---
     onc_samples = new_samples[new_samples['Tag'] == 'ONC']
     other_samples = new_samples[new_samples['Tag'] != 'ONC']
 
-    # Write ONC samples only to 10.200.214.104
     if not onc_samples.empty:
         onc_pending = Path(repo_root).parent.parent / '10.200.214.104_PENDING.txt'
         if not onc_pending.exists():
@@ -760,7 +757,6 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
         onc_samples.to_csv(onc_pending, sep='\t', mode='a', header=False, index=False)
 
-    # Distribute other samples normally
     if not other_samples.empty:
         pedning_files = np.array_split(other_samples, len(available_servers))
         for server in available_servers:
@@ -774,7 +770,6 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
             pending = pd.DataFrame(pedning_files[available_servers.index(server)])
             pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
-    # --- CUSTOM ROUTING END ---
 
     queued_tag.touch()
 
