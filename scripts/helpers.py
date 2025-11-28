@@ -364,7 +364,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-    if tag is not 'RNA':
+    if tag != 'RNA':
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
     else:
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful_tag']
