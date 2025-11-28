@@ -25,31 +25,31 @@ def setup_logger(logger_name: str,
     return logger
 
 
-def notify_pipeline_status(paths, step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
-    prefix = f"the last {tag} sample in" if input_type == "sample" and last_sample_queue else ""
+def notify_pipeline_status(paths, step, logger:Logger, last_sample_queue):
+    prefix = f"the last {paths['tag']} sample in" if paths['input_type'] == "sample" and last_sample_queue else ""
 
     if step == "staging":
-        msg = f"Staging {prefix} the run {run_name}"
-
-    elif step == "running":
-        msg = f"Running the TSO500 script for {prefix} the run {run_name}"
+        msg = f"Staging {prefix} the run {paths['run_name']}"
 
     elif step == "running" and paths['tag'] == 'RNA':
-        msg = f'Demuxing the run {run_name}'
+        msg = f'Demuxing the run {paths['run_name']}'
+
+    elif step == "running":
+        msg = f"Running the TSO500 script for {prefix} the run {paths['run_name']}"
 
     elif step == "running_ichorCNA":
-        msg = f"Running the ichorCNA docker for {prefix} the run {run_name}"
+        msg = f"Running the ichorCNA docker for {prefix} the run {paths['run_name']}"
 
     elif step == "transferring":
-        msg = f"Transferring the results for {prefix} the run {run_name}"
+        msg = f"Transferring the results for {prefix} the run {paths['run_name']}"
 
     elif step == 'finished':
-        msg = f"Finished processing {prefix} the run {run_name}"
+        msg = f"Finished processing {prefix} the run {paths['run_name']}"
 
     else:
         raise RuntimeError(f'Unknown step:{step}')
 
-    if (input_type == 'sample' and last_sample_queue) or input_type == 'run':
+    if (paths['input_type'] == 'sample' and last_sample_queue) or paths['input_type'] == 'run':
         notify_bot(msg)
     logger.info(msg)
 

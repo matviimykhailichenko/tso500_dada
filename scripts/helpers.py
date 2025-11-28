@@ -335,6 +335,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
+    paths['input_type'] = input_type
     if paths['testing_fast']:
         paths[
             'tso500_script_path'] = f'{repo_root}/testing/scripts/tso500_script_sub.sh'
