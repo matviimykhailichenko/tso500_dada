@@ -23,8 +23,6 @@ def setup_environment():
     date = datetime.now().strftime("%Y%m%d")
     test_rna_liquid_run_seq_dir = rna_liquid_dir / f'{date}_RNAseq_b01_s01'
     test_rna_solid_run_seq_dir = rna_solid_dir / f'{date}_RNAseq_b01_s01'
-    # queued_tag_liquid = test_rna_liquid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
-    # queued_tag_solid = test_rna_solid_run_seq_dir / '250123_A01664_0443_AH2J5YDMX2/QUEUED.txt'
 
     if queue_file.exists():
         queue_file.unlink()
@@ -32,8 +30,8 @@ def setup_environment():
     if pending_file.exists():
         pending_file.unlink()
 
-    # if not test_rna_liquid_run_seq_dir.exists():
-    #     copytree(str(test_ns6000_run), str(test_rna_liquid_run_seq_dir))
+    if not test_rna_liquid_run_seq_dir.exists():
+        copytree(str(test_ns6000_run), str(test_rna_liquid_run_seq_dir))
 
     if not test_rna_solid_run_seq_dir.exists():
         copytree(str(test_ns6000_run), str(test_rna_solid_run_seq_dir))
@@ -44,10 +42,10 @@ def setup_environment():
 
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
-        # if test_rna_liquid_run_seq_dir.exists():
-        #     rmtree(test_rna_liquid_run_seq_dir)
-        if test_rna_solid_run_seq_dir.exists():
+        if test_rna_liquid_run_seq_dir.exists():
             rmtree(test_rna_liquid_run_seq_dir)
+        if test_rna_solid_run_seq_dir.exists():
+            rmtree(test_rna_solid_run_seq_dir)
         print(f"Removed directories")
 
     else:
