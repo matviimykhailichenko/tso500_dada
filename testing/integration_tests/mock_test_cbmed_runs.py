@@ -61,9 +61,8 @@ def test_scheduler(setup_environment):
     run(cmd, check=True, shell=True)
 
 
-# @pytest.mark.dependency(depends=['scheduler'])
-# def test_processing():
-#     repo_root = get_repo_root()
-#     cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/processing.py -t -tf'
-#     for i in range(2):
-#         run(cmd,check=True,shell=True)
+@pytest.mark.dependency(depends=['scheduler'])
+def test_processing():
+    repo_root = get_repo_root()
+    cmd = f'/staging/env/tso500_dragen_pipeline/bin/python3 {repo_root}/scripts/processing.py -t -tf'
+    run(cmd,check=True,shell=True)
