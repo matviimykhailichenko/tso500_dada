@@ -1,14 +1,14 @@
 from discord import SyncWebhook
 import logging
 from logging import Logger
-from helpers import get_repo_root
 from pathlib import Path
 import yaml
 
 
 
-# TODO move the Webhook URL to config file
 def notify_bot(msg: str, testing:bool = False):
+    from helpers import get_repo_root
+
     if testing:
         print(msg)
         return
