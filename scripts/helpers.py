@@ -27,9 +27,9 @@ def is_server_available(repo_root: str) -> bool:
         elif server_busy_tag.exists() and not server_idle_tag.exists():
             return False
         else:
-            msg = f"There is a problem with busy/idle tags for the {server} server"
-            notify_bot(msg, testing=False)
-            raise RuntimeError(msg)
+            message = f"There is a problem with busy/idle tags for the {server} server"
+            notify_bot(message)
+            raise RuntimeError(message)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -83,7 +83,7 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, logger: Logger):
+def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
     results_dir = paths['results_dir']
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
@@ -95,6 +95,16 @@ def transfer_results_oncoservice(paths: dict, logger: Logger):
         logger.error(msg)
         raise RuntimeError(msg)
 
+def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
+    cbmed_results_dir: Path = paths['cbmed_results_dir']
+    flowcell: str = paths['flowcell']
+    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
+    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
+    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
+    run_name: str = paths['run_name']
+    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
+    rsync_path: str = paths['rsync_path']
+    staging_temp_dir: Path = paths['staging_temp_dir']
 
 def transfer_results_cbmed(paths: dict, logger: Logger):
     results_staging = paths['staging_temp_dir'] / paths['run_name']
@@ -263,7 +273,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-    if tag is not 'RNA':
+    if tag != 'RNA':
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
     else:
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful_tag']
@@ -373,7 +383,7 @@ def check_tso500_script(paths: dict, logger: Logger):
 
     if not script_path.exists():
         msg = f"TSO500 script not found at {script_path}"
-        notify_bot(msg, testing=paths['testing'])
+        notify_bot(msg)
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"TSO500 script found at {script_path}")
