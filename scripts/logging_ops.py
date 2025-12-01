@@ -34,7 +34,8 @@ def setup_logger(logger_name: str,
     return logger
 
 
-def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
+def notify_pipeline_status(paths:dict, step:str, run_name:str, logger:Logger, input_type:str, tag:str,
+                           last_sample_queue:bool=False):
     prefix = f"the last {tag} sample in" if input_type == "sample" and last_sample_queue else ""
 
     if step == "staging":
@@ -56,6 +57,6 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
         raise RuntimeError(f'Unknown step:{step}')
 
     if (input_type == 'sample' and last_sample_queue) or input_type == 'run':
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
     logger.info(msg)
 
