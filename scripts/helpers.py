@@ -371,15 +371,12 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
-    paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
-    paths['research_seq_dir'] = Path(config.get('research_dir')) / ('Runs_TEST' if testing else 'Runs')
-    paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
+    paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
         'CBM': paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
-        'PAT': paths['patho_results_dir'] / paths['run_name'],
-        'RNA': paths['patho_results_dir'] / paths['run_name']
+        'PAT': paths['patho_results_dir'] / paths['run_name']
     }
     if tag is not 'RNA':
         paths['results_dir'] = results_dirs_map[tag]
