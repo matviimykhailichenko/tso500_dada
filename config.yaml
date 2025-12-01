@@ -15,7 +15,8 @@ cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
 mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
 patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
-rnaseq_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells'
+rnaseq_liquid_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells'
+rnaseq_solid_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/RNAseq_solid_FFPE/flowcells'
 patho_sequencing_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
@@ -77,7 +78,7 @@ analyzed_tag: ANALYZED.txt
 analyzing_tag: ANALYZING.txt
 archiving_tag: ARCHIVING.txt
 archived_tag: ARCHIVED.txt
-transfer_successful_tag: TRANSFER_SUCCESSFUL.txt
+transfer_successful: TRANSFER_SUCCESSFUL.txt
 archiving_failed_tag: ARCHIVING_FAILED.txt
 reanalysis_failed_tag: REANALYSIS_FAILED.txt
 server_idle_tag: IDLE.txt

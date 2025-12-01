@@ -27,9 +27,9 @@ def is_server_available(repo_root: str) -> bool:
         elif server_busy_tag.exists() and not server_idle_tag.exists():
             return False
         else:
-            msg = f"There is a problem with busy/idle tags for the {server} server"
-            notify_bot(msg, testing=False)
-            raise RuntimeError(msg)
+            message = f"There is a problem with busy/idle tags for the {server} server"
+            notify_bot(message)
+            raise RuntimeError(message)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -54,6 +54,7 @@ def delete_file(dead_file_path: Path):
             dead_file_path.unlink()
         except KeyboardInterrupt:
             return 255  # propagate KeyboardInterrupt outward
+# TODO not sure if returning 255 is most logical
 
 
 # TODO add check of the sx176 mountpoint
@@ -82,8 +83,10 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, logger: Logger):
-    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
+def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
+    results_dir = paths['results_dir']
+
+    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
@@ -91,7 +94,6 @@ def transfer_results_oncoservice(paths: dict, logger: Logger):
         notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
-
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
     cbmed_results_dir: Path = paths['cbmed_results_dir']
@@ -104,90 +106,32 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     rsync_path: str = paths['rsync_path']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
-    if input_type == 'sample':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = flowcell_run_dir / 'FastqGeneration'
-    elif input_type == 'run':
-        flowcell_run_dir: Path = cbmed_seq_dir / flowcell
-        fastq_gen_seq_dir: Path = staging_temp_dir/ run_name / 'Logs_Intermediates' / 'FastqGeneration'
-
-    results_staging: Path = staging_temp_dir / run_name
-    results_cbmed_dir: Path = dragen_cbmed_dir / flowcell / 'Results'
-    fastq_gen_results_dir: Path = flowcell_cbmed_dir / 'FastqGeneration'
-
-    flowcell_cbmed_dir.mkdir(parents=True, exist_ok=True)
+def transfer_results_cbmed(paths: dict, logger: Logger):
+    results_staging = paths['staging_temp_dir'] / paths['run_name']
+    run_cbmed_dir = paths['results_dir'] / paths['run_name']
+    results_cbmed_dir = paths['results_dir'] / paths['run_name'] / paths['flowcell']
+    move(results_staging / 'SampleSheet.csv', paths['staging_temp_dir'] / 'SampleSheet.csv')
     results_cbmed_dir.mkdir(parents=True, exist_ok=True)
+    available_cpus = get_max_available_cpus()
 
-    if input_type == 'run':
-        checksums_humgen = flowcell_cbmed_dir / f'{flowcell}_fastqs_HumGenNAS.sha256'
-        checksums_call = (
-            f'cd {str(fastq_gen_seq_dir)} && '
-            "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-            f"{str(checksums_humgen)}"
-        )
-        try:
-            subp_run(checksums_call, shell=True).check_returncode()
-        except CalledProcessError as e:
-            msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(msg, testing=paths['testing'])
-            logger.error(msg)
-            # raise RuntimeError(message)
-
-    checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
-    checksums_call = (
-        f'cd {str(results_staging)} && '
-        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_humgen)}"
+    checksums_humgen = run_cbmed_dir / f'{paths['flowcell']}_Results_HumGenNAS.sha256'
+    cmd = (
+        f"cd '{results_staging}' && "
+        "find . -type f -print0 | "
+        f"parallel --null -j {available_cpus} sha256sum {{}} | "
+        f"sed 's|  \\./|  {paths['flowcell']}/|' | "
+        f"tee '{checksums_humgen}'"
     )
     try:
-        subp_run(checksums_call, shell=True).check_returncode()
+        subp_run(cmd, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(msg, testing=paths['testing'])
-        logger.error(message)
-        # raise RuntimeError(message)
-
-    if not fastq_gen_results_dir.exists() or not any(fastq_gen_results_dir.iterdir()):
-        copytree(fastq_gen_seq_dir, fastq_gen_results_dir)
-
-    if input_type == 'sample' and (not data_cbmed_dir.exists() or not any(data_cbmed_dir.iterdir())):
-        rsync_call = (f"{rsync_path} -r "
-                      f"{str(flowcell_run_dir)}/ "
-                      f"{str(flowcell_cbmed_dir / flowcell)}")
-        try:
-            subp_run(rsync_call, shell=True, check=True)
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(msg, testing=paths['testing'])
-            logger.error(message)
-            # raise RuntimeError(message)
-
-    elif input_type == 'run':
-        try:
-            move(paths['run_dir'] / flowcell, data_cbmed_dir)
-        except Exception as e:
-            message = f"Moving results had FAILED: {e}"
-            notify_bot(msg, testing=paths['testing'])
-            logger.error(message)
-            # raise RuntimeError(message)
-
-    if input_type == 'run':
-        log_file_path = flowcell_cbmed_dir / 'CBmed_copylog.log'
-        rsync_call = (f"{rsync_path} -r "
-                      f"--out-format=\"%C %n\" "
-                      f"--log-file {str(log_file_path)} "
-                      f"{str(fastq_gen_seq_dir)}/ "
-                      f"{str(fastq_gen_results_dir)}")
-        try:
-            subp_run(rsync_call, shell=True, check=True)
-        except CalledProcessError as e:
-            message = f"Transferring results had FAILED: {e}"
-            notify_bot(msg, testing=paths['testing'])
-            logger.error(message)
-            # raise RuntimeError(message)
+        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     log_file_path = results_cbmed_dir.parent / 'CBmed_copylog.log'
-    rsync_call = (f"{rsync_path} -r "
+    rsync_call = (f"{paths['rsync_path']} -r "
                   f"--out-format=\"%C %n\" "
                   f"--log-file {str(log_file_path)} "
                   f"{str(results_staging)}/ "
@@ -195,74 +139,49 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
     try:
         subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
-        message = f"Transferring results had FAILED: {e}"
-        notify_bot(msg, testing=paths['testing'])
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Transferring results had FAILED: {e}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
-    checksums_cbmed = flowcell_cbmed_dir / f'{flowcell}_fastqs.sha256'
-    checksums_call = (
-        f'cd {str(fastq_gen_results_dir)} && '
-        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_cbmed)}"
+    move(paths['staging_temp_dir'] / 'SampleSheet.csv', results_cbmed_dir.parent / 'SampleSheet.csv')
+
+    checksums_cbmed = run_cbmed_dir / f'{paths['flowcell']}.sha256'
+    cmd = (
+        f"cd '{results_cbmed_dir.parent}' && "
+        f"find '{results_cbmed_dir.name}' -type f -print0 | "
+        f"parallel --null -j {available_cpus} sha256sum {{}} | "
+        "sed 's|  \\./|  |' | "
+        f"tee '{checksums_cbmed}'"
     )
     try:
-        subp_run(checksums_call, shell=True).check_returncode()
+        subp_run(cmd, shell=True).check_returncode()
     except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(msg, testing=paths['testing'])
-        logger.error(message)
-        # raise RuntimeError(message)
-
-    checksums_cbmed = dragen_cbmed_dir / flowcell / f'{flowcell}_Results.sha256'
-    checksums_call = (
-        f'cd {str(results_cbmed_dir)} && '
-        "find . -type f -print0 | parallel --null -j 40 sha256sum {} | tee "
-        f"{str(checksums_cbmed)}"
-    )
-    try:
-        subp_run(checksums_call, shell=True).check_returncode()
-    except CalledProcessError as e:
-        message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(msg, testing=paths['testing'])
-        logger.error(message)
-        # raise RuntimeError(message)
+        msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     diff_call = (
         f'diff <(sort {str(checksums_humgen)}) <(sort {str(checksums_cbmed)})'
     )
     try:
         stdout = subp_run(diff_call, shell=True, capture_output=True,text=True, check=True, executable='/bin/bash').stdout.strip()
-        if stdout is not None:
-            message = f"Checksums in a CBmed run are different"
-            # raise RuntimeError(message)
+        if stdout:
+            msg = f"Checksums in a CBmed run are different"
+            notify_bot(msg)
+            logger.error(msg)
+            # raise RuntimeError(msg)
     except CalledProcessError as e:
-        message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(msg, testing=paths['testing'])
-        logger.error(message)
-        # raise RuntimeError(message)
-
-
-    if input_type == 'run':
-        diff_call = (
-            f'diff <(sort {str(fastq_gen_seq_dir)}) <(sort {str(fastq_gen_results_dir)})'
-        )
-        try:
-            stdout = subp_run(diff_call, shell=True, capture_output=True, text=True, check=True,
-                              executable='/bin/bash').stdout.strip()
-            if stdout is not None:
-                message = f"Checksums in a CBmed run are different"
-                # raise RuntimeError(message)
-        except CalledProcessError as e:
-            message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(msg, testing=paths['testing'])
-            logger.error(message)
-            # raise RuntimeError(message)
+        msg = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+        notify_bot(msg)
+        logger.error(msg)
+        # raise RuntimeError(msg)
 
     return 0
 
 
-def transfer_results_patho(paths:dict, input_type:str, logger:Logger):
+def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bool = True):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -302,8 +221,8 @@ def get_server_ip() -> str:
         server_ip = result.stdout.split()[-2]
 
     except CalledProcessError as e:
-        message = f"Failed to retrieve server's ID: {e.stderr}"
-        raise RuntimeError(message)
+        msg = f"Failed to retrieve server's ID: {e.stderr}"
+        raise RuntimeError(msg)
 
     return server_ip
 
@@ -354,7 +273,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-    if tag is not 'RNA':
+    if tag != 'RNA':
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
     else:
         paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful_tag']
@@ -364,6 +283,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
+    paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
@@ -373,7 +293,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir')) / 'Analyseergebnisse'
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM': paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen' / flowcell / flowcell,
+        'CBM': (paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen') / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name']
     }
@@ -382,12 +302,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
-
-    if tag == 'CBM':
-        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
-        paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
-        paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
-        paths['failed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('failed_tag')
 
     return paths
 
@@ -469,7 +383,7 @@ def check_tso500_script(paths: dict, logger: Logger):
 
     if not script_path.exists():
         msg = f"TSO500 script not found at {script_path}"
-        notify_bot(msg, testing=paths['testing'])
+        notify_bot(msg)
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"TSO500 script found at {script_path}")
@@ -818,6 +732,7 @@ def merge_metrics(paths: dict):
     out_path = metrics_dir / f'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
+
 def get_repo_root() -> str:
     script_path = Path(__file__).parent
     try:
@@ -828,6 +743,7 @@ def get_repo_root() -> str:
         return root
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
+
 
 def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> tuple[bool, str]:
     if input_type == "run":
@@ -956,3 +872,8 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
         logger.error(msg)
         raise RuntimeError(msg)
 
+
+def get_max_available_cpus() -> int:
+    cmd = "nproc"
+    output = subp_run(cmd, shell=True, check=True, text=True, capture_output=True)
+    return int(output.stdout) - 4
