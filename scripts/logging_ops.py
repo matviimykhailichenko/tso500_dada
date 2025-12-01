@@ -6,13 +6,12 @@ import yaml
 
 
 
-def notify_bot(msg: str, testing:bool = False):
-    from helpers import get_repo_root
-
+def notify_bot(msg: str, testing:bool):
     if testing:
         print(msg)
         return
 
+    from helpers import get_repo_root
     config_path = Path(get_repo_root()) / 'config.yaml'
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
