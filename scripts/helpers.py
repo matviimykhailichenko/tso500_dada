@@ -1,7 +1,7 @@
 from pathlib import Path
 from logging import Logger
 from shutil import which, rmtree, copy, move, copytree
-from subprocess import run as subp_run, PIPE as subp_PIPE, CalledProcessError, check_output as subp_check_output
+from subprocess import run as subp_run, PIPE, CalledProcessError, check_output as subp_check_output, STDOUT, Popen
 from typing import Optional
 import yaml
 from logging_ops import notify_bot, notify_pipeline_status
@@ -27,9 +27,9 @@ def is_server_available(repo_root: str) -> bool:
         elif server_busy_tag.exists() and not server_idle_tag.exists():
             return False
         else:
-            message = f"There is a problem with busy/idle tags for the {server} server"
-            notify_bot(message)
-            raise RuntimeError(message)
+            msg = f"There is a problem with busy/idle tags for the {server} server"
+            notify_bot(msg, testing=False)
+            raise RuntimeError(msg)
 
 
 def delete_directory(dead_dir_path: Path, logger_runtime: Optional[Logger] = None):
@@ -54,7 +54,6 @@ def delete_file(dead_file_path: Path):
             dead_file_path.unlink()
         except KeyboardInterrupt:
             return 255  # propagate KeyboardInterrupt outward
-# TODO not sure if returning 255 is most logical
 
 
 # TODO add check of the sx176 mountpoint
@@ -67,7 +66,7 @@ def is_nas_mounted(mountpoint_dir: str,
                                f"find the file (path was None) or could not access it (permission problem). "
                                f"Using the default one anyways at '{mountpoint_binary}'. This might cause "
                                f"subprocess failure!")
-    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=subp_PIPE, encoding='utf-8')
+    ran_mount_check = subp_run([mountpoint_binary, mountpoint_dir], stdout=PIPE, encoding='utf-8')
     try:
         ran_mount_check.check_returncode()
     except CalledProcessError:
@@ -83,17 +82,15 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
-    results_dir = paths['results_dir']
-
-    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
+def transfer_results_oncoservice(paths: dict, logger: Logger):
+    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg, testing=paths['testing'])
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
@@ -131,9 +128,9 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         try:
             subp_run(checksums_call, shell=True).check_returncode()
         except CalledProcessError as e:
-            message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
-            logger.error(message)
+            msg = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
+            notify_bot(msg, testing=paths['testing'])
+            logger.error(msg)
             # raise RuntimeError(message)
 
     checksums_humgen = dragen_cbmed_dir / flowcell / f'{flowcell}_Results_HumGenNAS.sha256'
@@ -146,7 +143,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -161,7 +158,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            notify_bot(msg, testing=paths['testing'])
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -170,7 +167,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             move(paths['run_dir'] / flowcell, data_cbmed_dir)
         except Exception as e:
             message = f"Moving results had FAILED: {e}"
-            notify_bot(message)
+            notify_bot(msg, testing=paths['testing'])
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -185,7 +182,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             subp_run(rsync_call, shell=True, check=True)
         except CalledProcessError as e:
             message = f"Transferring results had FAILED: {e}"
-            notify_bot(message)
+            notify_bot(msg, testing=paths['testing'])
             logger.error(message)
             # raise RuntimeError(message)
 
@@ -199,7 +196,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(rsync_call,shell=True,check=True)
     except CalledProcessError as e:
         message = f"Transferring results had FAILED: {e}"
-        notify_bot(message)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -213,7 +210,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -227,7 +224,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
         subp_run(checksums_call, shell=True).check_returncode()
     except CalledProcessError as e:
         message = f"Computing checksums for CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -241,7 +238,7 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
             # raise RuntimeError(message)
     except CalledProcessError as e:
         message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-        notify_bot(message)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(message)
         # raise RuntimeError(message)
 
@@ -258,14 +255,14 @@ def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing
                 # raise RuntimeError(message)
         except CalledProcessError as e:
             message = f"Computing diff for a CBmed run results had failed with return a code {e.returncode}. Error output: {e.stderr}"
-            notify_bot(message)
+            notify_bot(msg, testing=paths['testing'])
             logger.error(message)
             # raise RuntimeError(message)
 
     return 0
 
 
-def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_patho(paths:dict, input_type:str, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -281,30 +278,21 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bo
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg, testing=paths['testing'])
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def transfer_results_research(paths:dict, logger:Logger):
-    run_name: str = paths['run_name']
-    staging_temp_dir: Path = paths['staging_temp_dir']
-
-    results_dir: Path = paths['results_dir'] / paths['run_name']
-
-    rsync_path: str = paths['rsync_path']
-
-    analysis_dir = staging_temp_dir / run_name
-
-    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
+    rsync_call = f'{paths['rsync_path']} -r --checksum {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
-        message = f"Transferring results had failed: {e}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"Transferring results had failed: {e}"
+        notify_bot(msg, testing=paths['testing'])
+        logger.error(msg)
+        raise RuntimeError(msg)
 
 
 def get_server_ip() -> str:
@@ -327,22 +315,22 @@ def load_config(configfile: str) -> dict:
 
 def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flowcell: str, config: dict,
                 testing: bool = False, testing_fast: bool = False) -> dict:
-    paths: dict = dict()
+    paths = dict()
     paths['pipeline_dir'] = Path(config['pipeline_dir'])
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = which('rsync')
+    paths['testing'] = testing
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
     if paths['testing_fast']:
         paths[
-            'tso500_script_path'] = f'{repo_root}/testing/tso500_script_sub.sh'
+            'tso500_script_path'] = f'{repo_root}/testing/scripts/tso500_script_sub.sh'
     elif tag == 'PAT':
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TSO500.sh'
     else:
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
-
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
     paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
@@ -354,49 +342,52 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
-        paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
-        paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
-        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
-        paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
+        paths['flowcell_dir'] = paths['run_dir']
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
-        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500_Onco"
+        paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
         paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
-        paths['analyzing_tag'] = paths['run_dir'] / config.get('analyzing_tag')
-        paths['queued_tag'] = paths['run_dir'] / config.get('queued_tag')
-        paths['analyzed_tag'] = paths['run_dir'] / config.get('analyzed_tag')
-        paths['failed_tag'] = paths['run_dir'] / config.get('failed_tag')
+    paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
+    paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
+    if tag is not 'RNA':
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['analyzed_tag']
+    else:
+        paths['analyzed_tag'] = paths['flowcell_dir'] / config['transfer_successful_tag']
+    paths['failed_tag'] = paths['flowcell_dir'] / config['failed_tag']
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
     log_file = str(Path(repo_root) / 'logs' / f"TSO_{tag}_{timestamp}.log")
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
-    paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
-    paths['cbmed_results_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
-    paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
-    paths['research_seq_dir'] = Path(config.get('research_dir')) / ('Runs_TEST' if testing else 'Analyseergebnisse')
-    paths['research_results_dir'] = Path(config.get('research_dir')) / ('Analyseergebnisse_TEST' if testing else 'Analyseergebnisse')
+    paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir')) / 'Analyseergebnisse'
     results_dirs_map = {
         'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM': paths['cbmed_seq_dir'] / 'dragen' / flowcell / flowcell,
+        'CBM': paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen' / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name']
     }
-    paths['results_dir'] = results_dirs_map[tag]
+    if tag is not 'RNA':
+        paths['results_dir'] = results_dirs_map[tag]
     paths['resources_dir'] = paths['pipeline_dir'] / 'resources'
     paths['ichorCNA_repo'] = paths['resources_dir'] / 'ichorCNA'
     paths['ichorCNA_wrapper'] = Path(repo_root) / 'scripts' / 'ichorCNA'
+
+    if tag == 'CBM':
+        flowcell_dir_cbmed = paths['cbmed_seq_dir'] / flowcell / flowcell
+        paths['analyzing_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
+        paths['analyzed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('analyzing_tag')
+        paths['failed_tag_flowcell_dir'] = flowcell_dir_cbmed / config.get('failed_tag')
 
     return paths
 
@@ -407,21 +398,21 @@ def check_mountpoint(paths: dict, logger: Logger):
 
     if not sx182_mountpoint.is_dir():
         msg = f"Directory of a sx182 mountpoint '{sx182_mountpoint}' does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Mountpoint found at '{sx182_mountpoint}'")
 
     if not sy176_mountpoint.is_dir():
         msg = f"Directory of a sx182 mountpoint '{sy176_mountpoint}' does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Mountpoint found at '{sy176_mountpoint}'")
 
     if not is_nas_mounted(str(sx182_mountpoint), logger):
         msg = "Mountpoint check had failed"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info("Mountpoint is mounted")
@@ -431,32 +422,32 @@ def check_structure(paths: dict,
                     logger: Logger):
     if not paths['input_dir'].is_dir():
         msg = f"Directory {paths['input_dir']} does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Run directory found at {paths['input_dir']}")
 
     if not paths['staging_temp_dir'].is_dir():
         msg = f"Directory {paths['staging_temp_dir']} does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Staging directory found at {paths['staging_temp_dir']}")
 
 
-def check_docker_image(logger: Logger):
+def check_docker_image(paths: dict, logger: Logger):
 
     try:
-        result = subp_run(['docker', 'images'], stdout=subp_PIPE, stderr=subp_PIPE, text=True)
+        result = subp_run(['docker', 'images'], stdout=PIPE, stderr=PIPE, text=True)
     except Exception as e:
         msg = f"Error checking docker image: {e}"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise
 
     if 'dragen_tso500_ctdna' not in result.stdout:
         msg = "The dragen_tso500_ctdna Docker image wasn't found"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info("The dragen_tso500_ctdna was found successfully")
@@ -466,7 +457,7 @@ def check_rsync(paths: dict, logger: Logger):
 
     if not paths['rsync_path']:
         msg = "Rsync not found on the system"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"Rsync found at: {paths['rsync_path']}")
@@ -478,15 +469,18 @@ def check_tso500_script(paths: dict, logger: Logger):
 
     if not script_path.exists():
         msg = f"TSO500 script not found at {script_path}"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"TSO500 script found at {script_path}")
 
 
 def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger):
-    notify_pipeline_status(step='staging',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
-                           last_sample_queue=last_sample_queue)
+    if paths['tag'] == 'RNA':
+        return
+
+    notify_pipeline_status(paths=paths, step='staging', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type, last_sample_queue=last_sample_queue)
 
     rsync_call = f"{paths['rsync_path']} -rl {paths['input_dir']}/ {paths[f'{input_type}_staging_temp_dir']}"
     try:
@@ -494,15 +488,52 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
     except CalledProcessError as e:
         err = e.stderr.decode() if e.stderr else str(e)
         msg = f"Staging failed (code {e.returncode}): {err}. Cleaning up..."
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         # delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
 
 
 def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Logger):
-    notify_pipeline_status(step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
+    notify_pipeline_status(paths=paths, step='running',run_name=paths['run_name'],logger=logger,tag=paths['tag'],input_type=input_type,
                            last_sample_queue=last_sample_queue)
+
+    if paths['tag'] == 'RNA':
+        cmd = f'bcl-convert --bcl-input-directory {paths['input_dir']} --output-directory {paths['analysis_dir']}'
+
+        proc = Popen(
+            cmd,
+            stdout=PIPE,
+            stderr=STDOUT,
+            text=True,
+            bufsize=1,
+            shell=True
+        )
+
+        warning_found = False
+
+        while True:
+            line = proc.stdout.readline()
+
+            if not line:
+                if proc.poll() is not None:
+                    break
+                continue
+
+            print(line, end="")
+
+            if "WARNING" in line:
+                warning_found = True
+                print("=== WARNING DETECTED — stopping run ===")
+                proc.terminate()
+                break
+
+            proc.wait()
+
+            if warning_found:
+                raise RuntimeError("Bcl-convert reported incomplete data")
+
+        rmtree(paths['analysis_dir'])
 
     if input_type == 'run':
         cmd = f"{paths['tso500_script_path']} --runFolder {paths['run_staging_temp_dir']} --analysisFolder {paths['analysis_dir']} 2>&1 | tee -a {paths['log_file']}"
@@ -512,7 +543,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
-            notify_bot(msg)
+            notify_bot(msg, testing=paths['testing'])
             # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
@@ -526,26 +557,26 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
-            notify_bot(msg)
+            notify_bot(msg, testing=paths['testing'])
             # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
 
 def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, testing: bool = True, logger: Logger = None):
-    tag = paths['tag']
+    if paths['tag'] == 'RNA':
+        return
 
-    notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
-                           input_type=input_type,
-                           last_sample_queue=last_sample_queue)
+    notify_pipeline_status(paths=paths, step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+                           input_type=input_type, last_sample_queue=last_sample_queue)
 
     try:
-        if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths, input_type=input_type,logger=logger,testing=testing)
-        elif tag == 'CBM':
-            transfer_results_cbmed(paths=paths, input_type=input_type, logger=logger, testing=testing)
-        elif tag == 'PAT':
-            transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
-        elif tag == 'TSO':
+        if paths['tag'] == 'ONC':
+            transfer_results_oncoservice(paths=paths, logger=logger)
+        elif paths['tag'] == 'CBM':
+            transfer_results_cbmed(paths=paths, logger=logger)
+        elif paths['tag'] == 'PAT':
+            transfer_results_patho(paths=paths, input_type=input_type, logger=logger)
+        elif paths['tag'] == 'TSO':
             transfer_results_research(paths=paths, logger=logger)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")
@@ -556,7 +587,7 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
     delete_directory(dead_dir_path=paths[f'{input_type}_staging_temp_dir'], logger_runtime=logger)
     delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
 
-    notify_pipeline_status(step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+    notify_pipeline_status(paths=paths, step='finished', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
 
 
@@ -597,10 +628,10 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['queued_tag'] = config['queued_tag']
         paths['sx182_mountpoint'] = config['sx182_mountpoint']
         paths['sy176_mountpoint'] = config['sy176_mountpoint']
-
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
+        paths['rnaseq_dir'] = Path(config['rnaseq_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
 
@@ -659,24 +690,22 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
-def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool = True):
-    onco_seq_dir = paths['onco_seq_dir']
-    cbmed_seq_dir = paths['cbmed_seq_dir']
-    patho_seq_dir = paths['patho_seq_dir']
-    research_seq_dir = paths['research_seq_dir']
 
+def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     server = get_server_ip()
     pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
     queued_tag = input_dir / paths['queued_tag']
 
-    priority_map = {onco_seq_dir: [1, 'ONC'], cbmed_seq_dir: [2, 'CBM'], patho_seq_dir: [3, 'PAT'], research_seq_dir: [4, 'TSO']}
+    priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
+                    paths['rnaseq_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
+                    paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
     entry = [str(input_dir), 'run', priority, tag, input_dir.name]
     new_run = pd.DataFrame([entry], columns=['Path','InputType','Priority','Tag','Flowcell'])
     if not pending_file.exists():
-        pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
+        pending_blank = f'{repo_root}/files/PENDING_blank.txt'
         copy(pending_blank, pending_file)
 
     if pending_file.stat().st_size < 38:
@@ -686,7 +715,7 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path, testing:bool =
 
     queued_tag.touch()
 
-# Danger - AI-written function!
+
 def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list, testing: bool = True):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -704,11 +733,9 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
     new_samples = pd.DataFrame(entries)
 
-    # --- CUSTOM ROUTING START ---
     onc_samples = new_samples[new_samples['Tag'] == 'ONC']
     other_samples = new_samples[new_samples['Tag'] != 'ONC']
 
-    # Write ONC samples only to 10.200.214.104
     if not onc_samples.empty:
         onc_pending = Path(repo_root).parent.parent / '10.200.214.104_PENDING.txt'
         if not onc_pending.exists():
@@ -720,7 +747,6 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
         onc_samples.to_csv(onc_pending, sep='\t', mode='a', header=False, index=False)
 
-    # Distribute other samples normally
     if not other_samples.empty:
         pedning_files = np.array_split(other_samples, len(available_servers))
         for server in available_servers:
@@ -734,43 +760,9 @@ def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, inpu
 
             pending = pd.DataFrame(pedning_files[available_servers.index(server)])
             pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
-    # --- CUSTOM ROUTING END ---
 
     queued_tag.touch()
 
-# Old human-made one
-# def append_pending_samples(repo_root:str, paths: dict, flowcell_name: str, input_dir: Path,  sample_ids:list, testing:bool = True):
-#     with open(f'{repo_root}/config.yaml', 'r') as file:
-#         config = yaml.safe_load(file)
-#         available_servers = config['available_servers']
-#
-#     fastq_gen_dir = input_dir.parent.parent.parent.parent.parent / 'FastqGeneration'
-#     run_dir = fastq_gen_dir.parent
-#     queued_tag = run_dir / paths['queued_tag']
-#
-#     paths = [fastq_gen_dir / id for id in sample_ids]
-#     priority_map = {'ONC': 1, 'CBM': 2, 'TSO': 3}
-#     tags = [s.split("-", 1)[1].split("_", 1)[0] for s in sample_ids]
-#
-#     priorities = (int(priority_map.get(t)) for t in tags)
-#
-#     entries = {'Path': paths, 'InputType': 'sample', 'Priority': priorities, 'Tag': tags, 'Flowcell': flowcell_name}
-#     new_samples = pd.DataFrame(entries)
-#     pedning_files = np.array_split(new_samples, len(available_servers))
-#
-#     for server in available_servers:
-#         pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
-#         if not pending_file.exists():
-#             pending_blank = f'{repo_root}/testing/functional_tests/scheduler/PENDING_blank.txt'
-#             sh_copy(pending_blank, pending_file)
-#         if pending_file.stat().st_size < 37:
-#             with open(pending_file, 'a') as f:
-#                 f.write('\n')
-#
-#         pending = pd.DataFrame(pedning_files[available_servers.index(server)])
-#         pending.to_csv(pending_file, sep='\t', mode='a', header=False, index=False)
-#
-#     queued_tag.touch()
 
 def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
     tags = paths['tags']
@@ -786,6 +778,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
     samples = list(set(samples))
 
     return samples
+
 
 def merge_metrics(paths: dict):
     metrics_dir: Path = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
@@ -923,7 +916,7 @@ def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: 
 
 
 def run_ichorCNA(paths, input_type, last_sample_queue, logger):
-    notify_pipeline_status(step='running_ichorCNA', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
+    notify_pipeline_status(paths=paths, step='running_ichorCNA', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
                            input_type=input_type, last_sample_queue=last_sample_queue)
 
     run_name = paths['run_name']
@@ -958,8 +951,8 @@ def run_ichorCNA(paths, input_type, last_sample_queue, logger):
     try:
         subp_run(cmd, shell=True, check=True, capture_output=True, text=True)
     except CalledProcessError as e:
-        message = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
-        notify_bot(message)
-        logger.error(message)
-        raise RuntimeError(message)
+        msg = f"The ichorCNA docker for run {run_name} had failed. Error output: {e.stderr}"
+        notify_bot(msg, testing=paths['testing'])
+        logger.error(msg)
+        raise RuntimeError(msg)
 

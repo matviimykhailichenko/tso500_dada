@@ -15,6 +15,7 @@ cbmed_nsqx_dir: '/mnt/NovaseqXplus/08_Projekte/CBmed'
 cbmed_results_dir: '/mnt/CBmed/Genomics/TSO500_liquid'
 mixed_runs_dir: '/mnt/NovaseqXplus/10_MixedRuns'
 patho_seq_dir: '/mnt/Patho/TSO500_NovaSeq6000'
+rnaseq_sequencing_dir: '/mnt/CBmed_NAS3/Genomics/RNAseq_liquid/flowcells'
 patho_sequencing_dir: '/mnt/Patho/TSO500_NovaSeq6000'
 # cbmed_results_dir: '/mnt/CBmed_NAS3/Genomics/TSO500_liquid'
 patho_dir: '/mnt/Patho/TSO500_DRAGEN'
@@ -27,6 +28,7 @@ research_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung'
 research_sequencing_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung/Runs'
 archive_dir: '/mnt/NovaseqXplus/HuGe_Diagnostik-ARCHIV'
 reanalysis_dir: '/mnt/NovaseqXplus/06_Reanalyse'
+bot_webhook: 'https://discord.com/api/webhooks/1334878015078793310/qENtDsst4aV31baSn9BJ8cf4mEhk75QTpC_rRF5HZ5V5Q_gKzHivFcs9IS5rTHNUVjLL'
 
 
 ready_tags:
@@ -75,6 +77,7 @@ analyzed_tag: ANALYZED.txt
 analyzing_tag: ANALYZING.txt
 archiving_tag: ARCHIVING.txt
 archived_tag: ARCHIVED.txt
+transfer_successful_tag: TRANSFER_SUCCESSFUL.txt
 archiving_failed_tag: ARCHIVING_FAILED.txt
 reanalysis_failed_tag: REANALYSIS_FAILED.txt
 server_idle_tag: IDLE.txt

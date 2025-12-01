@@ -1,15 +1,24 @@
 from discord import SyncWebhook
 import logging
 from logging import Logger
+from pathlib import Path
+import yaml
 
 
-# TODO move the Webhook URL to config file
-def notify_bot(msg: str,
-               url: str ='https://discord.com/api/webhooks/1334878015078793310/qENtDsst4aV31baSn9BJ8cf4mEhk75QTpC_rRF5HZ5V5Q_gKzHivFcs9IS5rTHNUVjLL'):
+
+def notify_bot(msg: str, testing:bool):
+    if testing:
+        print(msg)
+        return
+
+    from helpers import get_repo_root
+    config_path = Path(get_repo_root()) / 'config.yaml'
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
     if len(msg) > 2000:
         msg = f"{msg[:1993]} [...]"
 
-    webhook = SyncWebhook.from_url(url)
+    webhook = SyncWebhook.from_url(config['bot_webhook'])
     webhook.send(content=msg)
 
 
@@ -25,7 +34,8 @@ def setup_logger(logger_name: str,
     return logger
 
 
-def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,tag:str ="",last_sample_queue:bool=False):
+def notify_pipeline_status(paths:dict, step:str, run_name:str, logger:Logger, input_type:str, tag:str,
+                           last_sample_queue:bool=False):
     prefix = f"the last {tag} sample in" if input_type == "sample" and last_sample_queue else ""
 
     if step == "staging":
@@ -47,6 +57,6 @@ def notify_pipeline_status(step:str,run_name:str,logger:Logger,input_type:str,ta
         raise RuntimeError(f'Unknown step:{step}')
 
     if (input_type == 'sample' and last_sample_queue) or input_type == 'run':
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
     logger.info(msg)
 
