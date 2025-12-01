@@ -345,6 +345,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
         paths['run_dir'] = input_path.parent.parent
+        paths['flowcell_dir'] = paths['run_dir']
         paths['sample_sheet'] = paths['run_dir'] / 'SampleSheet_Analysis.csv'
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
