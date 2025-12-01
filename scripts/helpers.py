@@ -84,9 +84,7 @@ def is_nas_mounted(mountpoint_dir: str,
 
 
 def transfer_results_oncoservice(paths: dict, logger: Logger):
-    results_dir = paths['results_dir']
-
-    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
+    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
