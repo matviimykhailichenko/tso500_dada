@@ -74,7 +74,7 @@ def main():
                 if input_type == 'sample':
                     sample_ids = rearrange_fastqs(paths=paths, fastq_dir=input_path)
 
-                notify_bot(f'Found run {run_dir}')
+                notify_bot(f'Found run {run_dir}', testing=testing)
                 break
 
         if input_path:
