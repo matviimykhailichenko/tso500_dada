@@ -30,9 +30,12 @@ def get_server_ip() -> str:
     return server_ip
 
 
-def generate_illumia_string():
+def generate_illumia_string(instrument: str) -> str:
     today = datetime.now().strftime("%Y%m%d")
-    illumina_sting = f"{today}_A01664_2749_CICEAJ7JXH"
+    if instrument == 'nsx':
+        illumina_sting = f"{today}_LH00803_2749_CICEAJ7JXH"
+    elif instrument == 'ns6000':
+        illumina_sting = f"{today}_A01664_2749_CICEAJ7JXH"
 
     return illumina_sting
 

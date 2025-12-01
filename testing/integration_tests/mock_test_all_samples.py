@@ -2,7 +2,6 @@ import pytest
 from pathlib import Path
 from shutil import copytree, rmtree
 from subprocess import run
-from datetime import datetime
 import yaml
 from ..scripts.helpers import get_repo_root, get_server_ip, generate_illumia_string
 
@@ -18,7 +17,7 @@ def setup_environment():
     server_ip = get_server_ip
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_run_mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST') / generate_illumia_string()
+    test_run_mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST') / generate_illumia_string(instrument='nsx')
 
     if queue_file.exists():
         queue_file.unlink()
