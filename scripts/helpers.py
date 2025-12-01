@@ -83,7 +83,7 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
+def transfer_results_oncoservice(paths: dict, logger: Logger):
     results_dir = paths['results_dir']
 
     rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
@@ -95,16 +95,6 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
         logger.error(msg)
         raise RuntimeError(msg)
 
-def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
-    cbmed_results_dir: Path = paths['cbmed_results_dir']
-    flowcell: str = paths['flowcell']
-    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
-    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
-    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
-    run_name: str = paths['run_name']
-    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    rsync_path: str = paths['rsync_path']
-    staging_temp_dir: Path = paths['staging_temp_dir']
 
 def transfer_results_cbmed(paths: dict, logger: Logger):
     results_staging = paths['staging_temp_dir'] / paths['run_name']
