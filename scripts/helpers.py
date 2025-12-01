@@ -321,6 +321,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['ready_tags'] = config.get('ready_tags', [])
     paths['blocking_tags'] = config.get('blocking_tags', [])
     paths['rsync_path'] = which('rsync')
+    paths['testing'] = testing
     paths['testing_fast'] = testing_fast
     paths['input_dir'] = input_path
     paths['flowcell'] = flowcell
@@ -399,21 +400,21 @@ def check_mountpoint(paths: dict, logger: Logger):
 
     if not sx182_mountpoint.is_dir():
         msg = f"Directory of a sx182 mountpoint '{sx182_mountpoint}' does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Mountpoint found at '{sx182_mountpoint}'")
 
     if not sy176_mountpoint.is_dir():
         msg = f"Directory of a sx182 mountpoint '{sy176_mountpoint}' does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Mountpoint found at '{sy176_mountpoint}'")
 
     if not is_nas_mounted(str(sx182_mountpoint), logger):
         msg = "Mountpoint check had failed"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info("Mountpoint is mounted")
@@ -423,32 +424,32 @@ def check_structure(paths: dict,
                     logger: Logger):
     if not paths['input_dir'].is_dir():
         msg = f"Directory {paths['input_dir']} does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Run directory found at {paths['input_dir']}")
 
     if not paths['staging_temp_dir'].is_dir():
         msg = f"Directory {paths['staging_temp_dir']} does not exist"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info(f"Staging directory found at {paths['staging_temp_dir']}")
 
 
-def check_docker_image(logger: Logger):
+def check_docker_image(paths: dict, logger: Logger):
 
     try:
         result = subp_run(['docker', 'images'], stdout=PIPE, stderr=PIPE, text=True)
     except Exception as e:
         msg = f"Error checking docker image: {e}"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise
 
     if 'dragen_tso500_ctdna' not in result.stdout:
         msg = "The dragen_tso500_ctdna Docker image wasn't found"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info("The dragen_tso500_ctdna was found successfully")
@@ -458,7 +459,7 @@ def check_rsync(paths: dict, logger: Logger):
 
     if not paths['rsync_path']:
         msg = "Rsync not found on the system"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"Rsync found at: {paths['rsync_path']}")
@@ -470,7 +471,7 @@ def check_tso500_script(paths: dict, logger: Logger):
 
     if not script_path.exists():
         msg = f"TSO500 script not found at {script_path}"
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         raise FileNotFoundError(msg)
     logger.info(f"TSO500 script found at {script_path}")
@@ -489,7 +490,7 @@ def stage_object(paths:dict,input_type:str,last_sample_queue:bool,logger:Logger)
     except CalledProcessError as e:
         err = e.stderr.decode() if e.stderr else str(e)
         msg = f"Staging failed (code {e.returncode}): {err}. Cleaning up..."
-        notify_bot(msg)
+        notify_bot(msg, testing=paths['testing'])
         logger.error(msg)
         # delete_directory(dead_dir_path=paths['run_staging_temp_dir'], logger_runtime=logger)
         raise RuntimeError(msg)
@@ -544,7 +545,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
-            notify_bot(msg)
+            notify_bot(msg, testing=paths['testing'])
             # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 
@@ -558,7 +559,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
             err_msg = paths['error_messages'].get(e.returncode, 'Unknown error')
             msg = f"TSO500 DRAGEN script had failed: {err_msg}. Cleaning up..."
             logger.error(msg)
-            notify_bot(msg)
+            notify_bot(msg, testing=paths['testing'])
             # delete_directory(dead_dir_path=paths['analysis_dir'], logger_runtime=logger)
             raise RuntimeError(msg)
 

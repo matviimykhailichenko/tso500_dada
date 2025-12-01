@@ -28,6 +28,7 @@ research_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung'
 research_sequencing_dir: '/mnt/NovaseqXplus/02_HuGe_Forschung/Runs'
 archive_dir: '/mnt/NovaseqXplus/HuGe_Diagnostik-ARCHIV'
 reanalysis_dir: '/mnt/NovaseqXplus/06_Reanalyse'
+bot_webhook: 'https://discord.com/api/webhooks/1334878015078793310/qENtDsst4aV31baSn9BJ8cf4mEhk75QTpC_rRF5HZ5V5Q_gKzHivFcs9IS5rTHNUVjLL'
 
 
 ready_tags:

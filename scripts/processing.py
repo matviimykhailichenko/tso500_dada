@@ -66,7 +66,7 @@ def main():
         logger = setup_logger(logger_name='Logger',log_file=paths['log_file'])
         check_mountpoint(paths=paths, logger=logger)
         check_structure(paths=paths, logger=logger)
-        check_docker_image(logger=logger)
+        check_docker_image(paths=paths, logger=logger)
         check_rsync(paths=paths, logger=logger)
         check_tso500_script(paths=paths, logger=logger)
 

@@ -1,15 +1,25 @@
 from discord import SyncWebhook
 import logging
 from logging import Logger
+from helpers import get_repo_root
+from pathlib import Path
+import yaml
+
 
 
 # TODO move the Webhook URL to config file
-def notify_bot(msg: str,
-               url: str ='https://discord.com/api/webhooks/1334878015078793310/qENtDsst4aV31baSn9BJ8cf4mEhk75QTpC_rRF5HZ5V5Q_gKzHivFcs9IS5rTHNUVjLL'):
+def notify_bot(msg: str, testing:bool = False):
+    if testing:
+        print(msg)
+        return
+
+    config_path = Path(get_repo_root()) / 'config.yaml'
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
     if len(msg) > 2000:
         msg = f"{msg[:1993]} [...]"
 
-    webhook = SyncWebhook.from_url(url)
+    webhook = SyncWebhook.from_url(config['bot_webhook'])
     webhook.send(content=msg)
 
 
