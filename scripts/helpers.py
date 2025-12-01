@@ -83,10 +83,8 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
-    results_dir = paths['results_dir']
-
-    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
+def transfer_results_oncoservice(paths: dict, logger: Logger):
+    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
@@ -288,16 +286,7 @@ def transfer_results_patho(paths:dict, input_type:str, logger:Logger):
 
 
 def transfer_results_research(paths:dict, logger:Logger):
-    run_name: str = paths['run_name']
-    staging_temp_dir: Path = paths['staging_temp_dir']
-
-    results_dir: Path = paths['results_dir'] / paths['run_name']
-
-    rsync_path: str = paths['rsync_path']
-
-    analysis_dir = staging_temp_dir / run_name
-
-    rsync_call = f'{rsync_path} -r --checksum {str(f'{analysis_dir}/')} {str(results_dir)}'
+    rsync_call = f'{paths['rsync_path']} -r --checksum {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
@@ -577,8 +566,7 @@ def process_object(input_type:str, paths:dict, last_sample_queue:bool, logger:Lo
 
 
 def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, testing: bool = True, logger: Logger = None):
-    tag = paths['tag']
-    if tag == 'RNA':
+    if paths['tag'] == 'RNA':
         return
 
     notify_pipeline_status(step='transferring', run_name=paths['run_name'], logger=logger, tag=paths['tag'],
@@ -586,13 +574,13 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
                            last_sample_queue=last_sample_queue)
 
     try:
-        if tag == 'ONC':
-            transfer_results_oncoservice(paths=paths,logger=logger,testing=testing)
-        elif tag == 'CBM':
+        if paths['tag'] == 'ONC':
+            transfer_results_oncoservice(paths=paths, logger=logger)
+        elif paths['tag'] == 'CBM':
             transfer_results_cbmed(paths=paths, logger=logger)
-        elif tag == 'PAT':
-            transfer_results_patho(paths=paths, input_type=input_type, logger=logger, testing=testing)
-        elif tag == 'TSO':
+        elif paths['tag'] == 'PAT':
+            transfer_results_patho(paths=paths, input_type=input_type, logger=logger)
+        elif paths['tag'] == 'TSO':
             transfer_results_research(paths=paths, logger=logger)
         else:
             raise ValueError(f"Unrecognised run type: {input_type}")

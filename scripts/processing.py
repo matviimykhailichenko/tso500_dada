@@ -70,7 +70,9 @@ def main():
         check_rsync(paths=paths, logger=logger)
         check_tso500_script(paths=paths, logger=logger)
 
-        if not paths['analyzing_tag'].exists():
+        if paths['failed_tag'].exists() and not paths['analyzing_tag'].exists():
+            paths['analyzing_tag'].touch()
+        elif not paths['failed_tag'].exists() and not paths['analyzing_tag'].exists():
             paths['analyzing_tag'].touch()
             paths['queued_tag'].unlink()
 
