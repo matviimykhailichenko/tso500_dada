@@ -545,8 +545,8 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
-        paths['rnaseq_liquid_dir'] = Path(config['rnaseq_liquid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_liquid_sequencing_dir'])
-        paths['rnaseq_solid_dir'] = Path(config['rnaseq_solid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_solid_sequencing_dir'])
+        paths['rna_liquid_seq_dir'] = Path(config['rnaseq_liquid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_liquid_sequencing_dir'])
+        paths['rna_solid_seq_dir'] = Path(config['rnaseq_solid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_solid_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
         paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
 
