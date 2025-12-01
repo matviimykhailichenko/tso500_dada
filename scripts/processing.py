@@ -14,7 +14,7 @@ def create_parser():
     parser.add_argument('-t', '--testing', action='store_true', default=False)
     parser.add_argument('-tf', '--testing_fast', action='store_true', default=False)
 
-    return parser
+    return parser.parse_args()
 
 
 def main():
