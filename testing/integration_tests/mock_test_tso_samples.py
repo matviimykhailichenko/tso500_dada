@@ -17,7 +17,7 @@ def setup_environment():
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_run_mixed_runs_dir = Path(config['oncoservice_dir'] + '_TEST') / generate_illumia_string(instrument='nsx')
+    test_run_mixed_runs_dir = Path(config['research_dir'] + '_TEST') / 'Runs' / generate_illumia_string(instrument='nsx')
 
     if queue_file.exists():
         queue_file.unlink()
