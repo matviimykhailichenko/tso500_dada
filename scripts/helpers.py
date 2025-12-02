@@ -536,7 +536,7 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['rna_liquid_seq_dir'] = Path(config['rnaseq_liquid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_liquid_sequencing_dir'])
         paths['rna_solid_seq_dir'] = Path(config['rnaseq_solid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_solid_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
-        paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
+        paths['research_seq_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_dir')) / 'Runs'
 
         return paths
 
