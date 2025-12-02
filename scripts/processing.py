@@ -80,7 +80,7 @@ def main():
 
         process_object(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
-        if tag == 'ONC':
+        if tag == 'ONC' and not testing:
             run_ichorCNA(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger)
 
         transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
