@@ -273,7 +273,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['cbmed_seq_dir'] = Path(config.get('cbmed_sequencing_dir') + '_TEST' if testing else config.get('cbmed_sequencing_dir'))
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
-    paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir')) / 'Analyseergebnisse'
+    paths['research_results_dir'] = Path(config['research_dir'] + '_TEST' if testing else config['research_dir']) / 'Analyseergebnisse'
     paths['oncoservice_dir'] = Path(config.get('oncoservice_dir') + '_TEST' if testing else config.get('oncoservice_dir'))
     paths['onc_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     results_dirs_map = {
