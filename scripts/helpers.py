@@ -83,10 +83,8 @@ def is_nas_mounted(mountpoint_dir: str,
     return True
 
 
-def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, testing: bool=True):
-    results_dir = paths['results_dir']
-
-    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(results_dir)}'
+def transfer_results_oncoservice(paths: dict, logger: Logger):
+    rsync_call = f'{paths['rsync_path']} -r --checksum --exclude="work" {str(f'{paths['analysis_dir']}/')} {str(paths['results_dir'])}'
     try:
         subp_run(rsync_call, check=True, shell=True)
     except CalledProcessError as e:
@@ -95,16 +93,6 @@ def transfer_results_oncoservice(paths: dict, input_type: str, logger: Logger, t
         logger.error(msg)
         raise RuntimeError(msg)
 
-def transfer_results_cbmed(paths: dict, input_type: str, logger: Logger, testing: bool = False):
-    cbmed_results_dir: Path = paths['cbmed_results_dir']
-    flowcell: str = paths['flowcell']
-    flowcell_cbmed_dir: Path = cbmed_results_dir / 'flowcells' / flowcell
-    data_cbmed_dir: Path = flowcell_cbmed_dir / flowcell
-    dragen_cbmed_dir: Path = cbmed_results_dir / 'dragen'
-    run_name: str = paths['run_name']
-    cbmed_seq_dir: Path = paths['cbmed_seq_dir']
-    rsync_path: str = paths['rsync_path']
-    staging_temp_dir: Path = paths['staging_temp_dir']
 
 def transfer_results_cbmed(paths: dict, logger: Logger):
     results_staging = paths['staging_temp_dir'] / paths['run_name']
@@ -181,7 +169,7 @@ def transfer_results_cbmed(paths: dict, logger: Logger):
     return 0
 
 
-def transfer_results_patho(paths:dict, input_type:str, logger:Logger, testing:bool = True):
+def transfer_results_patho(paths:dict, input_type:str, logger:Logger):
     run_name: str = paths['run_name']
     staging_temp_dir: Path = paths['staging_temp_dir']
 
@@ -252,14 +240,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
-    paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
     if input_type == 'run':
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
-        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
@@ -269,8 +254,7 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
-        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
+    paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
     if tag != 'RNA':
@@ -283,7 +267,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['log_file'] = log_file
     paths['error_messages'] = config.get('error_messages', {})
     paths['tag'] = tag
-    paths['testing'] = config.get('testing', False)
     paths['sx182_mountpoint'] = Path(config.get('sx182_mountpoint'))
     paths['sy176_mountpoint'] = Path(config.get('sy176_mountpoint'))
     paths['staging_temp_dir'] = Path(config.get('staging_temp_dir'))
@@ -291,9 +274,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
     paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir')) / 'Analyseergebnisse'
+    paths['oncoservice_dir'] = Path(config.get('oncoservice_dir') + '_TEST' if testing else config.get('oncoservice_dir'))
+    paths['onc_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     results_dirs_map = {
-        'ONC': paths['onco_results_dir'] / paths['run_name'],
-        'CBM': (paths['cbmed_seq_dir'].parent / 'dragen_TEST' if testing else 'dragen') / flowcell / flowcell,
+        'ONC': paths['onc_results_dir'] / paths['run_name'],
+        'CBM': (paths['cbmed_seq_dir'].parent / ('dragen_TEST' if testing else 'dragen')),
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name']
     }
@@ -545,9 +530,10 @@ def setup_paths_scheduler(repo_root: str, testing: bool = True):
         paths['patho_seq_dir'] = Path(config['patho_seq_dir'])
         paths['onco_seq_dir'] = Path(config['oncoservice_sequencing_dir'] + '_TEST') / 'Runs' if testing else Path(config['oncoservice_sequencing_dir']) / 'Runs'
         paths['cbmed_seq_dir'] = Path(config['cbmed_sequencing_dir'] + '_TEST') if testing else Path(config['cbmed_sequencing_dir'])
-        paths['rnaseq_dir'] = Path(config['rnaseq_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_sequencing_dir'])
+        paths['rna_liquid_seq_dir'] = Path(config['rnaseq_liquid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_liquid_sequencing_dir'])
+        paths['rna_solid_seq_dir'] = Path(config['rnaseq_solid_sequencing_dir'] + '_TEST') if testing else Path(config['rnaseq_solid_sequencing_dir'])
         paths['mixed_runs_dir'] = Path(config['mixed_runs_dir'] + '_TEST') if testing else Path(config['mixed_runs_dir'])
-        paths['research_seq_dir'] = Path(config.get('research_sequencing_dir') + '_TEST' if testing else config.get('research_sequencing_dir'))
+        paths['research_seq_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_dir')) / 'Runs'
 
         return paths
 
@@ -611,8 +597,8 @@ def append_pending_run(repo_root:str, paths:dict, input_dir:Path):
     queued_tag = input_dir / paths['queued_tag']
 
     priority_map = {paths['onco_seq_dir']: [1, 'ONC'], paths['cbmed_seq_dir']: [2, 'CBM'],
-                    paths['rnaseq_dir']: [2, 'RNA'], paths['patho_seq_dir']: [3, 'PAT'],
-                    paths['research_seq_dir']: [4, 'TSO']}
+                    paths['rna_liquid_seq_dir']: [2, 'RNA'], paths['rna_solid_seq_dir']: [2, 'RNA'],
+                    paths['patho_seq_dir']: [3, 'PAT'], paths['research_seq_dir']: [4, 'TSO']}
     priority = priority_map.get(input_dir.parent.parent)[0]
     tag = priority_map.get(input_dir.parent.parent)[1]
 
@@ -695,7 +681,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
 
 
 def merge_metrics(paths: dict):
-    metrics_dir: Path = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
+    metrics_dir = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
     combined_dfs = []
     for sample_dir in metrics_dir.iterdir():
         if not sample_dir.is_dir():
@@ -729,7 +715,7 @@ def merge_metrics(paths: dict):
 
     merged_df = pd.concat(combined_dfs, axis=1)
     merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
-    out_path = metrics_dir / f'merged_MetricsOutput.tsv'
+    out_path = metrics_dir / 'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
 

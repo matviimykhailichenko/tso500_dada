@@ -1,7 +1,7 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
     rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root
-from shutil import copy as sh_copy
+from shutil import copy
 from logging_ops import notify_bot
 import re
 import yaml
@@ -87,7 +87,8 @@ def main():
     if input_type == 'run':
         append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path)
     elif input_type == 'sample':
-        append_pending_samples(repo_root=repo_root, paths=paths, input_dir=input_path, sample_ids=sample_ids, testing=testing)
+        append_pending_samples(repo_root=repo_root, paths=paths, input_dir=input_path, sample_ids=sample_ids,
+                               flowcell_name=flowcell_name, testing=testing)
     else:
         raise RuntimeError(f'Unrecognised input type: {input_type}')
 

@@ -47,6 +47,7 @@ blocking_tags:
   - PENDING.txt
   - ANALYZING.txt
   - QUEUED.txt
+  - TRANSFER_SUCCESSFUL.txt
 
 blocking_tags_validator:
   - ANALYZED.txt
