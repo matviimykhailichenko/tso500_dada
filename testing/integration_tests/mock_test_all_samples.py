@@ -14,7 +14,7 @@ def setup_environment():
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
     test_mixed_nsx_run = pipeline_dir / 'test_runs/mock/run_nsx_all'
-    server_ip = get_server_ip
+    server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_run_mixed_runs_dir = Path(config['mixed_runs_dir'] + '_TEST') / generate_illumia_string(instrument='nsx')
