@@ -684,7 +684,7 @@ def rearrange_fastqs(paths:dict, fastq_dir: Path) -> list:
 
 
 def merge_metrics(paths: dict):
-    metrics_dir: Path = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
+    metrics_dir = paths['results_dir'] / 'Logs_Intermediates' / 'MetricsOutput'
     combined_dfs = []
     for sample_dir in metrics_dir.iterdir():
         if not sample_dir.is_dir():
@@ -718,7 +718,7 @@ def merge_metrics(paths: dict):
 
     merged_df = pd.concat(combined_dfs, axis=1)
     merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
-    out_path = metrics_dir / f'merged_MetricsOutput.tsv'
+    out_path = metrics_dir / 'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
 
