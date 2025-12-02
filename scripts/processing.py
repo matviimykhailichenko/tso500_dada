@@ -85,7 +85,7 @@ def main():
 
         transfer_results(paths=paths, input_type=input_type, last_sample_queue=last_sample_queue, logger=logger, testing=testing)
 
-        if last_sample_queue:
+        if last_sample_queue and not testing:
             merge_metrics(paths=paths)
         if last_sample_run or input_type == 'run':
             paths['analyzed_tag'].touch()
