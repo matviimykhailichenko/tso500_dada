@@ -240,13 +240,11 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['tso500_script_path'] = '/usr/local/bin/DRAGEN_TruSight_Oncology_500_ctDNA.sh'
     paths['staging_temp_dir'] = Path(config['staging_temp_dir'])
     paths['input_dir'] = input_path
-    paths['oncoservice_dir'] = Path(config['oncoservice_sequencing_dir'])
     if input_type == 'run':
         paths['run_files_dir'] = input_path
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
     elif input_type == 'sample':
         paths['sample_dir'] = input_path
@@ -256,7 +254,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
-        paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
@@ -278,8 +275,10 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
     paths['patho_seq_dir'] = Path(config.get('patho_seq_dir'))
     paths['patho_results_dir'] = Path(config.get('patho_results_dir') + '_TEST' if testing else config.get('patho_results_dir'))
     paths['research_results_dir'] = Path(config.get('research_dir') + '_TEST' if testing else config.get('research_sequencing_dir')) / 'Analyseergebnisse'
+    paths['oncoservice_dir'] = Path(config.get('oncoservice_dir') + '_TEST' if testing else config.get('oncoservice_dir'))
+    paths['onc_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
     results_dirs_map = {
-        'ONC': paths['onco_results_dir'] / paths['run_name'],
+        'ONC': paths['onc_results_dir'] / paths['run_name'],
         'CBM': (paths['cbmed_seq_dir'].parent / ('dragen_TEST' if testing else 'dragen')) / flowcell / flowcell,
         'TSO': paths['research_results_dir'] / paths['run_name'],
         'PAT': paths['patho_results_dir'] / paths['run_name']
