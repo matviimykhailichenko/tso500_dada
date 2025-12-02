@@ -246,7 +246,6 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['run_dir'] = input_path.parent
         paths['run_name'] = paths['run_dir'].name
         paths['run_staging_temp_dir'] = paths['staging_temp_dir'] / paths['flowcell']
-        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
         paths['flowcell_dir'] = paths['run_dir'] / flowcell
     elif input_type == 'sample':
@@ -257,8 +256,8 @@ def setup_paths(repo_root: str, input_path: Path, input_type: str, tag: str, flo
         paths['run_name'] = f"{flowcell.split('_')[0][2:8]}_TSO500"
         paths['sample_id'] = paths['sample_dir'].name
         paths['sample_staging_temp_dir'] = paths['staging_temp_dir'] / paths['sample_id']
-        paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
         paths['onco_results_dir'] = paths['oncoservice_dir'] / 'Analyseergebnisse'
+    paths['analysis_dir'] = paths['staging_temp_dir'] / paths['run_name']
     paths['analyzing_tag'] = paths['flowcell_dir'] / config['analyzing_tag']
     paths['queued_tag'] = paths['flowcell_dir'] / config['queued_tag']
     if tag != 'RNA':
