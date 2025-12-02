@@ -13,11 +13,11 @@ def setup_environment():
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
-    test_mixed_nsx_run = pipeline_dir / 'test_runs/mock/run_nsx_tso'
+    test_research_nsx_run = pipeline_dir / 'test_runs/mock/run_nsx_tso'
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
-    test_run_mixed_runs_dir = Path(config['research_dir'] + '_TEST') / 'Runs' / generate_illumia_string(instrument='nsx')
+    test_run_research_dir = Path(config['research_dir'] + '_TEST') / 'Runs' / generate_illumia_string(instrument='nsx')
 
     if queue_file.exists():
         queue_file.unlink()
@@ -25,8 +25,8 @@ def setup_environment():
     if pending_file.exists():
         pending_file.unlink()
 
-    if not test_run_mixed_runs_dir.exists():
-        copytree(str(test_mixed_nsx_run), str(test_run_mixed_runs_dir))
+    if not test_run_research_dir.exists():
+        copytree(str(test_research_nsx_run), str(test_run_research_dir))
 
     yield
 
@@ -35,9 +35,9 @@ def setup_environment():
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
 
-        if test_run_mixed_runs_dir.exists():
-            rmtree(test_run_mixed_runs_dir)
-        print(f"Removed directory: {test_run_mixed_runs_dir}")
+        if test_research_nsx_run.exists():
+            rmtree(test_research_nsx_run)
+        print(f"Removed directory: {test_research_nsx_run}")
 
     else:
         print("Teardown skipped. Directories remain.")
