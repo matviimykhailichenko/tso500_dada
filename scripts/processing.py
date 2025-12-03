@@ -44,8 +44,9 @@ def main():
     if queue is None:
         return
 
-    busy_tag.touch()
-    idle_tag.unlink()
+    if not testing_fast:
+        busy_tag.touch()
+        idle_tag.unlink()
 
     input_path, input_type, _, tag, flowcell = queue.iloc[0]
 
@@ -98,8 +99,9 @@ def main():
         paths['analyzing_tag'].unlink()
         raise RuntimeError
     finally:
-        idle_tag.touch()
-        busy_tag.unlink()
+        if not testing_fast:
+            idle_tag.touch()
+            busy_tag.unlink()
 
 
 if __name__ == "__main__":
