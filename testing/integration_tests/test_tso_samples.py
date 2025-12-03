@@ -13,11 +13,15 @@ def setup_environment():
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
         pipeline_dir = Path(config['pipeline_dir'])
-    test_research_nsx_run = pipeline_dir / 'test_runs/run_nsx_tso'
+    test_research_nsx_run = pipeline_dir / 'test_runs/nsx_tso'
     server_ip = get_server_ip()
     queue_file = pipeline_dir.parent.parent / f'{server_ip}_QUEUE.txt'
     pending_file = pipeline_dir.parent.parent / f'{server_ip}_PENDING.txt'
     test_run_research_dir = Path(config['research_dir'] + '_TEST') / 'Runs' / generate_illumia_string(instrument='nsx')
+    queued_tag = test_run_research_dir / config['queued_tag']
+    analyzing_tag = test_run_research_dir / config['analyzing_tag']
+    analyzed_tag = test_run_research_dir / config['analyzed_tag']
+    failed_tag = test_run_research_dir / config['failed_tag']
 
     if queue_file.exists():
         queue_file.unlink()
@@ -35,12 +39,18 @@ def setup_environment():
     if user_input.lower() == 'y':
         print("Proceeding with teardown...")
 
-        if test_research_nsx_run.exists():
-            rmtree(test_research_nsx_run)
-        print(f"Removed directory: {test_research_nsx_run}")
+        if queued_tag.exists():
+            rmtree(queued_tag)
+        if analyzing_tag.exists():
+            rmtree(analyzing_tag)
+        if analyzed_tag.exists():
+            rmtree(analyzed_tag)
+        if failed_tag.exists():
+            rmtree(failed_tag)
+        print(f"Removed all tags")
 
     else:
-        print("Teardown skipped. Directories remain.")
+        print("Teardown skipped. Tags remain.")
 
     print("The test is finished.")
 
