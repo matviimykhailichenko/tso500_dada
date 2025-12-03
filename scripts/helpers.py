@@ -554,31 +554,32 @@ def transfer_results(paths: dict, input_type: str, last_sample_queue: bool, test
                            input_type=input_type, last_sample_queue=last_sample_queue)
 
 
-def get_queue(server_ip):
+def get_queue(server_ip: str, step: str):
     repo_root = get_repo_root()
-    queue_file = Path(repo_root).parent.parent / f'{server_ip}_QUEUE.txt'
+    running_file = Path(repo_root).parent.parent / f'{server_ip}_RUNNING.txt'
     pending_file = Path(repo_root).parent.parent / f'{server_ip}_PENDING.txt'
     pending_lock = FileLock(Path(str(pending_file) + '.lock'), timeout=10)
 
     if not pending_file.stat().st_size < 38:
         queue = pd.read_csv(pending_file, sep='\t')
         queue = queue.sort_values(by='Priority', ascending=True)
-        queue_no_processing = queue.iloc[1:, ]
-        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
-
+        queue_no_running = queue.iloc[1:, ]
+        running_object = queue.iloc[0,]
+        if step == 'processing':
+            queue_no_running.to_csv(pending_file, sep='\t', index=False)
+            running_object.to_csv(running_file, sep='\t', index=False)
         pending_blank = f'{repo_root}/files/PENDING_blank.txt'
         copy(pending_blank, pending_file)
         pending_lock.release()
 
-    elif not queue_file.stat().st_size < 38:
-        queue = pd.read_csv(queue_file, sep='\t')
-        queue_no_processing = queue.iloc[1:, ]
-        queue_no_processing.to_csv(queue_file, sep='\t', index=False)
+        if not running_file.stat().st_size < 38:
+            running = pd.read_csv(running_file, sep='\t')
+            queue_concat = pd.concat([running, queue_no_running], ignore_index=True)
 
     else:
         return None
 
-    return queue
+    return queue_concat
 
 
 def setup_paths_scheduler(repo_root: str, testing: bool = True):
@@ -653,6 +654,7 @@ def scan_dir_nsqx(repo_root:str, run_dir: Path, testing:bool = True):
 
     return fastq_dir
 
+
 def append_pending_run(paths:dict, input_dir:Path):
     repo_root = get_repo_root()
     queued_tag = input_dir / paths['queued_tag']
@@ -677,7 +679,7 @@ def append_pending_run(paths:dict, input_dir:Path):
     if server is None:
         server_loads = []
         for server_ip in paths['available_servers']:
-            current_queue = get_queue(server_ip=server_ip)
+            current_queue = get_queue(server_ip=server_ip, step='scheduling')
             server_loads.append(current_queue.shape[0])
         server = min(server_loads)
 
@@ -686,7 +688,7 @@ def append_pending_run(paths:dict, input_dir:Path):
 
     queued_tag.touch()
 
-# Danger - AI-written function!
+
 def append_pending_samples(repo_root: str, paths: dict, flowcell_name: str, input_dir: Path, sample_ids: list):
     with open(f'{repo_root}/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -788,6 +790,7 @@ def merge_metrics(paths: dict):
     out_path = metrics_dir / f'merged_MetricsOutput.tsv'
     merged_df.to_csv(out_path, sep='\t', index=False)
 
+
 def get_repo_root() -> str:
     script_path = Path(__file__).parent
     try:
@@ -798,6 +801,7 @@ def get_repo_root() -> str:
         return root
     except CalledProcessError:
         raise RuntimeError("Not inside a git repository")
+
 
 def validate_samplesheet(repo_root: str, input_type: str, config, sample_sheet: Path) -> tuple[bool, str]:
     if input_type == "run":

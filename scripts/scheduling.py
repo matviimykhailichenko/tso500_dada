@@ -1,6 +1,6 @@
 import argparse
 from helpers import scan_dir_nsq6000, scan_dir_nsqx, append_pending_run, append_pending_samples, \
-    rearrange_fastqs, setup_paths_scheduler, get_server_ip, get_repo_root
+    rearrange_fastqs, setup_paths_scheduler, get_repo_root
 from shutil import copy
 from logging_ops import notify_bot
 import re
@@ -28,12 +28,12 @@ def main():
                 paths['cbmed_seq_dir']]
 
     for server in paths['available_servers']:
-        queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
-        pending_file = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
-        if not queue_file.exists() or queue_file.stat().st_size < 38:
-            copy(pending_blank, queue_file)
-        if not pending_file.exists() or pending_file.stat().st_size < 38:
-            copy(pending_blank, pending_file)
+        paths['running_file'] = Path(repo_root).parent.parent / f'{server}_RUNNING.txt'
+        paths['pending_file'] = Path(repo_root).parent.parent / f'{server}_PENDING.txt'
+        if not paths['running_file'].exists() or paths['running_file'].stat().st_size < 38:
+            copy(pending_blank, paths['running_file'])
+        if not paths['pending_file'].exists() or paths['pending_file'].stat().st_size < 38:
+            copy(pending_blank, paths['pending_file'])
 
     input_path = None
     input_type = None
@@ -77,9 +77,9 @@ def main():
         return
 
     if input_type == 'run':
-        append_pending_run(repo_root=repo_root, paths=paths, input_dir=input_path)
+        append_pending_run(paths=paths, input_dir=input_path)
     elif input_type == 'sample':
-        append_pending_samples(repo_root=repo_root, paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
+        append_pending_samples(paths=paths, flowcell_name=flowcell_name, input_dir=input_path, sample_ids=sample_ids, testing=testing)
     else:
         raise RuntimeError(f'Unrecognised input type: {input_type}')
 

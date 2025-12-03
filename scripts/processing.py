@@ -34,7 +34,7 @@ def main():
     if not is_server_available(repo_root=repo_root):
         return
 
-    queue = get_queue(server_ip=server_ip)
+    queue = get_queue(server_ip=server_ip, step='processing')
 
     if queue is None:
         return
