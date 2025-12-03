@@ -19,8 +19,10 @@ def create_parser():
 
 def main():
     args = create_parser()
-    testing = args.testing
     testing_fast = args.testing_fast
+    testing = args.testing
+    if testing_fast:
+        testing = True
     repo_root = get_repo_root()
 
     with open(f'{repo_root}/config.yaml', 'r') as file:
@@ -31,7 +33,7 @@ def main():
         idle_tag = server_availability_dir / server / config['server_idle_tag']
         busy_tag = server_availability_dir / server / config['server_busy_tag']
 
-    if not is_server_available(repo_root=repo_root):
+    if not testing_fast and not is_server_available(repo_root=repo_root):
         return
 
     queue_file = Path(repo_root).parent.parent / f'{server}_QUEUE.txt'
