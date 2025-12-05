@@ -1,3 +1,0 @@
-Path	InputType	Priority	Tag	Flowcell
-/mnt/NovaseqXplus/07_Oncoservice_TEST/Runs/test_run_onco_nsqx/FastqGeneration/Sample1-ONC	sample	1	ONC	fastq
-/mnt/NovaseqXplus/07_Oncoservice_TEST/Runs/test_run_onco_nsqx/FastqGeneration/Sample2-ONC	sample	1	ONC	fastq

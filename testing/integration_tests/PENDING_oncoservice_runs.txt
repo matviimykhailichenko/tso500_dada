@@ -1,2 +1,0 @@
-Path	InputType	Priority	Tag	Flowcell
-/mnt/Novaseq/07_Oncoservice/Runs_TEST/test_run_oncoservice/250123_A01664_0443_AH2J5YDMX2	run	1	ONC	250123_A01664_0443_AH2J5YDMX2

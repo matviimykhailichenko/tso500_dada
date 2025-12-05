@@ -1,9 +1,0 @@
-Path	InputType	Priority	Tag	Flowcell
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample1	sample	1	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample2	sample	2	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample3	sample	3	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample4	sample	4	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample5	sample	5	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample6	sample	6	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample7	sample	7	CBM	20250707_LH00803_0012_B232KMCLT3
-/mnt/Novaseq/TSO_pipeline/01_Staging/pure-python-refactor/testing/integration_tests/mock/20250707_LH00803_0012_B232KMCLT3/FastqGeneration/Sample8	sample	8	CBM	20250707_LH00803_0012_B232KMCLT3
