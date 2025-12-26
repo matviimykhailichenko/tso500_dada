@@ -1,13 +1,7 @@
-# The TSO500 DRAGEN Automated Data Analysis pipeline
+The TSO500 DRAGEN Automated Data Analysis Pipeline
 
-_Instructions_:
-1. clone the repo;
-2. install python 3.12.3 on other machine trough docker (same OS as on target machine) + pyenv;
-3. set up the crontab.
+This pipeline is designed to automate end-to-end analysis of TSO500 sequencing data originating from Illumina and comparable black-boxed vendor workflows used in diagnostic centers and private service providers.
 
-Remarks:
-- naming convention is snake_case
-- everything should be explicit
-- indexes are from https://support-docs.illumina.com/SHARE/AdapterSequences/Content/SHARE/AdapterSeq/Illumina_DNA/IlluminaUDIndexes.htm
+It covers data staging, computational processing, results transfer, messaging, archiving, and automated email notifications.
 
-If something breaks, reach matvii.mykhailichenko@medunigraz.at.
+Source code will be here soon.
